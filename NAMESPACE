@@ -1,0 +1,99 @@
+import(methods)
+importFrom(stats, setNames)
+import(BiocGenerics)
+import(S4Vectors)
+import(IRanges)
+import(GenomeInfoDb)
+
+#import(GenomicRanges)
+
+importClassesFrom(GenomicRanges,
+    GenomicRanges, GRanges, GRangesList, GenomicRangesORGRangesList,
+    Assays, ShallowData, ShallowSimpleListAssays
+)
+
+importFrom(GenomicRanges,
+    GRanges, GRangesList,
+    SummarizedExperiment,
+    exptData, "exptData<-",
+    rowRanges, "rowRanges<-",
+    colData, "colData<-",
+    assayNames, "assayNames<-",
+    assays, "assays<-",
+    assay, "assay<-"
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 classes
+###
+
+exportClasses(RangedSummarizedExperiment)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 methods for generics not defined in SummarizedExperiment
+###
+
+exportMethods(
+    length,
+    names, "names<-",
+    "dimnames<-",
+    "[", "[<-", "[[", "[[<-", "$", "$<-",
+    as.data.frame,
+    coerce,
+    c,
+    cbind,
+    rbind,
+    show,
+    duplicated, match,
+    start, "start<-", end, "end<-", width, "width<-",
+    merge,
+    strand, "strand<-",
+    compare,
+
+    ## Generics defined in S4Vectors:
+    elementMetadata, "elementMetadata<-",
+    mcols, "mcols<-",
+    values, "values<-",
+    subset,
+
+    ## Generics defined in IRanges:
+    ranges, "ranges<-",
+
+    ## Generics defined in GenomeInfoDb:
+    seqinfo, "seqinfo<-",
+    seqnames, "seqnames<-",
+
+    ## Generics defined in GenomicRanges:
+    SummarizedExperiment,
+    exptData, "exptData<-",
+    rowRanges, "rowRanges<-",
+    colData, "colData<-",
+    assayNames, "assayNames<-",
+    assays, "assays<-",
+    assay, "assay<-"
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export non-generic functions
+###
+
+export(
+    .DollarNames.RangedSummarizedExperiment
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 generics defined in SummarizedExperiment + export corresponding
+### methods
+###
+
+export(
+)
+
+### Exactly the same list as above.
+exportMethods(
+)
+
