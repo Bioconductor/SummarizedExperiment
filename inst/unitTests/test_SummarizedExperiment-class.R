@@ -73,10 +73,10 @@ test_RangedSummarizedExperiment_getters <- function()
         checkIdentical(c(length(rowRanges), nrow(colData)), dim(sset))
         checkIdentical(list(NULL, NULL), dimnames(sset))
 
-        ## row / col / exptData
+        ## row / col / metadata
         checkIdentical(rowRanges, rowRanges(sset))
         checkIdentical(colData, colData(sset))
-        checkIdentical(SimpleList(), exptData(sset))
+        checkIdentical(list(), metadata(sset))
     }
 
     ## assays
@@ -108,7 +108,7 @@ test_RangedSummarizedExperiment_setters <- function()
     for (i in length(ssetList)) {
         sset <- ssetList[[i]] 
         rowRanges <- rowRangesList[[i]] 
-        ## row / col / exptData<-
+        ## row / col / metadata<-
         ss1 <- sset
         revData <- rowRanges[rev(seq_len(length(rowRanges))),,drop=FALSE]
         rowRanges(ss1) <- revData
@@ -120,9 +120,9 @@ test_RangedSummarizedExperiment_setters <- function()
         checkIdentical(revData, colData(ss1))
         checkException(colData(ss1) <- colData(sset)[1:2,,drop=FALSE],
                        "incorrect col dimensions", TRUE)
-        lst <- SimpleList("foo", "bar")
-        exptData(ss1) <- lst
-        checkIdentical(lst, exptData(ss1))
+        lst <- list("foo", "bar")
+        metadata(ss1) <- lst
+        checkIdentical(lst, metadata(ss1))
 
         ## assay / assays
         ss1 <- sset
@@ -229,7 +229,7 @@ test_RangedSummarizedExperiment_subsetassign <- function()
         checkIdentical(rowRanges(sset)[2:1,], rowRanges(ss1)[1:2,])
         checkIdentical(rowRanges(sset[-(1:2),]), rowRanges(ss1)[-(1:2),])
         checkIdentical(colData(sset), colData(ss1))
-        checkIdentical(c(exptData(sset), exptData(sset)), exptData(ss1))
+        checkIdentical(c(metadata(sset), metadata(sset)), metadata(ss1))
         ## Rle
         ss1rle <- ss1Rle <- sset
         rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(ss1))
@@ -245,7 +245,7 @@ test_RangedSummarizedExperiment_subsetassign <- function()
         checkIdentical(colData(sset)[-(1:2),,drop=FALSE],
                        colData(ss1)[-(1:2),,drop=FALSE])
         checkIdentical(rowRanges(sset), rowRanges(ss1))
-        checkIdentical(c(exptData(sset), exptData(sset)), exptData(ss1))
+        checkIdentical(c(metadata(sset), metadata(sset)), metadata(ss1))
     }
     ## full replacement
     ss1 <- ss2 <- ssetList[[1]]

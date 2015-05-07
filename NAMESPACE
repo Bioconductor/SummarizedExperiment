@@ -21,7 +21,6 @@ importFrom(GenomicRanges,
     ## TODO: At some point, the generics below should move to the
     ## SummarizedExperiment package:
     SummarizedExperiment,
-    exptData, "exptData<-",
     rowRanges, "rowRanges<-",
     colData, "colData<-",
     assayNames, "assayNames<-",
@@ -68,6 +67,7 @@ exportMethods(
     strand, "strand<-",
 
     ## Generics defined in S4Vectors:
+    "metadata<-",
     mcols, "mcols<-",
     elementMetadata, "elementMetadata<-",
     values, "values<-",
@@ -84,7 +84,6 @@ exportMethods(
     ## Generics defined in GenomicRanges (at some point, these generics will
     ## be defined in SummarizedExperiment):
     SummarizedExperiment,
-    exptData, "exptData<-",
     rowRanges, "rowRanges<-",
     colData, "colData<-",
     assayNames, "assayNames<-",

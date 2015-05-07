@@ -40,11 +40,7 @@
 \alias{colData,RangedSummarizedExperiment-method}
 \alias{colData<-}
 \alias{colData<-,RangedSummarizedExperiment,DataFrame-method}
-\alias{exptData}
-\alias{exptData,RangedSummarizedExperiment-method}
-\alias{exptData<-}
-\alias{exptData<-,RangedSummarizedExperiment,SimpleList-method}
-\alias{exptData<-,RangedSummarizedExperiment,list-method}
+\alias{metadata<-,RangedSummarizedExperiment-method}
 \alias{dim,RangedSummarizedExperiment-method}
 \alias{dimnames,RangedSummarizedExperiment-method}
 \alias{dimnames<-,RangedSummarizedExperiment,NULL-method}
@@ -122,7 +118,7 @@
 
 SummarizedExperiment(assays, ...)
 \S4method{SummarizedExperiment}{SimpleList}(assays, rowRanges = GRangesList(),
-    colData = DataFrame(), exptData = SimpleList())
+    colData = DataFrame(), metadata = list())
 \S4method{SummarizedExperiment}{missing}(assays, ...)
 \S4method{SummarizedExperiment}{list}(assays, ...)
 \S4method{SummarizedExperiment}{matrix}(assays, ...)
@@ -139,8 +135,6 @@ rowRanges(x, ...)
 rowRanges(x, ...) <- value
 colData(x, ...)
 colData(x, ...) <- value
-exptData(x, ...)
-exptData(x, ...) <- value
 \S4method{dim}{RangedSummarizedExperiment}(x)
 \S4method{dimnames}{RangedSummarizedExperiment}(x)
 \S4method{dimnames}{RangedSummarizedExperiment,NULL}(x) <- value
@@ -187,7 +181,7 @@ exptData(x, ...) <- value
     samples. Row names, if present, become the column names of the
     \code{RangedSummarizedExperiment}.}
 
-  \item{exptData}{An optional \code{SimpleList} of arbitrary content
+  \item{metadata}{An optional \code{list} of arbitrary content
     describing the overall experiment.}
 
   \item{...}{For \code{SummarizedExperiment}, S4 methods \code{list}
@@ -287,9 +281,9 @@ exptData(x, ...) <- value
   A \code{RangedSummarizedExperiment} can also contain information about the
   overall experiment, for instance the lab in which it was conducted,
   the publications with which it is associated, etc. This information is
-  stored as a \code{\linkS4class{SimpleList}-class}, accessible using
-  the \code{exptData} function. The form of the data associated with the
-  experiment is left to the discretion of the user.
+  stored as a \code{list} object, accessible using the \code{metadata}
+  function. The form of the data associated with the experiment is left to
+  the discretion of the user.
 
   The \code{RangedSummarizedExperiment} is appropriate for matrix-like
   data. The data are accessed using the \code{assays} function,
@@ -304,8 +298,8 @@ exptData(x, ...) <- value
   The \code{RangedSummarizedExperiment} class has the following slots; this
   detail of class structure is not relevant to the user.
   \describe{
-    \item{\code{exptData}}{A \link{SimpleList}-class instance containing
-      information about the overall experiment.}
+    \item{\code{metadata}}{A \code{list} containing information about the
+      overall experiment.}
     \item{\code{rowRanges}}{A \link{GRanges}-class instance defining the
       ranges of interest and associated metadata.}
     \item{\code{colData}}{A \link{DataFrame}-class instance describing
@@ -355,9 +349,9 @@ exptData(x, ...) <- value
       names of \code{value} must be NULL or consistent with the existing
       column names of \code{x}.}
 
-    \item{\code{exptData(x)}, \code{exptData(x) <- value}:}{Get or set
-      the experiment data. \code{value} is a \code{list} or
-      \code{SimpleList} instance, with arbitrary content.}
+    \item{\code{metadata(x)}, \code{metadata(x) <- value}:}{Get or set
+      the experiment data. \code{value} is a \code{list} with arbitrary
+      content.}
 
     \item{\code{dim(x)}:}{Get the dimensions (ranges x samples) of the
       \code{RangedSummarizedExperiment}.}
@@ -467,8 +461,8 @@ exptData(x, ...) <- value
       and the same subjects (columns in \code{assays}). Duplicate columns
       of \code{colData} must contain the same data. 
 
-      \code{exptData} from all objects are combined into a
-      \code{SimpleList} with no name checking.
+      \code{metadata} from all objects are combined into a
+      \code{list} with no name checking.
 
     }
 
@@ -538,6 +532,7 @@ exptData(x, ...) <- value
   \link{GRanges},
   \link[S4Vectors]{DataFrame},
   \link[S4Vectors]{SimpleList},
+  \link[S4Vectors]{Annotated}
 }
 
 \examples{

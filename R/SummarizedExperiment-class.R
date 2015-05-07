@@ -2,8 +2,8 @@
 ## RangedSummarizedExperiment
 
 setClass("RangedSummarizedExperiment",
+    contains="Annotated",                     # for metadata() getter/setter
     representation(
-        exptData="SimpleList",                # overall description
         rowRanges="GenomicRangesORGRangesList", # rows and their annotations
         colData="DataFrame",                  # columns and their annotations
         assays="Assays"),                     # Data -- e.g., list of matricies
@@ -74,7 +74,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 
 setMethod(SummarizedExperiment, "SimpleList",
    function(assays, rowRanges=GRangesList(), colData=DataFrame(),
-            exptData=SimpleList())
+            metadata=list())
 {
     if (missing(rowRanges) && 0L != length(assays)) {
         rowRanges <- .GRangesList_assays(assays)
@@ -97,7 +97,7 @@ setMethod(SummarizedExperiment, "SimpleList",
         assays <- endoapply(assays, unname)
     if (!is(assays, "Assays"))
         assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
-    new("RangedSummarizedExperiment", exptData=exptData,
+    new("RangedSummarizedExperiment", metadata=metadata,
                                       rowRanges=rowRanges,
                                       colData=colData,
                                       assays=assays)
@@ -163,19 +163,13 @@ setMethod("value", "RangedSummarizedExperiment",  # not exported
 
 ## Simple 'getters' / 'setters'
 
-setMethod(exptData, "RangedSummarizedExperiment",
-    function(x, ...) value(x, "exptData"))
-
-setReplaceMethod("exptData", c("RangedSummarizedExperiment", "SimpleList"),
-    function(x, ..., value)
+## We override the default "metadata<-" method (defined in S4Vectors for
+## Annotated objects) with a more memory efficient one that uses clone()
+## in order to minimize data copy (ShallowData trick).
+setReplaceMethod("metadata", "RangedSummarizedExperiment",
+    function(x, value)
 {
-    GenomicRanges:::clone(x, ..., exptData=value)
-})
-
-setReplaceMethod("exptData", c("RangedSummarizedExperiment", "list"),
-    function(x, ..., value)
-{
-    GenomicRanges:::clone(x, ..., exptData=SimpleList(value))
+    GenomicRanges:::clone(x, metadata=value)
 })
 
 setMethod(rowRanges, "RangedSummarizedExperiment",
@@ -498,8 +492,8 @@ setReplaceMethod("[",
     if (!missing(i) && !missing(j)) {
         ii <- as.vector(i)
         jj <- as.vector(j)
-        x <- GenomicRanges:::clone(x, ..., exptData=c(exptData(x),
-                                                      exptData(value)),
+        x <- GenomicRanges:::clone(x, ..., metadata=c(metadata(x),
+                                                      metadata(value)),
             rowRanges=local({
                 r <- rowRanges(x)
                 r[i] <- rowRanges(value)
@@ -515,8 +509,8 @@ setReplaceMethod("[",
         msg <- .valid.SummarizedExperiment.assays_dims(x)
     } else if (missing(i)) {
         jj <- as.vector(j)
-        x <- GenomicRanges:::clone(x, ..., exptData=c(exptData(x),
-                                                      exptData(value)),
+        x <- GenomicRanges:::clone(x, ..., metadata=c(metadata(x),
+                                                      metadata(value)),
             colData=local({
                 c <- colData(x)
                 c[j,] <- colData(value)
@@ -527,8 +521,8 @@ setReplaceMethod("[",
         msg <- .valid.SummarizedExperiment.colData_dims(x)
     } else {                            # missing(j)
         ii <- as.vector(i)
-        x <- GenomicRanges:::clone(x, ..., exptData=c(exptData(x),
-                                                      exptData(value)),
+        x <- GenomicRanges:::clone(x, ..., metadata=c(metadata(x),
+                                                      metadata(value)),
             rowRanges=local({
                 r <- rowRanges(x)
                 r[i] <- rowRanges(value)
@@ -562,10 +556,10 @@ setMethod("rbind", "RangedSummarizedExperiment",
     rowRanges <- do.call(c, lapply(args, rowRanges))
     colData <- .cbind.DataFrame(args, colData, "colData")
     assays <- .bind.arrays(args, rbind, "assays")
-    exptData <- do.call(c, lapply(args, exptData))
+    metadata <- do.call(c, lapply(args, metadata))
 
     initialize(args[[1]], assays=assays, rowRanges=rowRanges,
-               colData=colData, exptData=exptData)
+               colData=colData, metadata=metadata)
 }
 
 ## Appropriate for objects with same ranges and different samples.
@@ -584,10 +578,10 @@ setMethod("cbind", "RangedSummarizedExperiment",
     mcols(rowRanges) <- .cbind.DataFrame(args, mcols, "mcols")
     colData <- do.call(rbind, lapply(args, colData))
     assays <- .bind.arrays(args, cbind, "assays")
-    exptData <- do.call(c, lapply(args, exptData))
+    metadata <- do.call(c, lapply(args, metadata))
 
     initialize(args[[1]], assays=assays, rowRanges=rowRanges,
-               colData=colData, exptData=exptData)
+               colData=colData, metadata=metadata)
 }
 
 .compare <- function(x, GenomicRanges=FALSE)
@@ -730,10 +724,10 @@ setMethod(show, "RangedSummarizedExperiment",
     }
     cat("class:", class(object), "\n")
     cat("dim:", dim(object), "\n")
-    expt <- names(exptData(object))
+    expt <- names(metadata(object))
     if (is.null(expt))
-        expt <- character(length(exptData(object)))
-    scat("exptData(%d): %s\n", expt)
+        expt <- character(length(metadata(object)))
+    scat("metadata(%d): %s\n", expt)
     nms <- names(assays(object, withDimnames=FALSE))
     if (is.null(nms))
         nms <- character(length(assays(object, withDimnames=FALSE)))
