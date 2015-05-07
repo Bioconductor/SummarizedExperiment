@@ -66,6 +66,9 @@
 \alias{rbind,RangedSummarizedExperiment-method}
 
 % GenomicRanges compatibility methods
+\alias{Compare,ANY,RangedSummarizedExperiment-method}
+\alias{Compare,RangedSummarizedExperiment,ANY-method}
+\alias{Compare,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
 \alias{compare,ANY,RangedSummarizedExperiment-method}
 \alias{compare,RangedSummarizedExperiment,ANY-method}
 \alias{compare,RangedSummarizedExperiment,RangedSummarizedExperiment-method}

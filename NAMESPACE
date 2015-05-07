@@ -9,11 +9,17 @@ import(GenomeInfoDb)
 
 importClassesFrom(GenomicRanges,
     GenomicRanges, GRanges, GRangesList, GenomicRangesORGRangesList,
+
+    ## TODO: At some point, the helper classes below should move to the
+    ## SummarizedExperiment package:
     Assays, ShallowData, ShallowSimpleListAssays
 )
 
 importFrom(GenomicRanges,
     GRanges, GRangesList,
+
+    ## TODO: At some point, the generics below should move to the
+    ## SummarizedExperiment package:
     SummarizedExperiment,
     exptData, "exptData<-",
     rowRanges, "rowRanges<-",
@@ -28,7 +34,15 @@ importFrom(GenomicRanges,
 ### Export S4 classes
 ###
 
-exportClasses(RangedSummarizedExperiment)
+exportClasses(
+    ## TODO: Uncomment the line below once these helper classes are defined in
+    ## the SummarizedExperiment package. Otherwise, RangedSummarizedExperiment
+    ## objects that have been serialized *before* these helper classes were
+    ## moved are going to look broken (i.e. validObjet() will fail on them).
+    #Assays, ShallowData, ShallowSimpleListAssays,
+
+    RangedSummarizedExperiment
+)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,27 +50,29 @@ exportClasses(RangedSummarizedExperiment)
 ###
 
 exportMethods(
-    length,
-    names, "names<-",
-    "dimnames<-",
+    length, names, "names<-",
+    dim, dimnames, "dimnames<-",
     "[", "[<-", "[[", "[[<-", "$", "$<-",
     as.data.frame,
     coerce,
-    c,
-    cbind,
-    rbind,
     show,
-    duplicated, match,
-    start, "start<-", end, "end<-", width, "width<-",
+    c,
     merge,
+    Compare,
+
+    ## Generics defined in BiocGenerics:
+    cbind, rbind,
+    duplicated, match,
+    order, rank, sort,
+    start, "start<-", end, "end<-", width, "width<-",
     strand, "strand<-",
-    compare,
 
     ## Generics defined in S4Vectors:
-    elementMetadata, "elementMetadata<-",
     mcols, "mcols<-",
+    elementMetadata, "elementMetadata<-",
     values, "values<-",
     subset,
+    compare,
 
     ## Generics defined in IRanges:
     ranges, "ranges<-",
@@ -65,7 +81,8 @@ exportMethods(
     seqinfo, "seqinfo<-",
     seqnames, "seqnames<-",
 
-    ## Generics defined in GenomicRanges:
+    ## Generics defined in GenomicRanges (at some point, these generics will
+    ## be defined in SummarizedExperiment):
     SummarizedExperiment,
     exptData, "exptData<-",
     rowRanges, "rowRanges<-",
