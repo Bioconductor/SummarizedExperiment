@@ -2,7 +2,7 @@
 ## RangedSummarizedExperiment
 
 setClass("RangedSummarizedExperiment",
-    contains="Annotated",                     # for metadata() getter/setter
+    contains="Annotated",                     # for metadata slot/getter/setter
     representation(
         rowRanges="GenomicRangesORGRangesList", # rows and their annotations
         colData="DataFrame",                  # columns and their annotations
