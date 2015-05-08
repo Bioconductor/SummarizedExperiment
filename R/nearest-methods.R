@@ -3,6 +3,9 @@
 ### -------------------------------------------------------------------------
 ###
 
+
+### precede & follow
+
 for (f in c("precede", "follow")) {
     setMethod(f, c("RangedSummarizedExperiment", "ANY"),
         function(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
@@ -27,6 +30,8 @@ for (f in c("precede", "follow")) {
         }
     )
 }
+
+### nearest
 
 setMethod("nearest", c("RangedSummarizedExperiment", "ANY"),
     function(x, subject, select=c("arbitrary", "all"),
@@ -57,6 +62,8 @@ setMethod("nearest", c("RangedSummarizedExperiment",
     }
 )
 
+### distance
+
 setMethod("distance", c("RangedSummarizedExperiment", "ANY"),
     function(x, y, ignore.strand=FALSE, ...)
     {
@@ -82,6 +89,8 @@ setMethod("distance", c("RangedSummarizedExperiment",
         callGeneric()
     }
 )
+
+### distanceToNearest
 
 setMethod("distanceToNearest", c("RangedSummarizedExperiment", "ANY"),
     function(x, subject, algorithm=c("nclist", "intervaltree"),

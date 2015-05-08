@@ -3,11 +3,7 @@
 ### -------------------------------------------------------------------------
 
 
-### WARNING: Unlike most findOverlaps() methods, the methods for
-### RangedSummarizedExperiment below return a Hits object 'ans' that is *not*
-### consistent with 'query' (or 'subject'), in the sense that 'queryHits(ans)'
-### (or 'subjectHits(ans)') is not a valid index into 'query' (or 'subject')
-### when 'query' (or 'subject') is a RangedSummarizedExperiment object.
+### findOverlaps
 
 setMethod("findOverlaps", c("RangedSummarizedExperiment", "Vector"),
     function(query, subject, maxgap=0L, minoverlap=1L,
@@ -47,6 +43,7 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment",
     }
 )
 
+### countOverlaps
 
 setMethod("countOverlaps", c("RangedSummarizedExperiment", "Vector"),
     function(query, subject, maxgap=0L, minoverlap=1L,
@@ -82,6 +79,8 @@ setMethod("countOverlaps", c("RangedSummarizedExperiment",
         callGeneric()
     }
 )
+
+### overlapsAny & subsetByOverlaps
 
 .signatures2 <- list(
     c("RangedSummarizedExperiment", "Vector"),
