@@ -76,6 +76,10 @@ exportMethods(
 
     ## Generics defined in IRanges:
     ranges, "ranges<-",
+    shift, narrow, resize, flank, promoters, restrict, trim,
+    coverage,
+    findOverlaps, countOverlaps, overlapsAny, subsetByOverlaps,
+    precede, follow, nearest, distance, distanceToNearest,
 
     ## Generics defined in GenomeInfoDb:
     seqinfo, "seqinfo<-",

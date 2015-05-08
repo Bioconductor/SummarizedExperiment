@@ -1,6 +1,6 @@
 
 
-SummarizedExperiment or derived objects that need to be reserialized as
+SummarizedExperiment or derived objects that needed to be reserialized as
 RangedSummarizedExperiment or derived objects
 =============================================
 

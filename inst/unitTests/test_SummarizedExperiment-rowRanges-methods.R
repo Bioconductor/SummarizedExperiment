@@ -11,7 +11,6 @@ library(digest)
 
 m <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
 mlst <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
-mList <- list(m, mlst)
 assaysList <- list(gr=SimpleList(m=m), grl=SimpleList(m=mlst))
 rowRangesList <- 
     list(gr=GRanges("chr1", IRanges(1:5, 10)), 

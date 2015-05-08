@@ -529,6 +529,7 @@ colData(x, ...) <- value
 \author{Martin Morgan, \url{mtmorgan@fhcrc.org}}
 
 \seealso{
+  \link{intra-range-methods},
   \link{GRanges},
   \link[S4Vectors]{DataFrame},
   \link[S4Vectors]{SimpleList},
