@@ -743,3 +743,32 @@ setMethod(show, "RangedSummarizedExperiment",
     scat("colData names(%d): %s\n", names(colData(object)))
 })
 
+## compatibility
+
+.from_SummarizedExperiment_to_RangedSummarizedExperiment <- function(from)
+    new("RangedSummarizedExperiment", metadata=as.list(from@exptData),
+                                      rowRanges=from@rowData,
+                                      colData=from@colData,
+                                      assays=from@assays)
+
+### Should work on any object that (1) belongs to a class that now derives
+### from RangedSummarizedExperiment and (2) was created at a time when it was
+### deriving from the old SummarizedExperiment class defined in GenomicRanges.
+### For example: DESeqDataSet objects created before the definition of class
+### DESeqDataSet was modified to extend RangedSummarizedExperiment instead of
+### SummarizedExperiment.  
+setMethod(updateObject, "RangedSummarizedExperiment",
+    function(object, ..., verbose=FALSE)
+{
+    has_SummarizedExperiment_internal_structure <-
+      all(sapply(slotNames("SummarizedExperiment"), .hasSlot, object=object))
+    if (!has_SummarizedExperiment_internal_structure)
+        return(object)
+    rse <- .from_SummarizedExperiment_to_RangedSummarizedExperiment(object)
+    xtra_slotnames <- setdiff(slotNames(class(object)),
+                              slotNames("RangedSummarizedExperiment"))
+    xtra_slots <- lapply(setNames(xtra_slotnames, xtra_slotnames),
+                         slot, object=object)
+    do.call("new", c(list(Class=class(object), rse), xtra_slots))
+})
+

@@ -99,6 +99,9 @@
 % show method:
 \alias{show,RangedSummarizedExperiment-method}
 
+% compatibility:
+\alias{updateObject,RangedSummarizedExperiment-method}
+
 \title{RangedSummarizedExperiment objects}
 
 \description{

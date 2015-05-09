@@ -63,6 +63,7 @@ exportMethods(
     cbind, rbind,
     duplicated, match,
     order, rank, sort,
+    updateObject,
     start, "start<-", end, "end<-", width, "width<-",
     strand, "strand<-",
 
