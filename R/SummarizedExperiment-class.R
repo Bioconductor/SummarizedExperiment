@@ -765,10 +765,14 @@ setMethod(updateObject, "RangedSummarizedExperiment",
     if (!has_SummarizedExperiment_internal_structure)
         return(object)
     rse <- .from_SummarizedExperiment_to_RangedSummarizedExperiment(object)
-    xtra_slotnames <- setdiff(slotNames(class(object)),
-                              slotNames("RangedSummarizedExperiment"))
-    xtra_slots <- lapply(setNames(xtra_slotnames, xtra_slotnames),
-                         slot, object=object)
-    do.call("new", c(list(Class=class(object), rse), xtra_slots))
+    xslotnames <- setdiff(slotNames(class(object)), slotNames(class(rse)))
+    xslots <- attributes(object)[xslotnames]
+    #do.call("new", c(list(Class=class(object), rse), xslots))
+
+    ## The line above doesn't work because of a bug in R (see
+    ## https://stat.ethz.ch/pipermail/r-devel/2015-May/071130.html),
+    ## so we use the workaround below.
+    rse_slots <- attributes(rse)[slotNames(class(rse))]
+    do.call("new", c(list(Class=class(object)), rse_slots, xslots))
 })
 
