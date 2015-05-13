@@ -10,7 +10,7 @@ for (f in c("precede", "follow")) {
     setMethod(f, c("RangedSummarizedExperiment", "ANY"),
         function(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
         {
-            query <- rowRanges(query)
+            x <- rowRanges(x)
             callGeneric()
         }
     )
@@ -24,7 +24,7 @@ for (f in c("precede", "follow")) {
     setMethod(f, c("RangedSummarizedExperiment", "RangedSummarizedExperiment"),
         function(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
         {
-            query <- rowRanges(query)
+            x <- rowRanges(x)
             subject <- rowRanges(subject)
             callGeneric()
         }
@@ -37,7 +37,7 @@ setMethod("nearest", c("RangedSummarizedExperiment", "ANY"),
     function(x, subject, select=c("arbitrary", "all"),
              algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
     {
-        query <- rowRanges(query)
+        x <- rowRanges(x)
         callGeneric()
     }
 )
@@ -56,7 +56,7 @@ setMethod("nearest", c("RangedSummarizedExperiment",
     function(x, subject, select=c("arbitrary", "all"),
              algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
     {
-        query <- rowRanges(query)
+        x <- rowRanges(x)
         subject <- rowRanges(subject)
         callGeneric()
     }
@@ -67,7 +67,7 @@ setMethod("nearest", c("RangedSummarizedExperiment",
 setMethod("distance", c("RangedSummarizedExperiment", "ANY"),
     function(x, y, ignore.strand=FALSE, ...)
     {
-        query <- rowRanges(query)
+        x <- rowRanges(x)
         callGeneric()
     }
 )
@@ -84,7 +84,7 @@ setMethod("distance", c("RangedSummarizedExperiment",
                         "RangedSummarizedExperiment"),
     function(x, y, ignore.strand=FALSE, ...)
     {
-        query <- rowRanges(query)
+        x <- rowRanges(x)
         subject <- rowRanges(subject)
         callGeneric()
     }
@@ -96,7 +96,7 @@ setMethod("distanceToNearest", c("RangedSummarizedExperiment", "ANY"),
     function(x, subject, algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE, ...)
     {
-        query <- rowRanges(query)
+        x <- rowRanges(x)
         callGeneric()
     }
 )
@@ -115,7 +115,7 @@ setMethod("distanceToNearest", c("RangedSummarizedExperiment",
     function(x, subject, algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE, ...)
     {
-        query <- rowRanges(query)
+        x <- rowRanges(x)
         subject <- rowRanges(subject)
         callGeneric()
     }
