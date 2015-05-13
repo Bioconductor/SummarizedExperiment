@@ -20,6 +20,7 @@ importFrom(GenomicRanges,
 
     ## TODO: At some point, the generics below should move to the
     ## SummarizedExperiment package:
+    SummarizedExperiment,
     rowRanges, "rowRanges<-",
     colData, "colData<-",
     assayNames, "assayNames<-",
@@ -111,12 +112,9 @@ export(
 ###
 
 export(
-    ## R/SummarizedExperiment-class.R:
-    SummarizedExperiment
 )
 
 ### Exactly the same list as above.
 exportMethods(
-    SummarizedExperiment
 )
 
