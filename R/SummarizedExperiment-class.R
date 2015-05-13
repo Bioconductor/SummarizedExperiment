@@ -72,6 +72,10 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
     relist(GRanges(), PartitioningByEnd(integer(n), names=names))
 }
 
+### Masks GenomicRanges::SummarizedExperiment().
+setGeneric("SummarizedExperiment",
+    function(assays, ...) standardGeneric("SummarizedExperiment"))
+
 setMethod(SummarizedExperiment, "SimpleList",
    function(assays, rowRanges=GRangesList(), colData=DataFrame(),
             metadata=list())
