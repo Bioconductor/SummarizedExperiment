@@ -75,7 +75,7 @@ setMethod("distance", c("RangedSummarizedExperiment", "ANY"),
 setMethod("distance", c("ANY", "RangedSummarizedExperiment"),
     function(x, y, ignore.strand=FALSE, ...)
     {
-        subject <- rowRanges(subject)
+        y <- rowRanges(y)
         callGeneric()
     }
 )
@@ -85,7 +85,7 @@ setMethod("distance", c("RangedSummarizedExperiment",
     function(x, y, ignore.strand=FALSE, ...)
     {
         x <- rowRanges(x)
-        subject <- rowRanges(subject)
+        y <- rowRanges(y)
         callGeneric()
     }
 )
