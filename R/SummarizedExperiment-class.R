@@ -97,7 +97,7 @@ setMethod(SummarizedExperiment, "SimpleList",
         assays <- endoapply(assays, unname)
     if (!is(assays, "Assays"))
         assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
-    new("RangedSummarizedExperiment", metadata=metadata,
+    new("RangedSummarizedExperiment", metadata=as.list(metadata),
                                       rowRanges=rowRanges,
                                       colData=colData,
                                       assays=assays)
