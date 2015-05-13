@@ -4,7 +4,7 @@
 ###
 
 
-setMethod("isDisjoint", "GenomicRanges",
+setMethod("isDisjoint", "RangedSummarizedExperiment",
     function(x, ignore.strand=FALSE)
     {
         x <- rowRanges(x)
@@ -12,7 +12,7 @@ setMethod("isDisjoint", "GenomicRanges",
     }
 )
 
-setMethod("disjointBins", "GenomicRanges",
+setMethod("disjointBins", "RangedSummarizedExperiment",
     function(x, ignore.strand = FALSE)
     {
         x <- rowRanges(x)
