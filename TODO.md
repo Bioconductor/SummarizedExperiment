@@ -1,17 +1,10 @@
-# SummarizedExperiment
-
-Long term
-- Separate package
-- Separate classes for 'DataFrame' and '\*Ranges' rowData
-
 Immediate
 
-1. Implement rowRanges() as a drop-in replacement for rowData()
-2. Deprecate rowData() in favour of rowRanges()
+- Add content to the vignette stub
 
-Short term (start of next release cycle)
+Long term
 
-3. Implement separate classes for DataFrame and \*Ranges rowData()
+- Separate classes for 'DataFrame' and '\*Ranges' rowData
 
 Possibilities?
 

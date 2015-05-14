@@ -87,7 +87,7 @@
 \preformatted{rowRanges(x) <- f(rowRanges(x), ...)
 }
   where \code{f} is the name of the function and \code{...} any additional
-  arguments passed to the function.
+  arguments passed to it.
 }
 
 \seealso{
