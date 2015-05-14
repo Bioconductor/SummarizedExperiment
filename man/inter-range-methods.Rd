@@ -3,11 +3,10 @@
 \alias{inter-range-methods}
 
 \alias{isDisjoint}
-\alias{isDisjoint,GenomicRanges-method}
-\alias{isDisjoint,GRangesList-method}
+\alias{isDisjoint,RangedSummarizedExperiment-method}
 
 \alias{disjointBins}
-\alias{disjointBins,GenomicRanges-method}
+\alias{disjointBins,RangedSummarizedExperiment-method}
 
 
 \title{Inter range transformations of a RangedSummarizedExperiment object}
@@ -46,6 +45,11 @@
 }
   where \code{f} is the name of the function and \code{...} any additional
   arguments passed to it.
+}
+
+\value{
+  See \code{?`\link[GenomicRanges]{inter-range-methods}`} in the
+  \pkg{GenomicRanges} package.
 }
 
 \seealso{

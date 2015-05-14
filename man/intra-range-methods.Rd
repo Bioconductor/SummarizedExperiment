@@ -90,6 +90,11 @@
   arguments passed to it.
 }
 
+\value{
+  See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
+  \pkg{GenomicRanges} package.
+}
+
 \seealso{
   \itemize{
     \item \link{RangedSummarizedExperiment} objects.
