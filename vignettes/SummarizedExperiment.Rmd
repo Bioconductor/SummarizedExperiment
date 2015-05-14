@@ -1,0 +1,34 @@
+---
+title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
+author: "Martin Morgan"
+date: "Revised: 14 May, 2015"
+output:
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{SummarizedExperiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r style, echo=FALSE, results='asis'}
+BiocStyle::markdown()
+```
+
+# Motivating use case
+
+# Parts of a _SummarizedExperiment_
+
+## Assays
+
+## 'Row' (regions-of-interest) data
+
+### Genomic ranges or data frames?
+
+## Experimental metadata
+
+# Common operations on _SummarizedExperiment_
+
+# Case study revisited -- _SummarizedExperiment_ in action
+
+# Advanced: Extending _SummarizedExperiment_
