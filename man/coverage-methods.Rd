@@ -9,14 +9,16 @@
 \title{Coverage of a RangedSummarizedExperiment object}
 
 \description{
-  This man page documents the \code{\link[IRanges]{coverage}} method
-  for \link{RangedSummarizedExperiment} objects. This method
-  operates on the \code{rowRanges} component of the object.
+  This man page documents the \code{coverage} method for
+  \link{RangedSummarizedExperiment} objects. This method operates on
+  the \code{rowRanges} component of the object, which can be a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
 
-  See \code{?`\link[GenomicRanges]{coverage-methods}`} in the
-  \pkg{GenomicRanges} package for the \code{coverage} methods for
-  \link[GenomicRanges]{GenomicRanges} and \link[GenomicRanges]{GRangesList}
-  objects, which the method described below is based on.
+  See \code{?\link[GenomicRanges]{coverage}} in the \pkg{GenomicRanges}
+  package for the details of how \code{coverage} operates on a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
 }
 
 \usage{
@@ -29,8 +31,8 @@
     A \link{RangedSummarizedExperiment} object.
   }
   \item{shift, width, weight, method}{
-    See \code{?`\link[GenomicRanges]{coverage-methods}`} in the
-    \pkg{GenomicRanges} package.
+    See \code{?\link[GenomicRanges]{coverage}} in the \pkg{GenomicRanges}
+    package.
   }
 }
 
@@ -40,15 +42,18 @@
 }
 
 \value{
-  See \code{?`\link[GenomicRanges]{coverage-methods}`} in the
-  \pkg{GenomicRanges} package.
+  See \code{?\link[GenomicRanges]{coverage}} in the \pkg{GenomicRanges}
+  package.
 }
 
 \seealso{
   \itemize{
     \item \link{RangedSummarizedExperiment} objects.
-    \item The \link[GenomicRanges]{coverage-methods} man page in the
-          \pkg{GenomicRanges} package.
+
+    \item The \link[GenomicRanges]{coverage} man page in the
+          \pkg{GenomicRanges} package where the \code{coverage} methods
+          for \link[GenomicRanges]{GenomicRanges} and
+          \link[GenomicRanges]{GRangesList} objects are documented.
   }
 }
 
@@ -65,6 +70,7 @@ se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
                             rowRanges=rowRanges, colData=colData)
 
 cvg0 <- coverage(se0)
+cvg0
 stopifnot(identical(cvg0, coverage(rowRanges(se0))))
 }
 

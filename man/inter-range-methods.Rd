@@ -14,12 +14,14 @@
 \description{
   This man page documents \emph{inter range transformations} of a
   \link{RangedSummarizedExperiment} object. These transformations
-  operate on the \code{rowRanges} component of the object.
-
-  See \code{?`\link[GenomicRanges]{inter-range-methods}`} in the
-  \pkg{GenomicRanges} package for inter range transformations of a
+  operate on the \code{rowRanges} component of the object, which can be a
   \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object, which the transformations described below are based on.
+  object.
+
+  See \code{?\link[GenomicRanges]{isDisjoint}} in the \pkg{GenomicRanges}
+  package for the details of how these transformations operate on a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
 }
 
 \usage{
@@ -33,7 +35,7 @@
     A \link{RangedSummarizedExperiment} object.
   }
   \item{ignore.strand}{
-    See \code{?`\link[GenomicRanges]{inter-range-methods}`} in the
+    See \code{?\link[GenomicRanges]{isDisjoint}} in the
     \pkg{GenomicRanges} package.
   }
 }
@@ -48,15 +50,18 @@
 }
 
 \value{
-  See \code{?`\link[GenomicRanges]{inter-range-methods}`} in the
+  See \code{?\link[GenomicRanges]{isDisjoint}} in the
   \pkg{GenomicRanges} package.
 }
 
 \seealso{
   \itemize{
     \item \link{RangedSummarizedExperiment} objects.
-    \item The \link[GenomicRanges]{inter-range-methods} man page in the
-          \pkg{GenomicRanges} package.
+
+    \item The \link[GenomicRanges]{isDisjoint} man page in the
+          \pkg{GenomicRanges} package where \emph{inter range transformations}
+          of a \link[GenomicRanges]{GenomicRanges} or
+          \link[GenomicRanges]{GRangesList} object are documented.
   }
 }
 
@@ -76,9 +81,11 @@ isDisjoint(se0)  # FALSE
 isDisjoint(se1)  # TRUE
 
 bins0 <- disjointBins(se0)
+bins0
 stopifnot(identical(bins0, disjointBins(rowRanges(se0))))
 
 bins1 <- disjointBins(se1)
+bins1
 stopifnot(all(bins1 == bins1[1]))
 }
  

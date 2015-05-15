@@ -28,12 +28,14 @@
 \description{
   This man page documents \emph{intra range transformations} of a
   \link{RangedSummarizedExperiment} object. These transformations
-  operate on the \code{rowRanges} component of the object.
-
-  See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-  \pkg{GenomicRanges} package for intra range transformations of a
+  operate on the \code{rowRanges} component of the object, which can be a
   \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object, which the transformations described below are based on.
+  object.
+
+  See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+  package for the details of how these transformations operate on a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
 }
 
 \usage{
@@ -60,24 +62,24 @@
     A \link{RangedSummarizedExperiment} object.
   }
   \item{shift, use.names}{
-    See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-    \pkg{GenomicRanges} package.
+    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+    package.
   }
   \item{start, end, width, fix}{
-    See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-    \pkg{GenomicRanges} package.
+    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+    package.
   }
   \item{ignore.strand, both}{
-    See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-    \pkg{GenomicRanges} package.
+    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+    package.
   }
   \item{upstream, downstream}{
-    See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-    \pkg{GenomicRanges} package.
+    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+    package.
   }
   \item{keep.all.ranges}{
-    See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-    \pkg{GenomicRanges} package.
+    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+    package.
   }
 }
 
@@ -90,16 +92,14 @@
   arguments passed to it.
 }
 
-\value{
-  See \code{?`\link[GenomicRanges]{intra-range-methods}`} in the
-  \pkg{GenomicRanges} package.
-}
-
 \seealso{
   \itemize{
     \item \link{RangedSummarizedExperiment} objects.
-    \item The \link[GenomicRanges]{intra-range-methods} man page in the
-          \pkg{GenomicRanges} package.
+
+    \item The \link[GenomicRanges]{shift} man page in the
+          \pkg{GenomicRanges} package where \emph{intra range transformations}
+          of a \link[GenomicRanges]{GenomicRanges} or
+          \link[GenomicRanges]{GRangesList} object are documented.
   }
 }
 
