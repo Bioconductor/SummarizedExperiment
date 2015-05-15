@@ -9,9 +9,9 @@ Author: Martin Morgan, Valerie Obenchain, Jim Hester, Herv\'e Pag\`es
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
-Depends: R (>= 3.2), methods, GenomicRanges (>= 1.21.8)
+Depends: R (>= 3.2), methods, GenomicRanges (>= 1.21.8), Biobase
 Imports: BiocGenerics, S4Vectors, IRanges, GenomeInfoDb
-Suggests: BiocStyle, knitr, rmarkdown
+Suggests: annotate, AnnotationDbi, GenomicFeatures, BiocStyle, knitr, rmarkdown
 VignetteBuilder: knitr
 License: Artistic-2.0
 Collate: SummarizedExperiment-class.R
@@ -21,4 +21,5 @@ Collate: SummarizedExperiment-class.R
 	coverage-methods.R
 	findOverlaps-methods.R
 	nearest-methods.R
+	makeSummarizedExperimentFromExpressionSet.R
 	zzz.R

@@ -4,29 +4,8 @@ import(BiocGenerics)
 import(S4Vectors)
 import(IRanges)
 import(GenomeInfoDb)
-
-#import(GenomicRanges)
-
-importClassesFrom(GenomicRanges,
-    GenomicRanges, GRanges, GRangesList, GenomicRangesORGRangesList,
-
-    ## TODO: At some point, the helper classes below should move to the
-    ## SummarizedExperiment package:
-    Assays, ShallowData, ShallowSimpleListAssays
-)
-
-importFrom(GenomicRanges,
-    GRanges, GRangesList,
-
-    ## TODO: At some point, the generics below should move to the
-    ## SummarizedExperiment package:
-    SummarizedExperiment,
-    rowRanges, "rowRanges<-",
-    colData, "colData<-",
-    assayNames, "assayNames<-",
-    assays, "assays<-",
-    assay, "assay<-"
-)
+import(GenomicRanges)
+import(Biobase)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -103,7 +82,9 @@ exportMethods(
 ###
 
 export(
-    .DollarNames.RangedSummarizedExperiment
+    .DollarNames.RangedSummarizedExperiment,
+    makeSummarizedExperimentFromExpressionSet,
+    naiveRangeMapper, geneRangeMapper, probeRangeMapper
 )
 
 
