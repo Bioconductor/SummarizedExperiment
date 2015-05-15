@@ -121,7 +121,7 @@
     \item The \link[GenomicRanges]{findOverlaps} man page in the
           \pkg{GenomicRanges} package where the \code{findOverlaps} family
           of methods for \link[GenomicRanges]{GenomicRanges} and
-          \link[GenomicRanges]{GRangesList} objects are documented.
+          \link[GenomicRanges]{GRangesList} objects is documented.
   }
 }
 

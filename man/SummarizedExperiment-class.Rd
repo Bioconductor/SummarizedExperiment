@@ -378,24 +378,21 @@ colData(x, ...) <- value
   \code{rowRanges}.
 
   Supported operations include: \code{\link{compare}},
-  \code{\link{countOverlaps}}, \code{\link{coverage}},
-  \code{\link{disjointBins}}, \code{\link{distance}},
-  \code{\link{distanceToNearest}}, \code{\link{duplicated}},
-  \code{\link{end}}, \code{\link{end<-}}, \code{\link{findOverlaps}},
-  \code{\link{flank}}, \code{\link{follow}}, \code{\link{granges}},
-  \code{\link{isDisjoint}}, \code{\link{match}}, \code{\link{mcols}},
-  \code{\link{mcols<-}}, \code{\link{narrow}}, \code{\link{nearest}},
-  \code{\link{order}}, \code{\link{overlapsAny}}, \code{\link{precede}},
-  \code{\link{ranges}},
-  \code{\link{ranges<-}}, \code{\link{rank}}, \code{\link{resize}},
-  \code{\link{restrict}}, \code{\link{seqinfo}},
-  \code{\link{seqinfo<-}}, \code{\link{seqnames}},
-  \code{\link{shift}},
-  \code{\link{sort}}, \code{split}, \code{relistToClass},
+  \code{\link{duplicated}}, \code{\link{end}}, \code{\link{end<-}}, 
+  \code{\link{granges}}, \code{\link{match}}, \code{\link{mcols}},
+  \code{\link{mcols<-}}, \code{\link{order}}, \code{\link{ranges}},
+  \code{\link{ranges<-}}, \code{\link{rank}}, \code{\link{seqinfo}},
+  \code{\link{seqinfo<-}}, \code{\link{seqnames}}, \code{\link{sort}}, 
   \code{\link{start}}, \code{\link{start<-}},
   \code{\link{strand}}, \code{\link{strand<-}},
-  \code{\link{subsetByOverlaps}}, \code{\link{width}},
-  \code{\link{width<-}}.
+  \code{\link{width}}, \code{\link{width<-}}.
+
+  See also \code{?\link[SummarizedExperiment]{shift}},
+  \code{?\link[SummarizedExperiment]{isDisjoint}},
+  \code{?\link[SummarizedExperiment]{coverage}},
+  \code{?\link[SummarizedExperiment]{findOverlaps}}, and
+  \code{?\link[SummarizedExperiment]{nearest}} for more
+  \emph{GRanges compatibility methods}.
 
   Not all \code{\link{GRanges}-class} operations are supported, because
   they do not make sense for \sQuote{RangedSummarizedExperiment} objects
@@ -532,11 +529,20 @@ colData(x, ...) <- value
 \author{Martin Morgan, \url{mtmorgan@fhcrc.org}}
 
 \seealso{
-  \link{intra-range-methods},
-  \link{GRanges},
-  \link[S4Vectors]{DataFrame},
-  \link[S4Vectors]{SimpleList},
-  \link[S4Vectors]{Annotated}
+  \itemize{
+    \item \link[SummarizedExperiment]{shift},
+          \link[SummarizedExperiment]{isDisjoint},
+          \link[SummarizedExperiment]{coverage},
+          \link[SummarizedExperiment]{findOverlaps}, and
+          \link[SummarizedExperiment]{nearest} for more
+          \emph{GRanges compatibility methods}.
+
+    \item \link[GenomicRanges]{GRanges} objects in the \pkg{GenomicRanges}
+          package.
+
+    \item \link[S4Vectors]{DataFrame}, \link[S4Vectors]{SimpleList}, and
+          \link[S4Vectors]{Annotated} objects in the \pkg{S4Vectors} package.
+  }
 }
 
 \examples{

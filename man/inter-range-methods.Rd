@@ -88,5 +88,6 @@ bins1 <- disjointBins(se1)
 bins1
 stopifnot(all(bins1 == bins1[1]))
 }
- 
+
+\keyword{methods} 
 \keyword{utilities}
