@@ -8,13 +8,17 @@
 \alias{coerce,RangedSummarizedExperiment,ExpressionSet-method}
 
 
-\title{Make a RangedSummarizedExperiment object from an ExpressionSet}
+\title{Make a RangedSummarizedExperiment object from an ExpressionSet and
+       vice-versa}
 
 \description{
-  \code{makeSummarizedExperimentFromExpressionSet} takes an
-  \link[Biobase]{ExpressionSet} object as input and a \emph{range mapping
-  function} that maps the features to ranges.  It then returns a
-  \link{RangedSummarizedExperiment} object.
+  Coercion between \link{RangedSummarizedExperiment} and
+  \link[Biobase]{ExpressionSet} is supported in both directions.
+
+  For going from \link[Biobase]{ExpressionSet} to
+  \link{RangedSummarizedExperiment}, the
+  \code{makeSummarizedExperimentFromExpressionSet} function is also
+  provided to let the user control how to map features to ranges.
 }
 
 \usage{
@@ -50,7 +54,9 @@ geneRangeMapper(txDbPackage, key = "ENTREZID")
 }
 
 \value{
-  \code{makeSummarizedExperimentFromExpressionSet} returns a
+  \code{makeSummarizedExperimentFromExpressionSet} takes an
+  \link[Biobase]{ExpressionSet} object as input and a \emph{range mapping
+  function} that maps the features to ranges.  It then returns a
   \link{RangedSummarizedExperiment} object that corresponds to the input.
 
   The range mapping functions return a \link{GRanges} object, with the
@@ -72,10 +78,15 @@ geneRangeMapper(txDbPackage, key = "ENTREZID")
 }
 
 \examples{
+## ---------------------------------------------------------------------
+## GOING FROM ExpressionSet TO RangedSummarizedExperiment
+## ---------------------------------------------------------------------
+
 data(sample.ExpressionSet, package="Biobase")
 
-# using the naive coercion
+# 2 equivalent ways of doing the naive coercion
 makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet)
+as(sample.ExpressionSet, "RangedSummarizedExperiment")
 
 # using probe range mapper
 makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet, probeRangeMapper)
@@ -83,6 +94,14 @@ makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet, probeRangeMapper
 # using the gene range mapper
 makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet,
                                           geneRangeMapper("TxDb.Hsapiens.UCSC.hg19.knownGene"))
+
+## ---------------------------------------------------------------------
+## GOING FROM RangedSummarizedExperiment TO ExpressionSet
+## ---------------------------------------------------------------------
+
+example(RangedSummarizedExperiment)  # to create 'sset'
+sset
+as(sset, "ExpressionSet")
 }
 
 \keyword{manip}
