@@ -12,16 +12,8 @@
 \title{Inter range transformations of a RangedSummarizedExperiment object}
 
 \description{
-  This man page documents \emph{inter range transformations} of a
-  \link{RangedSummarizedExperiment} object. These transformations
-  operate on the \code{rowRanges} component of the object, which can be a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object.
-
-  See \code{?\link[GenomicRanges]{isDisjoint}} in the \pkg{GenomicRanges}
-  package for the details of how these transformations operate on a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object.
+  This man page documents the \emph{inter range transformations} that are
+  supported on \link{RangedSummarizedExperiment} objects.
 }
 
 \usage{
@@ -41,12 +33,22 @@
 }
 
 \details{
-  Any of these functions performs the following transformation on
-  \link{RangedSummarizedExperiment} object \code{x}:
-\preformatted{f(rowRanges(x), ...)
+  These transformations operate on the \code{rowRanges} component of the
+  \link{RangedSummarizedExperiment} object, which can be a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
+
+  More precisely, any of the above functions performs the following
+  transformation on \link{RangedSummarizedExperiment} object \code{x}:
+\preformatted{    f(rowRanges(x), ...)
 }
   where \code{f} is the name of the function and \code{...} any additional
   arguments passed to it.
+
+  See \code{?\link[GenomicRanges]{isDisjoint}} in the \pkg{GenomicRanges}
+  package for the details of how these transformations operate on a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
 }
 
 \value{

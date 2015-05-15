@@ -10,15 +10,7 @@
 
 \description{
   This man page documents the \code{coverage} method for
-  \link{RangedSummarizedExperiment} objects. This method operates on
-  the \code{rowRanges} component of the object, which can be a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object.
-
-  See \code{?\link[GenomicRanges]{coverage}} in the \pkg{GenomicRanges}
-  package for the details of how \code{coverage} operates on a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object.
+  \link{RangedSummarizedExperiment} objects.
 }
 
 \usage{
@@ -37,8 +29,18 @@
 }
 
 \details{
-  On a \link{RangedSummarizedExperiment} object \code{x},
+  This method operates on the \code{rowRanges} component of the
+  \link{RangedSummarizedExperiment} object, which can be a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
+
+  More precisely, on \link{RangedSummarizedExperiment} object \code{x},
   \code{coverage(x, ...)} is equivalent to \code{coverage(rowRanges(x), ...)}.
+
+  See \code{?\link[GenomicRanges]{coverage}} in the \pkg{GenomicRanges}
+  package for the details of how \code{coverage} operates on a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
 }
 
 \value{

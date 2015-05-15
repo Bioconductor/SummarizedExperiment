@@ -31,17 +31,9 @@
 \title{Finding the nearest range neighbor in RangedSummarizedExperiment objects}
 
 \description{
-  This man page documents the \code{nearest} method and family (\code{precede},
-  \code{follow}, \code{distance}, and \code{distanceToNearest} methods) for
-  \link{RangedSummarizedExperiment} objects. These methods
-  operate on the \code{rowRanges} component of the object, which can be a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object.
-
-  See \code{?\link[GenomicRanges]{nearest}} in the \pkg{GenomicRanges}
-  package for the details of how \code{nearest} and family operate on
-  \link[GenomicRanges]{GenomicRanges} and \link[GenomicRanges]{GRangesList}
-  objects.
+  This man page documents the \code{nearest} methods and family (i.e.
+  \code{precede}, \code{follow}, \code{distance}, and \code{distanceToNearest}
+  methods) for \link{RangedSummarizedExperiment} objects.
 }
 
 \usage{
@@ -71,7 +63,7 @@
 
 \arguments{
   \item{x, subject}{
-    One of the two arguments must be a \link{RangedSummarizedExperiment}
+    One of these two arguments must be a \link{RangedSummarizedExperiment}
     object.
   }
   \item{select, ignore.strand, algorithm}{
@@ -86,10 +78,21 @@
 }
 
 \details{
-  If any of these functions is passed an \code{x}, \code{subject}, or \code{y}
-  that is a \link{RangedSummarizedExperiment} object, then it behaves as if
-  \code{rowRanges(x)}, \code{rowRanges(subject)}, and/or \code{rowRanges(y)}
-  had been passed instead.
+  These methods operate on the \code{rowRanges} component of the
+  \link{RangedSummarizedExperiment} object, which can be a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
+
+  More precisely, if any of the above functions is passed a
+  \link{RangedSummarizedExperiment} object thru the \code{x}, \code{subject},
+  and/or \code{y} argument, then it behaves as if \code{rowRanges(x)},
+  \code{rowRanges(subject)}, and/or \code{rowRanges(y)} had been passed
+  instead.
+
+  See \code{?\link[GenomicRanges]{nearest}} in the \pkg{GenomicRanges}
+  package for the details of how \code{nearest} and family operate on
+  \link[GenomicRanges]{GenomicRanges} and \link[GenomicRanges]{GRangesList}
+  objects.
 }
 
 \value{

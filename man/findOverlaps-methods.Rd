@@ -26,17 +26,9 @@
 \title{Finding overlapping ranges in RangedSummarizedExperiment objects}
 
 \description{
-  This man page documents the \code{findOverlaps} method and family
-  (\code{countOverlaps}, \code{overlapsAny}, and \code{subsetByOverlaps}
-  methods) for \link{RangedSummarizedExperiment} objects. These methods
-  operate on the \code{rowRanges} component of the object, which can be a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
-  object.
-
-  See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges}
-  package for the details of how \code{findOverlaps} and family operate on
-  \link[GenomicRanges]{GenomicRanges} and \link[GenomicRanges]{GRangesList}
-  objects.
+  This man page documents the \code{findOverlaps} methods and family
+  (i.e. \code{countOverlaps}, \code{overlapsAny}, and \code{subsetByOverlaps}
+  methods) for \link{RangedSummarizedExperiment} objects.
 }
 
 \usage{
@@ -89,7 +81,7 @@
 
 \arguments{
   \item{query, subject}{
-    One of the two arguments must be a \link{RangedSummarizedExperiment}
+    One of these two arguments must be a \link{RangedSummarizedExperiment}
     object.
   }
   \item{maxgap, minoverlap, type}{
@@ -103,10 +95,20 @@
 }
 
 \details{
-  If any of these functions is passed a \code{query} or \code{subject} that
-  is a \link{RangedSummarizedExperiment} object, then it behaves as if
-  \code{rowRanges(query)} and/or \code{rowRanges(subject)} had been passed
-  instead.
+  These methods operate on the \code{rowRanges} component of the
+  \link{RangedSummarizedExperiment} object, which can be a
+  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  object.
+
+  More precisely, if any of the above functions is passed a
+  \link{RangedSummarizedExperiment} object thru the \code{query} and/or
+  \code{subject} argument, then it behaves as if \code{rowRanges(query)}
+  and/or \code{rowRanges(subject)} had been passed instead.
+
+  See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges}
+  package for the details of how \code{findOverlaps} and family operate on
+  \link[GenomicRanges]{GenomicRanges} and \link[GenomicRanges]{GRangesList}
+  objects.
 }
 
 \value{
