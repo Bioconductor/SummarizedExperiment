@@ -19,8 +19,8 @@ STEP 2: Prepare list of rda files to update.
   R="$HOME/bin/R-3.2"
   R_SCRIPT="scriptfile <- system.file('scripts', "
   R_SCRIPT="$R_SCRIPT 'prepare_list_of_rda_files_to_update.R', "
-  R_SCRIPT="$R_SCRIPT package='SummarizedExperiment')"
-  R_SCRIPT="$R_SCRIPT; scriptfile; source(scriptfile)"
+  R_SCRIPT="$R_SCRIPT package='SummarizedExperiment', mustWork=TRUE)"
+  R_SCRIPT="$R_SCRIPT; source(scriptfile)"
   echo "$R_SCRIPT" | $R --vanilla \
       > prepare_list_of_rda_files_to_update.log 2>&1 &
 

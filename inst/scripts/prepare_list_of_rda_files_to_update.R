@@ -33,12 +33,11 @@
 ###   4. Package where class of object to update is defined.
 ###
 
-infile <- "rda_files"
-outfile <- "rda_files_to_update"
+INFILE <- "rda_files"
+OUTFILE <- "rda_files_to_update"
 
-rda_files <- read.table(infile, stringsAsFactors=FALSE)[[1L]]
-
-library(SummarizedExperiment)
+library(BiocInstaller)
+available_pkgs <- rownames(available.packages(contrib.url(biocinstallRepos())))
 
 installAndLoadPkg <- function(package)
 {
@@ -49,32 +48,41 @@ installAndLoadPkg <- function(package)
     suppressWarnings(suppressPackageStartupMessages(
         library(BiocInstaller, quietly=TRUE)
     ))
-    biocLite(pkg)
+    biocLite(package)
     suppressWarnings(suppressPackageStartupMessages(
-        library(pkg, character.only=TRUE, quietly=TRUE)
+        library(package, character.only=TRUE, quietly=TRUE)
     ))
 }
 
-cat("", file=outfile)  # create (or overwrite) empty output file
-for (i in seq_along(rda_files)) {
-    rda_path <- rda_files[[i]]
+library(SummarizedExperiment)
 
-    cat("[", i , "/", length(rda_files), "] Loading ",
-        rda_path, " ... ", sep="")
-    envir <- new.env(parent=emptyenv())
-    load(rda_path, envir=envir)
-    cat("OK\n")
+prepareListOfRdaFilesToUpdate <- function(rda_files, outfile="")
+{
+    cat("", file=outfile)  # create (or overwrite) empty output file
+    for (i in seq_along(rda_files)) {
+        rda_path <- rda_files[[i]]
 
-    for (objname in names(envir)) {
-        obj <- get(objname, envir=envir)
-        class_pkg <- attr(class(obj), "package")
-        if (!is.null(class_pkg))
+        cat("[", i , "/", length(rda_files), "] Loading ", rda_path, " ... ",
+            sep="")
+        envir <- new.env(parent=emptyenv())
+        load(rda_path, envir=envir)
+        cat("OK\n")
+
+        for (objname in names(envir)) {
+            obj <- get(objname, envir=envir)
+            class_pkg <- attr(class(obj), "package")
+            if (is.null(class_pkg) || !(class_pkg %in% available_pkgs))
+                next
             installAndLoadPkg(class_pkg)
-        if (is(obj, "SummarizedExperiment")
-         || is(obj, "RangedSummarizedExperiment")) {
-            cat(rda_path, "\t", objname, "\t", class(obj), "\t",
-                class_pkg, "\n", sep="", file=outfile, append=TRUE)
+            if (is(obj, "SummarizedExperiment")
+             || is(obj, "RangedSummarizedExperiment")) {
+                cat(rda_path, "\t", objname, "\t", class(obj), "\t",
+                    class_pkg, "\n", sep="", file=outfile, append=TRUE)
+            }
         }
     }
 }
+
+rda_files <- read.table(INFILE, stringsAsFactors=FALSE)[[1L]]
+prepareListOfRdaFilesToUpdate(rda_files, outfile=OUTFILE)
 
