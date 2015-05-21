@@ -37,7 +37,6 @@ infile <- "rda_files"
 outfile <- "rda_files_to_update"
 
 rda_files <- read.table(infile, stringsAsFactors=FALSE)[[1L]]
-file.remove(outfile)
 
 library(SummarizedExperiment)
 
@@ -56,6 +55,7 @@ installAndLoadPkg <- function(package)
     ))
 }
 
+cat("", file=outfile)  # create (or overwrite) empty output file
 for (i in seq_along(rda_files)) {
     rda_path <- rda_files[[i]]
 
