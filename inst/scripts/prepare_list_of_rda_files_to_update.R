@@ -6,95 +6,107 @@
 ### described in the 'Find_and_update_objects.txt' file located in the same
 ### folder.
 ###
-### Before you run this script, make sure you performed STEP 1 & 2.
+### Before you run this script, make sure you performed STEPS 1 & 2.
 ### See Find_and_update_objects.txt for more information.
 ###
 ### Then to run STEP 3 in "batch" mode:
 ###
-###   cd <dir/you/want/to/search>  # the 'rda_files' file should be here
+###   cd <dir/you/want/to/search>  # the 'rda_objects' file should be here
 ###   R CMD BATCH prepare_list_of_rda_files_to_update.R \
 ###              >prepare_list_of_rda_files_to_update.log 2>&1 &
 ###
 
-INFILE <- "rda_files"
+INFILE <- "rda_objects"
 OUTFILE <- "rda_files_to_update"
 
 library(BiocInstaller)
-available_pkgs <- rownames(available.packages(contrib.url(biocinstallRepos())))
-
-### Install package only if it's not already installed.
-installPkg <- function(package)
-{
-    installed_pkgs <- rownames(installed.packages())
-    if (package %in% installed_pkgs)
-        return()
-    suppressWarnings(suppressPackageStartupMessages(
-        library(BiocInstaller, quietly=TRUE)
-    ))
-    biocLite(package)
-}
-
 library(SummarizedExperiment)
 
-prepareListOfRdaFilesToUpdate <- function(rda_files, outfile="")
+prepareListOfRdaFilesToUpdate <- function(rda_objects, outfile="")
 {
-    cat("", file=outfile)  # create (or overwrite) empty output file
-    for (i in seq_along(rda_files)) {
-        rda_path <- rda_files[[i]]
-
-        cat("[", i , "/", length(rda_files), "] Loading ", rda_path, " ... ",
-            sep="")
-        envir <- new.env(parent=emptyenv())
-        load(rda_path, envir=envir)
-        cat("OK\n")
-
-        for (objname in names(envir)) {
-            cat("  - checking object ", objname, " ... ", sep="")
-            obj <- get(objname, envir=envir)
-            class_pkg <- attr(class(obj), "package")
-            if (is.null(class_pkg) || !(class_pkg %in% available_pkgs)) {
-                cat("OK\n")
-                next
-            }
-
-            ## In order to avoid the "maximal number of DLLs reached..."
-            ## infamous error, we use the following trick:
-            ##   1) We install 'class_pkg' (if it's not already
-            ##      installed) but we do NOT load it.
-            ##   2) Then we use a child process to check whether 'obj' is a
-            ##      SummarizedExperiment or RangedSummarizedExperiment object.
-            ## Unfortunately, this is *much* slower than loading 'class_pkg'
-            ## and checking the class of 'obj' in the main process.
-            ## Also trying to use detach() didn't prevent to reach the
-            ## maximal number of DLLs when we tested this script on
-            ## https://hedgehog.fhcrc.org/bioc-data/trunk/experiment/data_store
-            ## but maybe I didn't try hard enough (I was only detaching
-            ## 'class_pkg' and not all the packages that would get attached
-            ## or loaded when doing library(class_pkg)).
-
-            installPkg(class_pkg)
-
-            outline <- paste(rda_path, objname, class(obj), class_pkg, sep="\t")
-            Rscript <- c(
-                sprintf("suppressWarnings(suppressPackageStartupMessages(library(%s)))", class_pkg),
-                sprintf("if (extends('%s', 'SummarizedExperiment')",
-                        class(obj)),
-                sprintf(" || extends('%s', 'RangedSummarizedExperiment')) {",
-                        class(obj)),
-                sprintf("    cat('%s\n', file='%s', append=TRUE)",
-                        outline, outfile),
-                        "    quit(status=0)",
-                        "}",
-                        "quit(status=1)"
-            )
-            command <- file.path(R.home("bin"), "R")
-            args <- c("--vanilla", "--slave")
-            status <- system2(command, args=args, input=Rscript)
-            cat(sprintf("OK (status=%d)\n", status))
-        }
+    rda_objects2 <- unique(rda_objects[ , c("objclass", "objclass_pkg")])
+    objclass2 <- rda_objects2[ , "objclass"]
+    objclass_pkg2 <- rda_objects2[ , "objclass_pkg"]
+    idx <- which(duplicated(objclass2))
+    if (length(idx) != 0L) {
+        msg <- c("the following classes are defined in more than 1 package: ",
+                 paste0(unique(objclass2[idx]), collapse=", "))
+        warning(msg)
     }
+    pkg2class <- split(objclass2, objclass_pkg2)
+    pkg2class[c(".", ".GlobalEnv")] <- NULL
+    pkgs <- names(pkg2class)
+
+    ## Install missing packages.
+    installed_pkgs <- rownames(installed.packages())
+    missing_pkgs <- setdiff(pkgs, installed_pkgs)
+    if (length(missing_pkgs) != 0L)
+        biocLite(missing_pkgs)
+
+    ## Load packages where all object classes are defined.
+    ## Unfortunately, this sometimes hits the maximal number of DLLs that can
+    ## be loaded ("maximal number of DLLs reached..." error).
+    #for (i in seq_along(pkgs)) {
+    #    package <- pkgs[[i]]
+    #    cat("[", i , "/", length(pkgs), "] Loading ", package, " ... ",
+    #        sep="")
+    #    suppressWarnings(suppressPackageStartupMessages(
+    #        require(package, character.only=TRUE, quietly=TRUE)
+    #    ))
+    #    cat("OK\n")
+    #}
+
+    ## We use subprocesses to work around the "maximal number of DLLs
+    ## reached..." error.
+    for (i in seq_along(pkgs)) {
+        package <- pkgs[[i]]
+        cat("[", i , "/", length(pkgs), "] Check classes defined in package ",
+            package, " ... ", sep="")
+        classes <- paste0("\"", pkg2class[[package]], "\"")
+        classes <- paste0("c(", paste(classes, collapse=", "), ")")
+        class_summary_file <- paste0(package, "_class_summary")
+        input <- c(
+                "suppressWarnings(suppressPackageStartupMessages(",
+        sprintf("    library(%s)", "SummarizedExperiment"),
+                "))",
+                "suppressWarnings(suppressPackageStartupMessages(",
+        sprintf("    library(%s)", package),
+                "))",
+        sprintf("ok <- sapply(%s, function(class) {", classes),
+                "    extends(class, \"SummarizedExperiment\") ||",
+                "    extends(class, \"RangedSummarizedExperiment\")",
+                "})",
+                "class_summary <- data.frame(class=names(ok), ok=unname(ok))",
+        sprintf("write.table(class_summary, file=\"%s\",", class_summary_file),
+                "            sep=\"\t\")"
+        )
+        command <- file.path(R.home("bin"), "R")
+        args <- c("--vanilla", "--slave")
+        system2(command, args=args, input=input)
+        cat("OK\n")
+    }
+
+    ## Collect the class summary files.
+    class_summaries <- lapply(pkgs, function(package) {
+        class_summary_file <- paste0(package, "_class_summary")
+        if (!file.exists(class_summary_file))
+            return(NULL)
+        read.table(class_summary_file, stringsAsFactors=FALSE)
+    })
+    class_summary <- do.call(rbind, class_summaries)
+
+    ## Write output to file.
+    class2ok <- class_summary[ , "ok"]
+    names(class2ok) <- class_summary[ , "class"]
+    objclass <- rda_objects[ , "objclass"]
+    ok <- class2ok[objclass]
+    ok[is.na(ok)] <- FALSE
+    rda_files_to_update <- rda_objects[ok, ]
+    rownames(rda_files_to_update) <- NULL
+    write.table(rda_files_to_update, file=outfile, sep="\t")
 }
 
-rda_files <- read.table(INFILE, stringsAsFactors=FALSE)[[1L]]
-prepareListOfRdaFilesToUpdate(rda_files, outfile=OUTFILE)
+rda_objects <- read.table(INFILE, stringsAsFactors=FALSE)
+colnames(rda_objects) <- c("rda_path", "objname", "objclass", "objclass_pkg")
+prepareListOfRdaFilesToUpdate(rda_objects, outfile=OUTFILE)
 

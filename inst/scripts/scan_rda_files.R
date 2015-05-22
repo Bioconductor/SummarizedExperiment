@@ -49,15 +49,15 @@ scanRdaFiles <- function(rda_files, outfile="")
 
         for (objname in names(envir)) {
             obj <- get(objname, envir=envir)
-            obj_class <- class(obj)
-            obj_class_pkg <- attr(obj_class, "package")
+            objclass <- class(obj)
+            objclass_pkg <- attr(objclass, "package")
 
-            ## Fix 'obj_class' and 'obj_class_pkg' (they both need to be
+            ## Fix 'objclass' and 'objclass_pkg' (they both need to be
             ## character vectors of length 1 before we pass them to paste()).
-            obj_class <- obj_class[[1L]]
-            if (is.null(obj_class_pkg))
-                obj_class_pkg <- "."
-            outline <- paste(rda_path, objname, obj_class, obj_class_pkg,
+            objclass <- objclass[[1L]]
+            if (is.null(objclass_pkg))
+                objclass_pkg <- "."
+            outline <- paste(rda_path, objname, objclass, objclass_pkg,
                              sep="\t")
             cat(outline, "\n", sep="", file=OUTFILE, append=TRUE)
         }
