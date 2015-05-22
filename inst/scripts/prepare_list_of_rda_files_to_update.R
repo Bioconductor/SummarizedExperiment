@@ -41,10 +41,12 @@ available_pkgs <- rownames(available.packages(contrib.url(biocinstallRepos())))
 
 installAndLoadPkg <- function(package)
 {
+    if (paste0("package:", package) %in% search())
+        return(0L)
     if (suppressWarnings(suppressPackageStartupMessages(
             require(package, character.only=TRUE, quietly=TRUE)
         )))
-        return()
+        return(1L)
     suppressWarnings(suppressPackageStartupMessages(
         library(BiocInstaller, quietly=TRUE)
     ))
@@ -52,6 +54,7 @@ installAndLoadPkg <- function(package)
     suppressWarnings(suppressPackageStartupMessages(
         library(package, character.only=TRUE, quietly=TRUE)
     ))
+    return(2L)
 }
 
 library(SummarizedExperiment)
@@ -73,11 +76,18 @@ prepareListOfRdaFilesToUpdate <- function(rda_files, outfile="")
             class_pkg <- attr(class(obj), "package")
             if (is.null(class_pkg) || !(class_pkg %in% available_pkgs))
                 next
-            installAndLoadPkg(class_pkg)
+            code <- installAndLoadPkg(class_pkg)
             if (is(obj, "SummarizedExperiment")
              || is(obj, "RangedSummarizedExperiment")) {
                 cat(rda_path, "\t", objname, "\t", class(obj), "\t",
                     class_pkg, "\n", sep="", file=outfile, append=TRUE)
+            }
+            if (code != 0L) {
+                ## We try to detach in order to avoid the infamous "maximal
+                ## number of DLLs reached..." error.
+                try(detach(paste0("package:", class_pkg),
+                           unload=TRUE, force=TRUE),
+                    silent=TRUE)
             }
         }
     }
