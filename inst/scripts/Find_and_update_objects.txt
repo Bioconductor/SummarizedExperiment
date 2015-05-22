@@ -6,15 +6,26 @@ objects in the rda files located in a directory hierarchy. This procedure
 was developped and used to update all "old" serialized SummarizedExperiment
 objects located in the data-experiment svn repository.
 
-STEP 1: Find all rda files.
+STEP 1: Prepare list of rda files to scan.
 
-  cd <dir/you/want/to/scan>
+  cd <dir/you/want/to/search>
   find . -type d -name '.svn' -prune -o -type f -print | \
       grep -Ei '\.(rda|RData)$' >rda_files
 
-STEP 2: Prepare list of rda files to update.
+STEP 2: Scan the rda files.
 
-  cd <dir/you/want/to/scan>
+  cd <dir/you/want/to/search>
+
+  R="$HOME/bin/R-3.2"
+  R_SCRIPT="scriptfile <- system.file('scripts', "
+  R_SCRIPT="$R_SCRIPT 'scan_rda_files.R', "
+  R_SCRIPT="$R_SCRIPT package='SummarizedExperiment', mustWork=TRUE)"
+  R_SCRIPT="$R_SCRIPT; source(scriptfile)"
+  echo "$R_SCRIPT" | $R --vanilla >scan_rda_files.log 2>&1 &
+
+STEP 3: Prepare list of rda files to update.
+
+  cd <dir/you/want/to/search>
 
   R="$HOME/bin/R-3.2"
   R_SCRIPT="scriptfile <- system.file('scripts', "
@@ -22,7 +33,7 @@ STEP 2: Prepare list of rda files to update.
   R_SCRIPT="$R_SCRIPT package='SummarizedExperiment', mustWork=TRUE)"
   R_SCRIPT="$R_SCRIPT; source(scriptfile)"
   echo "$R_SCRIPT" | $R --vanilla \
-      > prepare_list_of_rda_files_to_update.log 2>&1 &
+      >prepare_list_of_rda_files_to_update.log 2>&1 &
 
-STEP 3: coming soon...
+STEP 4: coming soon...
 
