@@ -24,8 +24,16 @@ library(SummarizedExperiment)
     updated <- FALSE
     for (objname in names(envir)) {
         obj <- get(objname, envir=envir, inherits=FALSE)
+        objclass <- class(obj)
+        objclass_pkg <- attr(objclass, "package")
+        if (!is.null(objclass_pkg)) {
+            suppressWarnings(suppressPackageStartupMessages(
+                library(objclass_pkg, character.only=TRUE, quietly=TRUE)
+            ))
+        }
         if (!SummarizedExperiment:::.has_SummarizedExperiment_internal_structure(obj))
             next()
+
         cat("  Updating ", objname, " ... ", sep="")
         obj <- updateObject(obj)
         validObject(obj, complete=TRUE)
