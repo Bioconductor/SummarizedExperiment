@@ -4,6 +4,6 @@
 # procedure on May 26, 2015. See README file for more information.
 # To update the objects listed in this file:
 #   1. Get a working copy of the above URL.
-#   2. Copy this file to it and rename it 'rda_objects_to_update'.
+#   2. Copy this file to the working copy and rename it RDA_OBJECTS_TO_UPDATE.
 #   3. Run STEP 4 (see README file for more information).
 ./pasilla/data/pasillaDEXSeqDataSet.RData	dxd	DEXSeqDataSet	DEXSeq

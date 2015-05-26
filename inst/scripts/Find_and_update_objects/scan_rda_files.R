@@ -6,33 +6,33 @@
 ### described in the README file located in the same folder.
 ###
 ### Before you run this script, make sure you performed STEP 1, that is, you
-### need to generate input file 'rda_files'. This can be achieved with
+### need to generate input file RDA_FILES. This can be achieved with
 ### something like:
 ###
 ###   cd <dir/you/want/to/search>
 ###   find . -type d -name '.svn' -prune -o -type f -print | \
-###       grep -Ei '\.(rda|RData)$' >rda_files
+###       grep -Ei '\.(rda|RData)$' >RDA_FILES
 ###
 ### See README file for more information.
 ###
 ### Then to run STEP 2 in "batch" mode:
 ###
-###   cd <dir/you/want/to/search>  # 'rda_files' file should be here
+###   cd <dir/you/want/to/search>  # RDA_FILES file should be here
 ###   R CMD BATCH scan_rda_files.R >scan_rda_files.log 2>&1 &
 ###
 ### This can take a couple of hours to complete...
 ###
 ### The output of STEP 2 is a file created in the current directory and named
-### 'rda_objects'. It has 1 line per serialized object and the 4 following
+### RDA_OBJECTS. It has 1 line per serialized object and the 4 following
 ### fields (separated by tabs):
-###   1. Path to rda file (as found in input file 'rda_files').
+###   1. Path to rda file (as found in input file RDA_FILES).
 ###   2. Name of object in rda file.
 ###   3. Class of object in rda file.
 ###   4. Package where class of object is defined.
 ###
 
-INFILE <- "rda_files"
-OUTFILE <- "rda_objects"
+INFILE <- "RDA_FILES"
+OUTFILE <- "RDA_OBJECTS"
 
 scanRdaFiles <- function(rda_files, outfile="")
 {

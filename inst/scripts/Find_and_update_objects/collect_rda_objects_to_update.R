@@ -10,16 +10,16 @@
 ###
 ### Then to run STEP 3 in "batch" mode:
 ###
-###   cd <dir/you/want/to/search>  # 'rda_objects' file should be here
+###   cd <dir/you/want/to/search>  # RDA_OBJECTS file should be here
 ###   R CMD BATCH collect_rda_objects_to_update.R \
 ###              >collect_rda_objects_to_update.log 2>&1 &
 ###
 ### The output of STEP 3 is a file created in the current directory and named
-### 'rda_objects_to_update'. It is a subset of input file 'rda_objects'.
+### RDA_OBJECTS_TO_UPDATE. It is a subset of input file RDA_OBJECTS.
 ###
 
-INFILE <- "rda_objects"
-OUTFILE <- "rda_objects_to_update"
+INFILE <- "RDA_OBJECTS"
+OUTFILE <- "RDA_OBJECTS_TO_UPDATE"
 
 library(BiocInstaller)
 library(SummarizedExperiment)

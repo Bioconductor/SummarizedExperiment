@@ -10,11 +10,11 @@
 ###
 ### Then to run STEP 4 in "batch" mode:
 ###
-###   cd <dir/you/want/to/search>  # 'rda_objects_to_update' file should be here
+###   cd <dir/you/want/to/search>  # RDA_OBJECTS_TO_UPDATE file should be here
 ###   R CMD BATCH update_rda_objects.R >update_rda_objects.log 2>&1 &
 ###
 
-INFILE <- "rda_objects_to_update"
+INFILE <- "RDA_OBJECTS_TO_UPDATE"
 
 library(SummarizedExperiment)
 
