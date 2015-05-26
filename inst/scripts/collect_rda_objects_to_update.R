@@ -1,5 +1,5 @@
 ### =========================================================================
-### preselect_rda_files_to_update.R
+### collect_rda_objects_to_update.R
 ### -------------------------------------------------------------------------
 ###
 ### This script performs STEP 3 of the "Find and update objects" procedure
@@ -11,13 +11,16 @@
 ###
 ### Then to run STEP 3 in "batch" mode:
 ###
-###   cd <dir/you/want/to/search>  # the 'rda_objects' file should be here
-###   R CMD BATCH preselect_rda_files_to_update.R \
-###              >preselect_rda_files_to_update.log 2>&1 &
+###   cd <dir/you/want/to/search>  # 'rda_objects' file should be here
+###   R CMD BATCH collect_rda_objects_to_update.R \
+###              >collect_rda_objects_to_update.log 2>&1 &
+###
+### The output of STEP 3 is a file created in the current directory and named
+### 'rda_objects_to_update'. It is a subset of input file 'rda_objects'.
 ###
 
 INFILE <- "rda_objects"
-OUTFILE <- "rda_files_to_update"
+OUTFILE <- "rda_objects_to_update"
 
 library(BiocInstaller)
 library(SummarizedExperiment)
@@ -26,7 +29,7 @@ if (FALSE) {
 ### Unfortunately, loading all the required packages in the main process will
 ### sometimes hit the maximal number of DLLs that can be loaded ("maximal
 ### number of DLLs reached..." infamous error).
-checkClasses <- function(classes, package)
+.check_classes <- function(classes, package)
 {
     suppressWarnings(suppressPackageStartupMessages(
         library(package, character.only=TRUE, quietly=TRUE)
@@ -40,7 +43,7 @@ checkClasses <- function(classes, package)
 
 ### We check the classes in a subprocess to work around the "maximal number
 ### of DLLs reached..." infamous error.
-checkClasses <- function(classes, package)
+.check_classes <- function(classes, package)
 {
     classes_in1string <- paste0("\"", classes, "\"")
     classes_in1string <- paste0("c(",
@@ -70,7 +73,7 @@ checkClasses <- function(classes, package)
     setNames(class_summary[ , "ok"], classes)
 }
 
-preselectRdaFilesToUpdate <- function(rda_objects, outfile="")
+collectRdaObjectsToUpdate <- function(rda_objects, outfile="")
 {
     rda_objects2 <- unique(rda_objects[ , c("objclass", "objclass_pkg")])
     objclass2 <- rda_objects2[ , "objclass"]
@@ -99,13 +102,14 @@ preselectRdaFilesToUpdate <- function(rda_objects, outfile="")
         }
     }
 
+    ## Check classes, one package at a time.
     class2ok <- unlist(
         lapply(seq_along(pkgs),
             function(i) {
                 pkg <- pkgs[[i]]
                 cat("[", i , "/", length(pkgs), "] Check classes defined ",
                     "in package ", pkg, " ... ", sep="")
-                ans <- checkClasses(pkg2class[[pkg]], pkg)
+                ans <- .check_classes(pkg2class[[pkg]], pkg)
                 cat("OK\n")
                 ans
             }
@@ -116,15 +120,15 @@ preselectRdaFilesToUpdate <- function(rda_objects, outfile="")
     objclass <- rda_objects[ , "objclass"]
     ok <- class2ok[objclass]
     ok[is.na(ok)] <- FALSE
-    rda_files_to_update <- rda_objects[ok, , drop=FALSE]
-    rda_files_to_update <- do.call(
+    rda_objects_to_update <- rda_objects[ok, , drop=FALSE]
+    rda_objects_to_update <- do.call(
         paste,
-        c(as.list(rda_files_to_update), list(sep="\t"))
+        c(as.list(rda_objects_to_update), list(sep="\t"))
     )
-    writeLines(rda_files_to_update, con=outfile)
+    writeLines(rda_objects_to_update, con=outfile)
 }
 
 rda_objects <- read.table(INFILE, stringsAsFactors=FALSE)
-colnames(rda_objects) <- c("rda_path", "objname", "objclass", "objclass_pkg")
-preselectRdaFilesToUpdate(rda_objects, outfile=OUTFILE)
+colnames(rda_objects) <- c("rda_file", "objname", "objclass", "objclass_pkg")
+collectRdaObjectsToUpdate(rda_objects, outfile=OUTFILE)
 

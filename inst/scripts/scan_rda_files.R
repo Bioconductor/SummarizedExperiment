@@ -18,7 +18,7 @@
 ###
 ### Then to run STEP 2 in "batch" mode:
 ###
-###   cd <dir/you/want/to/search>  # the 'rda_files' file should be here
+###   cd <dir/you/want/to/search>  # 'rda_files' file should be here
 ###   R CMD BATCH scan_rda_files.R >scan_rda_files.log 2>&1 &
 ###
 ### This can take a couple of hours to complete...
@@ -39,12 +39,12 @@ scanRdaFiles <- function(rda_files, outfile="")
 {
     cat("", file=outfile)  # create (or overwrite) empty output file
     for (i in seq_along(rda_files)) {
-        rda_path <- rda_files[[i]]
+        rda_file <- rda_files[[i]]
 
-        cat("[", i , "/", length(rda_files), "] Loading ", rda_path, " ... ",
+        cat("[", i , "/", length(rda_files), "] Loading ", rda_file, " ... ",
             sep="")
         envir <- new.env(parent=emptyenv())
-        load(rda_path, envir=envir)
+        load(rda_file, envir=envir)
         cat("OK\n")
 
         for (objname in names(envir)) {
@@ -57,7 +57,7 @@ scanRdaFiles <- function(rda_files, outfile="")
             objclass <- objclass[[1L]]
             if (is.null(objclass_pkg))
                 objclass_pkg <- "."
-            outline <- paste(rda_path, objname, objclass, objclass_pkg,
+            outline <- paste(rda_file, objname, objclass, objclass_pkg,
                              sep="\t")
             cat(outline, "\n", sep="", file=OUTFILE, append=TRUE)
         }

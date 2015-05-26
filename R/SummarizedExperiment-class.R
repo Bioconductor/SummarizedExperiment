@@ -745,6 +745,9 @@ setMethod(show, "RangedSummarizedExperiment",
 
 ## compatibility
 
+.has_SummarizedExperiment_internal_structure <- function(object)
+    all(sapply(slotNames("SummarizedExperiment"), .hasSlot, object=object))
+
 .from_SummarizedExperiment_to_RangedSummarizedExperiment <- function(from)
     new("RangedSummarizedExperiment", metadata=as.list(from@exptData),
                                       rowRanges=from@rowData,
@@ -760,9 +763,7 @@ setMethod(show, "RangedSummarizedExperiment",
 setMethod(updateObject, "RangedSummarizedExperiment",
     function(object, ..., verbose=FALSE)
 {
-    has_SummarizedExperiment_internal_structure <-
-      all(sapply(slotNames("SummarizedExperiment"), .hasSlot, object=object))
-    if (!has_SummarizedExperiment_internal_structure)
+    if (!.has_SummarizedExperiment_internal_structure(object))
         return(object)
     rse <- .from_SummarizedExperiment_to_RangedSummarizedExperiment(object)
     xslotnames <- setdiff(slotNames(class(object)), slotNames(class(rse)))
