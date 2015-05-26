@@ -46,7 +46,7 @@ checkClasses <- function(classes, package)
     classes_in1string <- paste0("c(",
                                 paste(classes_in1string, collapse=", "),
                                 ")")
-    class_summary_file <- paste0(package, "_class_summary")
+    outfile <- file.path(tempdir(), paste0(package, "_class_summary"))
     input <- c("suppressWarnings(suppressPackageStartupMessages(",
        sprintf("    library(%s)", "SummarizedExperiment"),
                "))",
@@ -59,17 +59,15 @@ checkClasses <- function(classes, package)
                "    extends(class, \"RangedSummarizedExperiment\")",
                "})",
                "class_summary <- data.frame(class=classes, ok=unname(ok))",
-       sprintf("write.table(class_summary, file=\"%s\",", class_summary_file),
-               "            sep=\"\t\")"
+       sprintf("write.table(class_summary, file=\"%s\", sep=\"\t\")", outfile)
     )
     command <- file.path(R.home("bin"), "R")
     args <- c("--vanilla", "--slave")
     system2(command, args=args, input=input)
-    class_summary <- read.table(class_summary_file, stringsAsFactors=FALSE)
-    file.remove(class_summary_file)
-    ans <- setNames(class_summary[ , "ok"], classes)
-    stopifnot(identical(names(ans), classes))  # sanity check
-    ans
+    class_summary <- read.table(outfile, stringsAsFactors=FALSE)
+    file.remove(outfile)
+    stopifnot(identical(class_summary[ , "class"], classes))  # sanity check
+    setNames(class_summary[ , "ok"], classes)
 }
 
 preselectRdaFilesToUpdate <- function(rda_objects, outfile="")
