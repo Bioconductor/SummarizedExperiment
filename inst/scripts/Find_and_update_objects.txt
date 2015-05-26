@@ -23,17 +23,17 @@ STEP 2: Scan the rda files.
   R_SCRIPT="$R_SCRIPT; source(scriptfile)"
   echo "$R_SCRIPT" | $R --vanilla >scan_rda_files.log 2>&1 &
 
-STEP 3: Prepare list of rda files to update.
+STEP 3: Pre-select rda files to update.
 
   cd <dir/you/want/to/search>
 
   R="$HOME/bin/R-3.2"
   R_SCRIPT="scriptfile <- system.file('scripts', "
-  R_SCRIPT="$R_SCRIPT 'prepare_list_of_rda_files_to_update.R', "
+  R_SCRIPT="$R_SCRIPT 'preselect_rda_files_to_update.R', "
   R_SCRIPT="$R_SCRIPT package='SummarizedExperiment', mustWork=TRUE)"
   R_SCRIPT="$R_SCRIPT; source(scriptfile)"
   echo "$R_SCRIPT" | $R --vanilla \
-      >prepare_list_of_rda_files_to_update.log 2>&1 &
+      >preselect_rda_files_to_update.log 2>&1 &
 
 STEP 4: coming soon...
 
