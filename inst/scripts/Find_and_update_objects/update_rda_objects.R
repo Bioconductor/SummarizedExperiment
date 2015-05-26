@@ -3,11 +3,10 @@
 ### -------------------------------------------------------------------------
 ###
 ### This script performs STEP 4 of the "Find and update objects" procedure
-### described in the 'Find_and_update_objects.txt' file located in the same
-### folder.
+### described in the README file located in the same folder.
 ###
 ### Before you run this script, make sure you performed STEPS 1 & 2 & 3.
-### See Find_and_update_objects.txt for more information.
+### See README file for more information.
 ###
 ### Then to run STEP 4 in "batch" mode:
 ###

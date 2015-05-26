@@ -3,8 +3,7 @@
 ### -------------------------------------------------------------------------
 ###
 ### This script performs STEP 2 of the "Find and update objects" procedure
-### described in the 'Find_and_update_objects.txt' file located in the same
-### folder.
+### described in the README file located in the same folder.
 ###
 ### Before you run this script, make sure you performed STEP 1, that is, you
 ### need to generate input file 'rda_files'. This can be achieved with
@@ -14,7 +13,7 @@
 ###   find . -type d -name '.svn' -prune -o -type f -print | \
 ###       grep -Ei '\.(rda|RData)$' >rda_files
 ###
-### See Find_and_update_objects.txt for more information.
+### See README file for more information.
 ###
 ### Then to run STEP 2 in "batch" mode:
 ###

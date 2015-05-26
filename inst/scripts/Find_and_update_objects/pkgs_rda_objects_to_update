@@ -1,0 +1,9 @@
+# This file contains the list of rda objects to update located in
+#   https://hedgehog.fhcrc.org/bioc-data/trunk/experiment/pkgs
+# It was obtained by running STEPS 1 & 2 & 3 of the "Find and update objects"
+# procedure on May 26, 2015. See README file for more information.
+# To update the objects listed in this file:
+#   1. Get a working copy of the above URL.
+#   2. Copy this file to it and rename it 'rda_objects_to_update'.
+#   3. Run STEP 4 (see README file for more information).
+./pasilla/data/pasillaDEXSeqDataSet.RData	dxd	DEXSeqDataSet	DEXSeq

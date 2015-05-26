@@ -1,0 +1,30 @@
+# This file contains the list of rda objects to update located in
+#   https://hedgehog.fhcrc.org/bioc-data/trunk/experiment/data_store
+# It was obtained by running STEPS 1 & 2 & 3 of the "Find and update objects"
+# procedure on May 26, 2015. See README file for more information.
+# To update the objects listed in this file:
+#   1. Get a working copy of the above URL.
+#   2. Copy this file to it and rename it 'rda_objects_to_update'.
+#   3. Run STEP 4 (see README file for more information).
+./geuvPack/data/geuFPKM.rda	geuFPKM	SummarizedExperiment	GenomicRanges
+./bsseqData/data/BS.cancer.ex.fit.rda	BS.cancer.ex.fit	BSseq	bsseq
+./bsseqData/data/BS.cancer.ex.rda	BS.cancer.ex	BSseq	bsseq
+./fission/data/fission.RData	fission	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_010_04.RData	dream4_010_04	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_100_01.RData	dream4_100_01	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_010_01.RData	dream4_010_01	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_010_05.RData	dream4_010_05	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_010_02.RData	dream4_010_02	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_100_04.RData	dream4_100_04	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_010_03.RData	dream4_010_03	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_100_05.RData	dream4_100_05	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_100_02.RData	dream4_100_02	SummarizedExperiment	GenomicRanges
+./DREAM4/data/dream4_100_03.RData	dream4_100_03	SummarizedExperiment	GenomicRanges
+./COSMIC.67/data/cosmic_67.rda	cosmic_67	CollapsedVCF	VariantAnnotation
+./parathyroidSE/data/parathyroidGenesSE.RData	parathyroidGenesSE	SummarizedExperiment	GenomicRanges
+./parathyroidSE/data/parathyroidExonsSE.RData	parathyroidExonsSE	SummarizedExperiment	GenomicRanges
+./RRBSdata/data/rrbs.RData	rrbs	BSraw	BiSeq
+./airway/data/airway.RData	airway	SummarizedExperiment	GenomicRanges
+./dsQTL/data/DSQ_2.rda	DSQ_2	SummarizedExperiment	GenomicRanges
+./dsQTL/data/DSQ_17.rda	DSQ_17	SummarizedExperiment	GenomicRanges
+./dsQTL/data/DHStop5_hg19.rda	DHStop5_hg19	SummarizedExperiment	GenomicRanges
