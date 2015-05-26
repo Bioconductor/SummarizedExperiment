@@ -108,8 +108,8 @@ preselectRdaFilesToUpdate <- function(rda_objects, outfile="")
                 ans <- checkClasses(pkg2class[[pkg]], pkg)
                 cat("OK\n")
                 ans
-            }),
-        use.names=FALSE
+            }
+        )
     )
 
     ## Write output to file.

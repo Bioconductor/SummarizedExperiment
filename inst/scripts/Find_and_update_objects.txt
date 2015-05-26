@@ -32,8 +32,7 @@ STEP 3: Pre-select rda files to update.
   R_SCRIPT="$R_SCRIPT 'preselect_rda_files_to_update.R', "
   R_SCRIPT="$R_SCRIPT package='SummarizedExperiment', mustWork=TRUE)"
   R_SCRIPT="$R_SCRIPT; source(scriptfile)"
-  echo "$R_SCRIPT" | $R --vanilla \
-      >preselect_rda_files_to_update.log 2>&1 &
+  echo "$R_SCRIPT" | $R --vanilla >preselect_rda_files_to_update.log 2>&1 &
 
 STEP 4: coming soon...
 
