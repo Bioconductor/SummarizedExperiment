@@ -39,7 +39,7 @@ test_RangedSummarizedExperiment_construction <- function()
         "assays class", TRUE)
 
     ## substance
-    for (i in length(ssetList)) {
+    for (i in seq_along(ssetList)) {
         sset <- ssetList[[i]] 
         checkTrue(validObject(sset))
         checkIdentical(SimpleList(m=mList[[i]]), assays(sset))
@@ -66,7 +66,7 @@ test_RangedSummarizedExperiment_construction <- function()
 
 test_RangedSummarizedExperiment_getters <- function()
 {
-    for (i in length(ssetList)) {
+    for (i in seq_along(ssetList)) {
         sset <- ssetList[[i]] 
         rowRanges <- rowRangesList[[i]] 
         ## dim, dimnames
@@ -105,7 +105,7 @@ test_RangedSummarizedExperiment_getters <- function()
 
 test_RangedSummarizedExperiment_setters <- function()
 {
-    for (i in length(ssetList)) {
+    for (i in seq_along(ssetList)) {
         sset <- ssetList[[i]] 
         rowRanges <- rowRangesList[[i]] 
         ## row / col / metadata<-
@@ -158,7 +158,7 @@ test_RangedSummarizedExperiment_setters <- function()
 
 test_RangedSummarizedExperiment_subset <- function()
 {
-    for (i in length(ssetList)) {
+    for (i in seq_along(ssetList)) {
         sset <- ssetList[[i]] 
         rowRanges <- rowRangesList[[i]] 
         ## numeric
@@ -219,7 +219,7 @@ test_RangedSummarizedExperiment_subset <- function()
 
 test_RangedSummarizedExperiment_subsetassign <- function()
 {
-    for (i in length(ssetList)) {
+    for (i in seq_along(ssetList)) {
         sset <- ssetList[[i]] 
         dimnames(sset) <- list(LETTERS[seq_len(nrow(sset))],
                                letters[seq_len(ncol(sset))])
