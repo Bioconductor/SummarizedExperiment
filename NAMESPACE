@@ -19,6 +19,7 @@ exportClasses(
     ## moved are going to look broken (i.e. validObjet() will fail on them).
     #Assays, ShallowData, ShallowSimpleListAssays,
 
+    SummarizedExperiment0,
     RangedSummarizedExperiment
 )
 
@@ -82,7 +83,7 @@ exportMethods(
 ###
 
 export(
-    .DollarNames.RangedSummarizedExperiment,
+    .DollarNames.SummarizedExperiment0,
     makeSummarizedExperimentFromExpressionSet,
     naiveRangeMapper, probeRangeMapper, geneRangeMapper
 )

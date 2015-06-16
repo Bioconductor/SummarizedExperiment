@@ -1,65 +1,82 @@
 \name{RangedSummarizedExperiment-class}
 \docType{class}
 
-% Class
+% Classes
+\alias{SummarizedExperiment0-class}
+\alias{SummarizedExperiment0}
 \alias{RangedSummarizedExperiment-class}
 \alias{RangedSummarizedExperiment}
 
-% Constructor-like function:
+% Constructor
 \alias{SummarizedExperiment}
 \alias{SummarizedExperiment,missing-method}
 \alias{SummarizedExperiment,matrix-method}
 \alias{SummarizedExperiment,list-method}
 \alias{SummarizedExperiment,SimpleList-method}
 
-% Accessor methods:
-\alias{assays}
-\alias{assays,RangedSummarizedExperiment-method}
-\alias{assays<-}
-\alias{assays<-,RangedSummarizedExperiment,list-method}
-\alias{assays<-,RangedSummarizedExperiment,SimpleList-method}
-\alias{assay}
-\alias{assay,RangedSummarizedExperiment,ANY-method}
-\alias{assay,RangedSummarizedExperiment,character-method}
-\alias{assay,RangedSummarizedExperiment,numeric-method}
-\alias{assay,RangedSummarizedExperiment,missing-method}
-\alias{assay<-}
-\alias{assay<-,RangedSummarizedExperiment,character,matrix-method}
-\alias{assay<-,RangedSummarizedExperiment,numeric,matrix-method}
-\alias{assay<-,RangedSummarizedExperiment,missing,matrix-method}
+% Coercion
+\alias{coerce,RangedSummarizedExperiment,SummarizedExperiment0-method}
+
+% Accessors
+\alias{length,SummarizedExperiment0-method}
+\alias{names,SummarizedExperiment0-method}
+\alias{names<-,SummarizedExperiment0-method}
+\alias{metadata<-,SummarizedExperiment0-method}
+\alias{colData}
+\alias{colData,SummarizedExperiment0-method}
+\alias{colData<-}
+\alias{colData<-,SummarizedExperiment0,DataFrame-method}
 \alias{assayNames}
-\alias{assayNames,RangedSummarizedExperiment-method}
+\alias{assayNames,SummarizedExperiment0-method}
 \alias{assayNames<-}
-\alias{assayNames<-,RangedSummarizedExperiment,character-method}
+\alias{assayNames<-,SummarizedExperiment0,character-method}
+\alias{assays}
+\alias{assays,SummarizedExperiment0-method}
+\alias{assays<-}
+\alias{assays<-,SummarizedExperiment0,SimpleList-method}
+\alias{assays<-,SummarizedExperiment0,list-method}
+\alias{assay}
+\alias{assay,SummarizedExperiment0,missing-method}
+\alias{assay,SummarizedExperiment0,numeric-method}
+\alias{assay,SummarizedExperiment0,character-method}
+\alias{assay<-}
+\alias{assay<-,SummarizedExperiment0,missing,matrix-method}
+\alias{assay<-,SummarizedExperiment0,numeric,matrix-method}
+\alias{assay<-,SummarizedExperiment0,character,matrix-method}
+\alias{dim,SummarizedExperiment0-method}
+\alias{dimnames,SummarizedExperiment0-method}
+
 \alias{rowRanges}
 \alias{rowRanges,RangedSummarizedExperiment-method}
 \alias{rowRanges<-}
 \alias{rowRanges<-,RangedSummarizedExperiment,GenomicRanges-method}
 \alias{rowRanges<-,RangedSummarizedExperiment,GRangesList-method}
-\alias{colData}
-\alias{colData,RangedSummarizedExperiment-method}
-\alias{colData<-}
-\alias{colData<-,RangedSummarizedExperiment,DataFrame-method}
-\alias{metadata<-,RangedSummarizedExperiment-method}
-\alias{dim,RangedSummarizedExperiment-method}
+\alias{names,RangedSummarizedExperiment-method}
+\alias{names<-,RangedSummarizedExperiment-method}
 \alias{dimnames,RangedSummarizedExperiment-method}
-\alias{dimnames<-,RangedSummarizedExperiment,NULL-method}
 \alias{dimnames<-,RangedSummarizedExperiment,list-method}
+\alias{dimnames<-,RangedSummarizedExperiment,NULL-method}
 
-% Subset methods
+% Subsetting
 \alias{[,RangedSummarizedExperiment-method}
 \alias{[,RangedSummarizedExperiment,ANY-method}
 \alias{[<-,RangedSummarizedExperiment,ANY,ANY,RangedSummarizedExperiment-method}
-\alias{$,RangedSummarizedExperiment-method}
-\alias{$<-,RangedSummarizedExperiment,ANY-method}
-\alias{$<-,RangedSummarizedExperiment-method}
-\alias{[[,RangedSummarizedExperiment,ANY,missing-method}
-\alias{[[<-,RangedSummarizedExperiment,ANY,missing,ANY-method}
-\alias{[[<-,RangedSummarizedExperiment,ANY,missing-method}
 
-% Combine methods 
-\alias{cbind,RangedSummarizedExperiment-method}
+% Quick colData access
+\alias{[[,SummarizedExperiment0,ANY,missing-method}
+\alias{[[<-,SummarizedExperiment0,ANY,missing-method}
+\alias{$,SummarizedExperiment0-method}
+\alias{$<-,SummarizedExperiment0-method}
+
+% Display
+\alias{show,SummarizedExperiment0-method}
+
+% Combine 
 \alias{rbind,RangedSummarizedExperiment-method}
+\alias{cbind,RangedSummarizedExperiment-method}
+
+% Compatibility
+\alias{updateObject,RangedSummarizedExperiment-method}
 
 % GenomicRanges compatibility methods
 \alias{Compare,ANY,RangedSummarizedExperiment-method}
@@ -95,12 +112,6 @@
 \alias{values<-,RangedSummarizedExperiment-method}
 \alias{width,RangedSummarizedExperiment-method}
 \alias{width<-,RangedSummarizedExperiment-method}
-
-% show method:
-\alias{show,RangedSummarizedExperiment-method}
-
-% compatibility:
-\alias{updateObject,RangedSummarizedExperiment-method}
 
 \title{RangedSummarizedExperiment objects}
 
@@ -138,17 +149,17 @@ rowRanges(x, ...)
 rowRanges(x, ...) <- value
 colData(x, ...)
 colData(x, ...) <- value
-\S4method{dim}{RangedSummarizedExperiment}(x)
+\S4method{dim}{SummarizedExperiment0}(x)
 \S4method{dimnames}{RangedSummarizedExperiment}(x)
 \S4method{dimnames}{RangedSummarizedExperiment,NULL}(x) <- value
 \S4method{dimnames}{RangedSummarizedExperiment,list}(x) <- value
 
-## colData access
+## Quick colData access
 
-\S4method{$}{RangedSummarizedExperiment}(x, name)
-\S4method{$}{RangedSummarizedExperiment,ANY}(x, name) <- value
-\S4method{[[}{RangedSummarizedExperiment,ANY,missing}(x, i, j, ...)
-\S4method{[[}{RangedSummarizedExperiment,ANY,missing,ANY}(x, i, j, ...) <- value
+\S4method{$}{SummarizedExperiment0}(x, name)
+\S4method{$}{SummarizedExperiment0}(x, name) <- value
+\S4method{[[}{SummarizedExperiment0,ANY,missing}(x, i, j, ...)
+\S4method{[[}{SummarizedExperiment0,ANY,missing}(x, i, j, ...) <- value
 
 ## rowRanges access
 ## see 'GRanges compatibility', below
