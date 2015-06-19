@@ -420,9 +420,14 @@ setMethod(rowRanges, "RangedSummarizedExperiment",
 .RangedSummarizedExperiment.rowRanges.replace <-
     function(x, ..., value)
 {
-    if (length(value) != nrow(x))
-        stop("length of supplied 'rowRanges' must equal nrow of object")
-    GenomicRanges:::clone(x, ..., rowRanges=value)
+    x <- GenomicRanges:::clone(
+            x, ...,
+            rowRanges=value,
+            elementMetadata=new("DataFrame", nrows=length(value)))
+    msg <- .valid.SummarizedExperiment0.assays_nrow(x)
+    if (!is.null(msg))
+        stop(msg)
+    x
 }
 
 setReplaceMethod("rowRanges", c("RangedSummarizedExperiment", "GenomicRanges"),
