@@ -4,7 +4,7 @@ Description: The SummarizedExperiment container contains one or more assays,
 	each represented by a matrix-like object of numeric or other mode.
 	The rows typically represent genomic ranges of interest and the columns
 	represent samples.
-Version: 0.2.1
+Version: 0.2.2
 Author: Martin Morgan, Valerie Obenchain, Jim Hester, Herv\'e Pag\`es
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,

@@ -319,7 +319,18 @@ setMethod(assays, "SummarizedExperiment0",
     if (!all(ok))
         stop("current and replacement dimnames() differ")
     x <- GenomicRanges:::clone(x, assays=value)
-    validObject(x)
+    ## validObject(x) should be called below because it would then fully
+    ## re-validate objects that derive from SummarizedExperiment0 (e.g.
+    ## DESeqDataSet objects) after the user sets the assays slot with
+    ## assays(x) <- value. For example the assays slot of a DESeqDataSet
+    ## object must contain a matrix named 'counts' and calling validObject(x)
+    ## would check that but .valid.SummarizedExperiment0(x) doesn't.
+    ## The FourC() constructor function defined in the FourCSeq package
+    ## actually takes advantage of the incomplete validation below to
+    ## purposedly return invalid FourC objects!
+    msg <- .valid.SummarizedExperiment0(x)
+    if (!is.null(msg)) 
+        stop(msg)
     x
 }
 
