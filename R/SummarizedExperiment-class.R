@@ -134,7 +134,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 
 setMethod(SummarizedExperiment, "SimpleList",
    function(assays, rowRanges=GRangesList(), colData=DataFrame(),
-            metadata=list())
+            metadata=list(), exptData=SimpleList())
 {
     if (missing(rowRanges) && 0L != length(assays)) {
         rowRanges <- .GRangesList_assays(assays)
@@ -159,6 +159,16 @@ setMethod(SummarizedExperiment, "SimpleList",
     if (!is(assays, "Assays"))
         assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
 
+    ## For backward compatibility with "classic" SummarizedExperiment objects.
+    if (!missing(exptData)) {
+        if (!missing(metadata))
+            stop("only one of 'metadata' and 'exptData' can be ",
+                 "specified, but not both")
+        msg <- c("the 'exptData' argument is deprecated, ",
+                 "please use 'metadata' instead")
+        .Deprecated(msg=msg)
+        metadata <- exptData
+    }
     .new_RangedSummarizedExperiment(rowRanges, colData, assays, metadata)
 })
 
@@ -258,6 +268,7 @@ setReplaceMethod("names", "SummarizedExperiment0",
 setReplaceMethod("metadata", "SummarizedExperiment0",
     function(x, value)
 {
+    value <- as.list(value)
     GenomicRanges:::clone(x, metadata=value)
 })
 
@@ -933,8 +944,26 @@ setMethod("cbind", "RangedSummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Compatibility.
+### To facilitate transition from "classic" SummarizedExperiment objects to
+### new SummarizedExperiment0/RangedSummarizedExperiment objects.
 ###
+
+### For backward compatibility with "classic" SummarizedExperiment objects.
+setMethod("exptData", "SummarizedExperiment0",
+    function(x, ...)
+{
+    .Deprecated("metadata")
+    SimpleList(metadata(x, ...))
+})
+
+setReplaceMethod("exptData", "SummarizedExperiment0",
+    function(x, ..., value)
+{
+    .Deprecated("metadata<-")
+    `metadata<-`(x, ..., value=value)
+})
+
+### Update "classic" SummarizedExperiment objects.
 
 .has_SummarizedExperiment_internal_structure <- function(object)
     all(sapply(slotNames("SummarizedExperiment"), .hasSlot, object=object))

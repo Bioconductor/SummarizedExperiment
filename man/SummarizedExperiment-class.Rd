@@ -75,7 +75,9 @@
 \alias{rbind,RangedSummarizedExperiment-method}
 \alias{cbind,RangedSummarizedExperiment-method}
 
-% Compatibility
+% Backward compatibility with "classic" SummarizedExperiment objects
+\alias{exptData,SummarizedExperiment0-method}
+\alias{exptData<-,SummarizedExperiment0-method}
 \alias{updateObject,RangedSummarizedExperiment-method}
 
 % GenomicRanges compatibility methods
@@ -131,8 +133,8 @@
 ## Constructors
 
 SummarizedExperiment(assays, ...)
-\S4method{SummarizedExperiment}{SimpleList}(assays, rowRanges = GRangesList(),
-    colData = DataFrame(), metadata = list())
+\S4method{SummarizedExperiment}{SimpleList}(assays, rowRanges=GRangesList(),
+    colData=DataFrame(), metadata=list(), exptData=SimpleList())
 \S4method{SummarizedExperiment}{missing}(assays, ...)
 \S4method{SummarizedExperiment}{list}(assays, ...)
 \S4method{SummarizedExperiment}{matrix}(assays, ...)
@@ -197,6 +199,9 @@ colData(x, ...) <- value
 
   \item{metadata}{An optional \code{list} of arbitrary content
     describing the overall experiment.}
+
+  \item{exptData}{Deprecated. Please use the \code{metadata} argument instead
+    (see above).}
 
   \item{...}{For \code{SummarizedExperiment}, S4 methods \code{list}
     and \code{matrix}, arguments identical to those of the
