@@ -414,7 +414,10 @@ colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
 se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
                             colData=colData)
 se0
+dim(se0)
+dimnames(se0)
 assayNames(se0)
+head(assay(se0))
 assays(se0) <- endoapply(assays(se0), asinh)
 head(assay(se0))
 
@@ -426,6 +429,8 @@ se1 <- se0
 se2 <- se1[,1:3]
 colnames(se2) <- letters[1:ncol(se2)] 
 cmb1 <- cbind(se1, se2)
+dim(cmb1)
+dimnames(cmb1)
 
 ## rbind() combines objects with the same samples but different
 ## features of interest:
@@ -433,4 +438,6 @@ se1 <- se0
 se2 <- se1[1:50,]
 rownames(se2) <- letters[1:nrow(se2)] 
 cmb2 <- rbind(se1, se2)
+dim(cmb2)
+dimnames(cmb2)
 }

@@ -665,7 +665,7 @@ setReplaceMethod("$", "SummarizedExperiment0",
 ### Display.
 ###
 
-setMethod(show, "SummarizedExperiment0",
+setMethod("show", "SummarizedExperiment0",
     function(object)
 {
     selectSome <- BiocGenerics:::selectSome
@@ -703,7 +703,7 @@ setMethod(show, "SummarizedExperiment0",
     fmt <- "metadata column names(%d): %s\n"
     if (is(object, "RangedSummarizedExperiment"))
         fmt <- paste("rowRanges", fmt)
-    scat("rowRanges metadata column names(%d): %s\n", mcolnames)
+    scat(fmt, mcolnames)
 
     ## colnames()
     if (dlen[[2]]) scat("colnames(%d): %s\n", dimnames[[2]])

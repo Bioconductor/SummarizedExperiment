@@ -271,15 +271,22 @@ nrows <- 200; ncols <- 6
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),
                      IRanges(floor(runif(200, 1e5, 1e6)), width=100),
-                     strand=sample(c("+", "-"), 200, TRUE))
+                     strand=sample(c("+", "-"), 200, TRUE),
+                     feature_id=sprintf("ID\%03d", 1:200))
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
 rse <- SummarizedExperiment(assays=SimpleList(counts=counts),
                             rowRanges=rowRanges, colData=colData)
 rse
+dim(rse)
+dimnames(rse)
 assayNames(rse)
+head(assay(rse))
 assays(rse) <- endoapply(assays(rse), asinh)
 head(assay(rse))
+
+rowRanges(rse)
+mcols(rse)  # same as mcols(rowRanges(rse))
 
 rse[, rse$Treatment == "ChIP"]
 
@@ -288,14 +295,27 @@ rse1 <- rse
 rse2 <- rse1[,1:3]
 colnames(rse2) <- letters[1:ncol(rse2)] 
 cmb1 <- cbind(rse1, rse2)
+dim(cmb1)
+dimnames(cmb1)
 
 ## rbind() combines objects with the same samples but different ranges:
 rse1 <- rse
 rse2 <- rse1[1:50,]
 rownames(rse2) <- letters[1:nrow(rse2)] 
 cmb2 <- rbind(rse1, rse2)
+dim(cmb2)
+dimnames(cmb2)
 
-## Coerce to/from SummarizedExperiment0:
+## Coercion to/from SummarizedExperiment0:
 se0 <- as(rse, "SummarizedExperiment0")
+se0
+
 as(se0, "RangedSummarizedExperiment")
+
+## Sanitty checks:
+stopifnot(identical(assays(se0), assays(rse)))
+stopifnot(identical(dim(se0), dim(rse)))
+stopifnot(identical(dimnames(se0), dimnames(rse)))
+stopifnot(identical(mcols(se0), mcols(rse)))
+stopifnot(identical(colData(se0), colData(rse)))
 }
