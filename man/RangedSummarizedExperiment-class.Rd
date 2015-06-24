@@ -312,7 +312,7 @@ se0
 
 as(se0, "RangedSummarizedExperiment")
 
-## Sanitty checks:
+## Sanity checks:
 stopifnot(identical(assays(se0), assays(rse)))
 stopifnot(identical(dim(se0), dim(rse)))
 stopifnot(identical(dimnames(se0), dimnames(rse)))
