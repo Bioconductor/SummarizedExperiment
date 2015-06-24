@@ -14,8 +14,8 @@ Imports: BiocGenerics, S4Vectors (>= 0.7.6), IRanges, GenomeInfoDb
 Suggests: annotate, AnnotationDbi, GenomicFeatures, BiocStyle, knitr, rmarkdown
 VignetteBuilder: knitr
 License: Artistic-2.0
-Collate: SummarizedExperiment-class.R
-	SummarizedExperiment-rowRanges-methods.R
+Collate: SummarizedExperiment0-class.R
+	RangedSummarizedExperiment-class.R
 	intra-range-methods.R
 	inter-range-methods.R
 	coverage-methods.R

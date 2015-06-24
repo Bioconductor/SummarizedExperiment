@@ -1,10 +1,14 @@
 ### =========================================================================
-### SummarizedExperiment0 and RangedSummarizedExperiment objects
+### SummarizedExperiment0 objects
 ### -------------------------------------------------------------------------
 ###
+### TODO: Once the "old" SummarizedExperiment class in GenomicRanges is gone
+### (in BioC 2.4) the name will be available again, so it may be used to
+### rename either the SummarizedExperiment0 or the RangedSummarizedExperiment
+### class.
+###
 
-### TODO: Rename this class SummarizedExperiment once the "old"
-### SummarizedExperiment class in GenomicRanges is gone.
+
 setClass("SummarizedExperiment0",
     contains="Vector",
     representation(
@@ -22,25 +26,6 @@ setClass("SummarizedExperiment0",
 ### to put the new parallel slots *first*.
 setMethod("parallelSlotNames", "SummarizedExperiment0",
     function(x) c("NAMES", callNextMethod())
-)
-
-### The 'elementMetadata' slot must contain a zero-column DataFrame at all time
-### (this is checked by the validity method). The top-level mcols are stored on
-### the rowRanges component.
-setClass("RangedSummarizedExperiment",
-    contains="SummarizedExperiment0", 
-    representation(
-        rowRanges="GenomicRangesORGRangesList"
-    ),
-    prototype(
-        rowRanges=GRanges()
-    )
-)
-
-### Combine the new parallel slots with those of the parent class. Make sure
-### to put the new parallel slots *first*.
-setMethod("parallelSlotNames", "RangedSummarizedExperiment",
-    function(x) c("rowRanges", callNextMethod())
 )
 
 
@@ -98,40 +83,31 @@ setMethod("parallelSlotNames", "RangedSummarizedExperiment",
 
 setValidity2("SummarizedExperiment0", .valid.SummarizedExperiment0)
 
-.valid.RangedSummarizedExperiment <- function(x)
-{
-    if (ncol(x@elementMetadata) != 0L)
-        return("'elementMetadata' slot must contain a zero-column DataFrame")
-    NULL
-}
-
-setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
-
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Constructor.
+### Low-level constructor (not exported).
 ###
 
-.get_nrow_from_assays <- function(assays)
+get_nrow_from_assays <- function(assays)
 {
     if (length(assays) == 0L)
         return(0L)
     nrow(assays[[1L]])
 }
 
-.get_rownames_from_assays <- function(assays)
+get_rownames_from_assays <- function(assays)
 {
     if (length(assays) == 0L)
         return(NULL)
     rownames(assays[[1L]])
 }
 
-.new_SummarizedExperiment0 <- function(assays, names, rowData, colData,
-                                       metadata)
+new_SummarizedExperiment0 <- function(assays, names, rowData, colData,
+                                      metadata)
 {
     if (is.null(rowData)) {
         if (is.null(names))
-            nrow <- .get_nrow_from_assays(assays)
+            nrow <- get_nrow_from_assays(assays)
         else
             nrow <- length(names)
         rowData <- new("DataFrame", nrows=nrow)
@@ -144,121 +120,6 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
                                  assays=assays,
                                  metadata=as.list(metadata))
 }
-
-.new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
-                                            metadata)
-{
-    elementMetadata <- new("DataFrame", nrows=length(rowRanges))
-    if (!is(assays, "Assays"))
-        assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
-    new("RangedSummarizedExperiment", rowRanges=rowRanges,
-                                      colData=colData,
-                                      assays=assays,
-                                      elementMetadata=elementMetadata,
-                                      metadata=as.list(metadata))
-}
-
-setMethod(SummarizedExperiment, "SimpleList",
-   function(assays, rowRanges=GRangesList(), colData=DataFrame(),
-            metadata=list(), exptData=SimpleList())
-{
-    if (missing(colData) && 0L != length(assays)) {
-        nms <- colnames(assays[[1]])
-        if (is.null(nms) && 0L != ncol(assays[[1]]))
-            stop("'SummarizedExperiment' assay colnames must not be NULL")
-        colData <- DataFrame(row.names=nms)
-    }
-
-    if (missing(rowRanges)) {
-        ans_rownames <- .get_rownames_from_assays(assays)
-    } else {
-        ans_rownames <- names(rowRanges)
-    }
-    ans_colnames <- rownames(colData)
-    ans_dimnames <- list(ans_rownames, ans_colnames)
-    FUN <- function(x) {
-        ## dimnames as NULL or list(NULL, NULL)
-        all(sapply(dimnames(x), is.null)) ||
-            ## or consistent with row / colData
-            identical(dimnames(x)[1:2], ans_dimnames)
-    }
-    if (!all(sapply(assays, FUN)))
-        assays <- endoapply(assays, unname)
-
-    ## For backward compatibility with "classic" SummarizedExperiment objects.
-    if (!missing(exptData)) {
-        if (!missing(metadata))
-            stop("only one of 'metadata' and 'exptData' can be ",
-                 "specified, but not both")
-        msg <- c("the 'exptData' argument is deprecated, ",
-                 "please use 'metadata' instead")
-        .Deprecated(msg=msg)
-        metadata <- exptData
-    }
-
-    if (missing(rowRanges)) {
-        .new_SummarizedExperiment0(assays, ans_rownames, NULL, colData,
-                                   metadata)
-    } else {
-        .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
-    }
-})
-
-setMethod(SummarizedExperiment, "missing",
-    function(assays, ...)
-{
-    SummarizedExperiment(SimpleList(), ...)
-})
-
-setMethod(SummarizedExperiment, "list",
-    function(assays, ...)
-{
-    SummarizedExperiment(do.call(SimpleList, assays), ...)
-})
-
-setMethod(SummarizedExperiment, "matrix",
-    function(assays, ...)
-{
-    if (is.list(assays))
-        ## special case -- matrix of lists
-        assays <- list(assays)
-    SummarizedExperiment(SimpleList(assays), ...)
-})
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Coercion.
-###
-### See makeSummarizedExperimentFromExpressionSet.R for coercion back and
-### forth between SummarizedExperiment and ExpressionSet.
-###
-
-.from_RangedSummarizedExperiment_to_SummarizedExperiment0 <- function(from)
-{
-    .new_SummarizedExperiment0(from@assays,
-                               names(from@rowRanges),
-                               mcols(from@rowRanges),
-                               from@colData,
-                               from@metadata)
-}
-
-setAs("RangedSummarizedExperiment", "SummarizedExperiment0",
-    .from_RangedSummarizedExperiment_to_SummarizedExperiment0
-)
-
-.from_SummarizedExperiment0_to_RangedSummarizedExperiment <- function(from)
-{
-    partitioning <- PartitioningByEnd(integer(length(from)), names=names(from))
-    rowRanges <- relist(GRanges(), partitioning)
-    .new_RangedSummarizedExperiment(from@assays,
-                                    rowRanges,
-                                    from@colData,
-                                    from@metadata)
-}
-
-setAs("SummarizedExperiment0", "RangedSummarizedExperiment",
-    .from_SummarizedExperiment0_to_RangedSummarizedExperiment
-)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -289,7 +150,7 @@ setMethod(GenomicRanges:::clone, "SummarizedExperiment0",  # not exported
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### SummarizedExperiment0 getters and setters.
+### Getters and setters.
 ###
 
 setMethod("length", "SummarizedExperiment0",
@@ -301,8 +162,8 @@ setMethod("names", "SummarizedExperiment0", function(x) x@NAMES)
 setReplaceMethod("names", "SummarizedExperiment0",
     function(x, value)
     {
-        value <- S4Vectors:::normalize_names_replacement_value(value, x)
-        GenomicRanges:::clone(x, NAMES=value)
+        NAMES <- S4Vectors:::normalize_names_replacement_value(value, x)
+        GenomicRanges:::clone(x, NAMES=NAMES)
     }
 )
 
@@ -314,6 +175,22 @@ setReplaceMethod("metadata", "SummarizedExperiment0",
 {
     value <- as.list(value)
     GenomicRanges:::clone(x, metadata=value)
+})
+
+### We define an exptData() getter and setter for backward compatibility with
+### "classic" SummarizedExperiment objects.
+setMethod("exptData", "SummarizedExperiment0",
+    function(x, ...)
+{
+    .Deprecated("metadata")
+    SimpleList(metadata(x, ...))
+})
+
+setReplaceMethod("exptData", "SummarizedExperiment0",
+    function(x, ..., value)
+{
+    .Deprecated("metadata<-")
+    `metadata<-`(x, ..., value=value)
 })
 
 setGeneric("value",  # not exported
@@ -475,62 +352,16 @@ setMethod(dimnames, "SummarizedExperiment0",
     list(names(x), rownames(colData(x)))
 })
 
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### RangedSummarizedExperiment getters and setters.
-###
-
-setMethod(rowRanges, "RangedSummarizedExperiment",
-    function(x, ...) value(x, "rowRanges"))
-
-.RangedSummarizedExperiment.rowRanges.replace <-
-    function(x, ..., value)
-{
-    x <- GenomicRanges:::clone(
-            x, ...,
-            rowRanges=value,
-            elementMetadata=new("DataFrame", nrows=length(value)))
-    msg <- .valid.SummarizedExperiment0.assays_nrow(x)
-    if (!is.null(msg))
-        stop(msg)
-    x
-}
-
-setReplaceMethod("rowRanges", c("RangedSummarizedExperiment", "GenomicRanges"),
-    .RangedSummarizedExperiment.rowRanges.replace)
-
-setReplaceMethod("rowRanges", c("RangedSummarizedExperiment", "GRangesList"),
-    .RangedSummarizedExperiment.rowRanges.replace)
-
-setMethod("names", "RangedSummarizedExperiment",
-    function(x) names(rowRanges(x))
-)
-
-setReplaceMethod("names", "RangedSummarizedExperiment",
+setReplaceMethod("dimnames", c("SummarizedExperiment0", "list"),
     function(x, value)
 {
-    rowRanges <- rowRanges(x)
-    names(rowRanges) <- value
-    GenomicRanges:::clone(x, rowRanges=rowRanges)
-})
-
-setMethod(dimnames, "RangedSummarizedExperiment",
-    function(x)
-{
-    list(names(x), rownames(colData(x)))
-})
-
-setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
-    function(x, value)
-{
-    rowRanges <- rowRanges(x)
-    names(rowRanges) <- value[[1]]
+    NAMES <- S4Vectors:::normalize_names_replacement_value(value[[1]], x)
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    GenomicRanges:::clone(x, rowRanges=rowRanges, colData=colData)
+    GenomicRanges:::clone(x, NAMES=NAMES, colData=colData)
 })
 
-setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "NULL"),
+setReplaceMethod("dimnames", c("SummarizedExperiment0", "NULL"),
     function(x, value)
 {
     dimnames(x) <- list(NULL, NULL)
@@ -1055,76 +886,4 @@ setMethod("cbind", "SummarizedExperiment0",
     else
         c(do.call(sum, lapply(dim, "[", 1)), dim[[1]][2], dim[[1]][3])
 }
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### To facilitate transition from "classic" SummarizedExperiment objects to
-### new SummarizedExperiment0/RangedSummarizedExperiment objects.
-###
-
-### For backward compatibility with "classic" SummarizedExperiment objects.
-setMethod("exptData", "SummarizedExperiment0",
-    function(x, ...)
-{
-    .Deprecated("metadata")
-    SimpleList(metadata(x, ...))
-})
-
-setReplaceMethod("exptData", "SummarizedExperiment0",
-    function(x, ..., value)
-{
-    .Deprecated("metadata<-")
-    `metadata<-`(x, ..., value=value)
-})
-
-### Update "classic" SummarizedExperiment objects.
-
-.has_SummarizedExperiment_internal_structure <- function(object)
-    all(sapply(slotNames("SummarizedExperiment"), .hasSlot, object=object))
-
-### Used in GenomicRanges!
-.from_SummarizedExperiment_to_RangedSummarizedExperiment <- function(from)
-    .new_RangedSummarizedExperiment(from@assays,
-                                    from@rowData,
-                                    from@colData,
-                                    from@exptData)
-
-### Should work on any object that (1) belongs to a class that now derives
-### from RangedSummarizedExperiment and (2) was created at a time when it was
-### deriving from the old SummarizedExperiment class defined in GenomicRanges.
-### For example: DESeqDataSet objects created before the definition of class
-### DESeqDataSet was modified to extend RangedSummarizedExperiment instead of
-### SummarizedExperiment.  
-setMethod(updateObject, "RangedSummarizedExperiment",
-    function(object, ..., verbose=FALSE)
-{
-    if (.has_SummarizedExperiment_internal_structure(object)) {
-        rse <- .from_SummarizedExperiment_to_RangedSummarizedExperiment(object)
-    } else if (!(.hasSlot(object, "NAMES") &&
-                 .hasSlot(object, "elementMetadata"))) {
-        rse <- .new_RangedSummarizedExperiment(object@assays,
-                                               object@rowRanges,
-                                               object@colData,
-                                               object@metadata)
-    } else {
-        return(object)
-    }
-
-    xslotnames <- setdiff(slotNames(class(object)), slotNames(class(rse)))
-    xslots <- attributes(object)[xslotnames]
-    #do.call("new", c(list(Class=class(object), rse), xslots))
-
-    ## The line above doesn't work because of a bug in R (see
-    ## https://stat.ethz.ch/pipermail/r-devel/2015-May/071130.html),
-    ## so we use the workaround below.
-    rse_slots <- attributes(rse)[slotNames(class(rse))]
-
-    ## Because of another bug in R, rse_slots$NAMES is broken when the NAMES
-    ## slot is NULL so we repair it (see
-    ## https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16428).
-    if (is.name(rse_slots$NAMES))
-        rse_slots$NAMES <- NULL
-
-    do.call("new", c(list(Class=class(object)), rse_slots, xslots))
-})
 

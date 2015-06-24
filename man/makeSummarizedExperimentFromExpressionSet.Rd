@@ -100,9 +100,9 @@ makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet,
 ## GOING FROM RangedSummarizedExperiment TO ExpressionSet
 ## ---------------------------------------------------------------------
 
-example(RangedSummarizedExperiment)  # to create 'sset'
-sset
-as(sset, "ExpressionSet")
+example(RangedSummarizedExperiment)  # to create 'rse'
+rse
+as(rse, "ExpressionSet")
 }
 
 \keyword{manip}
