@@ -39,7 +39,7 @@
 \alias{dimnames<-,SummarizedExperiment0,NULL-method}
 
 % Subsetting
-\alias{extractROWS,SummarizedExperiment0-method}
+\alias{extractROWS,SummarizedExperiment0,ANY-method}
 \alias{replaceROWS,SummarizedExperiment0-method}
 \alias{[,SummarizedExperiment0-method}
 \alias{[,SummarizedExperiment0,ANY-method}

@@ -485,23 +485,6 @@ setReplaceMethod("seqinfo", "RangedSummarizedExperiment",
     x
 })
 
-## extractROWS, replaceROWS
-
-setMethod("extractROWS", "RangedSummarizedExperiment",
-    function(x, i)
-{
-    ridx <- extractROWS(seq_len(nrow(x)), i)
-    x[ridx,]
-})
-
-setMethod("replaceROWS", "RangedSummarizedExperiment",
-    function (x, i, value)
-{
-    ridx <- extractROWS(seq_len(nrow(x)), i)
-    x[ridx,] <- value
-    x
-})
-
 setMethod(split, "RangedSummarizedExperiment",
     function(x, f, drop=FALSE, ...) 
 {
