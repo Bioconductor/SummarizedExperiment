@@ -28,10 +28,15 @@ setMethod("parallelSlotNames", "RangedSummarizedExperiment",
 ### Validity.
 ###
 
+### The names and mcols of a RangedSummarizedExperiment must be set on its
+### rowRanges slot, not in its NAMES and elementMetadata slots!
 .valid.RangedSummarizedExperiment <- function(x)
 {
+    if (!is.null(x@NAMES))
+        return("'NAMES' slot must be set to NULL at all time")
     if (ncol(x@elementMetadata) != 0L)
-        return("'elementMetadata' slot must contain a zero-column DataFrame")
+        return(wmsg("'elementMetadata' slot must contain a zero-column ",
+                    "DataFrame at all time"))
     NULL
 }
 

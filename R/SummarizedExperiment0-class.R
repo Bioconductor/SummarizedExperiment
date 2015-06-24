@@ -373,18 +373,6 @@ setReplaceMethod("dimnames", c("SummarizedExperiment0", "NULL"),
 ### Subsetting.
 ###
 
-.SummarizedExperiment.charbound <-
-    function(idx, txt, fmt)
-{
-    orig <- idx
-    idx <- match(idx, txt)
-    if (any(bad <- is.na(idx))) {
-        msg <- paste(BiocGenerics:::selectSome(orig[bad]), collapse=" ")
-        stop(sprintf(fmt, msg))
-    }
-    idx
-}
-
 .SummarizedExperiment.assays.subset <- function(x, i, j)
 {
     ## need to expand Rle's for subsetting standard matrix
@@ -417,6 +405,107 @@ setReplaceMethod("dimnames", c("SummarizedExperiment0", "NULL"),
         }
     }
     endoapply(assays(x, withDimnames=FALSE), fun)
+}
+
+.SummarizedExperiment.assays.subsetgets <- function(x, i, j, value)
+{
+    ## need to expand Rle's for subsetting standard matrix
+    if (!missing(i) && !missing(j)) {
+        fun <- function(x, value) {
+            switch(length(dim(x)),
+                   stop("'[<-' on assays() with 1 dimension not supported"),
+                   x[i, j] <- value,
+                   x[i, j, ] <- value,
+                   x[i, j, , ] <- value,
+                   stop("'[<-' on assays() with >4 dimensions not supported"))
+            x
+        }
+    } else if (!missing(i)) {
+        fun <- function(x, value) {
+            switch(length(dim(x)),
+                   stop("'[<-' on assays() with 1 dimension not supported"),
+                   x[i, ] <- value,
+                   x[i, , ] <- value,
+                   x[i, , , ] <- value,
+                   stop("'[<-' on assays() with >4 dimensions not supported"))
+            x
+        }
+    } else if (!missing(j)) {
+        fun <- function(x, value) {
+            switch(length(dim(x)),
+                   stop("'[<-' on assays() with 1 dimension not supported"),
+                   x[, j] <- value,
+                   x[, j, ] <- value,
+                   x[, j, , ] <- value,
+                   stop("'[<-' on assays() with >4 dimensions not supported"))
+            x
+        }
+    }
+    a <- assays(x, withDimnames=FALSE)
+    v <- assays(value, withDimnames=FALSE)
+    mendoapply(fun, x=a, value=v)
+}
+
+setMethod("extractROWS", "SummarizedExperiment0",
+    function(x, i)
+    {
+        i <- normalizeSingleBracketSubscript(i, x, as.NSBS=TRUE)
+        ans_assays <- .SummarizedExperiment.assays.subset(x, i=as.integer(i))
+        ans_elementMetadata <- extractROWS(x@elementMetadata, i)
+        if (is(x, "RangedSummarizedExperiment")) {
+            ans_rowRanges <- extractROWS(x@rowRanges, i)
+            GenomicRanges:::clone(x,
+                                  assays=ans_assays,
+                                  elementMetadata=ans_elementMetadata,
+                                  rowRanges=ans_rowRanges)
+        } else {
+            ans_NAMES <- extractROWS(x@NAMES, i)
+            GenomicRanges:::clone(x,
+                                  assays=ans_assays,
+                                  elementMetadata=ans_elementMetadata,
+                                  NAMES=ans_NAMES)
+        }
+    }
+)
+
+setMethod("replaceROWS", "SummarizedExperiment0",
+    function(x, i, value)
+    {
+        i <- normalizeSingleBracketSubscript(i, x, as.NSBS=TRUE)
+        ans_metadata <- c(x@metadata, value@metadata)
+        ans_assays <- .SummarizedExperiment.assays.subsetgets(x,
+                                                              i=as.integer(i),
+                                                              value=value)
+        ans_elementMetadata <- replaceROWS(x@elementMetadata, i,
+                                           value@elementMetadata)
+        if (is(x, "RangedSummarizedExperiment")) {
+            ans_rowRanges <- replaceROWS(x@rowRanges, i, value@rowRanges)
+            GenomicRanges:::clone(x,
+                                  metadata=ans_metadata,
+                                  assays=ans_assays,
+                                  elementMetadata=ans_elementMetadata,
+                                  rowRanges=ans_rowRanges)
+        } else {
+            ans_NAMES <- replaceROWS(x@NAMES, i, value@NAMES)
+            GenomicRanges:::clone(x,
+                                  metadata=ans_metadata,
+                                  assays=ans_assays,
+                                  elementMetadata=ans_elementMetadata,
+                                  NAMES=ans_NAMES)
+        }
+    }
+)
+
+.SummarizedExperiment.charbound <-
+    function(idx, txt, fmt)
+{
+    orig <- idx
+    idx <- match(idx, txt)
+    if (any(bad <- is.na(idx))) {
+        msg <- paste(BiocGenerics:::selectSome(orig[bad]), collapse=" ")
+        stop(sprintf(fmt, msg))
+    }
+    idx
 }
 
 setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
@@ -486,45 +575,6 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
     }
     ans
 })
-
-.SummarizedExperiment.assays.subsetgets <- function(x, i, j, value)
-{
-    ## need to expand Rle's for subsetting standard matrix
-    if (!missing(i) && !missing(j)) {
-        fun <- function(x, value) {
-            switch(length(dim(x)),
-                   stop("'[<-' on assays() with 1 dimension not supported"),
-                   x[i, j] <- value,
-                   x[i, j, ] <- value,
-                   x[i, j, , ] <- value,
-                   stop("'[<-' on assays() with >4 dimensions not supported"))
-            x
-        }
-    } else if (!missing(i)) {
-        fun <- function(x, value) {
-            switch(length(dim(x)),
-                   stop("'[<-' on assays() with 1 dimension not supported"),
-                   x[i, ] <- value,
-                   x[i, , ] <- value,
-                   x[i, , , ] <- value,
-                   stop("'[<-' on assays() with >4 dimensions not supported"))
-            x
-        }
-    } else if (!missing(j)) {
-        fun <- function(x, value) {
-            switch(length(dim(x)),
-                   stop("'[<-' on assays() with 1 dimension not supported"),
-                   x[, j] <- value,
-                   x[, j, ] <- value,
-                   x[, j, , ] <- value,
-                   stop("'[<-' on assays() with >4 dimensions not supported"))
-            x
-        }
-    }
-    a <- assays(x, withDimnames=FALSE)
-    v <- assays(value, withDimnames=FALSE)
-    mendoapply(fun, x=a, value=v)
-}
 
 setReplaceMethod("[",
     c("SummarizedExperiment0", "ANY", "ANY", "SummarizedExperiment0"),

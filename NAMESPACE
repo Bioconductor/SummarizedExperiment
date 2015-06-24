@@ -52,6 +52,7 @@ exportMethods(
     mcols, "mcols<-",
     elementMetadata, "elementMetadata<-",
     values, "values<-",
+    extractROWS, replaceROWS,
     subset,
     compare,
 
