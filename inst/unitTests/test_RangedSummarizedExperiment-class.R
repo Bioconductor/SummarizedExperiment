@@ -20,7 +20,7 @@ names(rowRangesList[["grl"]]) <- NULL
 colData <- DataFrame(x=letters[1:3])
 
 ## a list of one SE with GRanges and one with GRangesList
-ssetList <- 
+rseList <- 
     list(SummarizedExperiment(
            assays=assaysList[["gr"]], 
            rowRanges=rowRangesList[["gr"]], 
@@ -38,16 +38,16 @@ test_RangedSummarizedExperiment_construction <- function()
     checkTrue(validObject(new("RangedSummarizedExperiment")))
 
     ## substance
-    for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]]
-        checkTrue(validObject(sset))
-        checkIdentical(SimpleList(m=mList[[i]]), assays(sset))
-        checkIdentical(rowRangesList[[i]], rowRanges(sset))
-        checkIdentical(DataFrame(x=letters[1:3]), colData(sset))
+    for (i in seq_along(rseList)) {
+        rse <- rseList[[i]]
+        checkTrue(validObject(rse))
+        checkIdentical(SimpleList(m=mList[[i]]), assays(rse))
+        checkIdentical(rowRangesList[[i]], rowRanges(rse))
+        checkIdentical(DataFrame(x=letters[1:3]), colData(rse))
     }
 
     ## array in assays slot
-    ss <- ssetList[[1]]
+    ss <- rseList[[1]]
     assays(ss) <- SimpleList(array(1:5, c(5,3,2)))
     checkTrue(validObject(ss))
     checkTrue(all(dim(assays(ss[1:3,1:2])[[1]]) == c(3, 2, 2)))
@@ -55,56 +55,56 @@ test_RangedSummarizedExperiment_construction <- function()
 
 test_RangedSummarizedExperiment_getters <- function()
 {
-    for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]]
+    for (i in seq_along(rseList)) {
+        rse <- rseList[[i]]
         rowRanges <- rowRangesList[[i]]
 
         ## dim, dimnames
-        checkIdentical(c(length(rowRanges), nrow(colData)), dim(sset))
-        checkIdentical(list(NULL, NULL), dimnames(sset))
+        checkIdentical(c(length(rowRanges), nrow(colData)), dim(rse))
+        checkIdentical(list(NULL, NULL), dimnames(rse))
 
         ## row / col / metadata
-        checkIdentical(rowRanges, rowRanges(sset))
-        checkIdentical(colData, colData(sset))
-        checkIdentical(list(), metadata(sset))
+        checkIdentical(rowRanges, rowRanges(rse))
+        checkIdentical(colData, colData(rse))
+        checkIdentical(list(), metadata(rse))
     }
 }
 
 test_RangedSummarizedExperiment_setters <- function()
 {
-    for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]]
+    for (i in seq_along(rseList)) {
+        rse <- rseList[[i]]
         rowRanges <- rowRangesList[[i]]
 
         ## row / col / metadata<-
-        ss1 <- sset
+        ss1 <- rse
         revData <- rev(rowRanges)
         rowRanges(ss1) <- revData
         checkIdentical(revData, rowRanges(ss1))
-        checkException(rowRanges(ss1) <- rowRanges(sset)[1:2,,drop=FALSE],
+        checkException(rowRanges(ss1) <- rowRanges(rse)[1:2,,drop=FALSE],
                        "incorrect row dimensions", TRUE)
         revData <- colData[rev(seq_len(nrow(colData))),,drop=FALSE]
         colData(ss1) <- revData
         checkIdentical(revData, colData(ss1))
-        checkException(colData(ss1) <- colData(sset)[1:2,,drop=FALSE],
+        checkException(colData(ss1) <- colData(rse)[1:2,,drop=FALSE],
                        "incorrect col dimensions", TRUE)
         lst <- list("foo", "bar")
         metadata(ss1) <- lst
         checkIdentical(lst, metadata(ss1))
 
         ## assay / assays
-        ss1 <- sset
+        ss1 <- rse
         assay(ss1) <- assay(ss1)+1
-        checkIdentical(assay(sset)+1, assay(ss1))
-        ss1 <- sset
+        checkIdentical(assay(rse)+1, assay(ss1))
+        ss1 <- rse
         assay(ss1, 1) <- assay(ss1, 1) + 1
-        checkIdentical(assay(sset, "m") + 1, assay(ss1, "m"))
-        ss1 <- sset
+        checkIdentical(assay(rse, "m") + 1, assay(ss1, "m"))
+        ss1 <- rse
         assay(ss1, "m") <- assay(ss1, "m") + 1
-        checkIdentical(assay(sset, "m")+1, assay(ss1, "m"))
+        checkIdentical(assay(rse, "m")+1, assay(ss1, "m"))
 
         ## dimnames<-
-        ss1 <- sset
+        ss1 <- rse
         dimnames <- list(letters[seq_len(nrow(ss1))],
                          LETTERS[seq_len(ncol(ss1))])
         rownames(ss1) <- dimnames[[1]]
@@ -116,7 +116,7 @@ test_RangedSummarizedExperiment_setters <- function()
         colData1 <- colData
         row.names(colData1) <- dimnames[[2]]
         checkIdentical(colData1, colData(ss1))
-        ss1 <- sset
+        ss1 <- rse
         dimnames(ss1) <- dimnames
         checkIdentical(dimnames, dimnames(ss1))
         dimnames(ss1) <- NULL
@@ -126,26 +126,26 @@ test_RangedSummarizedExperiment_setters <- function()
 
 test_RangedSummarizedExperiment_subset <- function()
 {
-    for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]]
+    for (i in seq_along(rseList)) {
+        rse <- rseList[[i]]
         rowRanges <- rowRangesList[[i]]
 
         ## numeric
-        ss1 <- sset[2:3,]
-        checkIdentical(c(2L, ncol(sset)), dim(ss1))
-        checkIdentical(rowRanges(ss1), rowRanges(sset)[2:3,])
-        checkIdentical(colData(ss1), colData(sset))
-        ss1 <- sset[,2:3]
-        checkIdentical(c(nrow(sset), 2L), dim(ss1))
-        checkIdentical(rowRanges(ss1), rowRanges(sset))
-        checkIdentical(colData(ss1), colData(sset)[2:3,,drop=FALSE])
-        ss1 <- sset[2:3, 2:3]
+        ss1 <- rse[2:3,]
+        checkIdentical(c(2L, ncol(rse)), dim(ss1))
+        checkIdentical(rowRanges(ss1), rowRanges(rse)[2:3,])
+        checkIdentical(colData(ss1), colData(rse))
+        ss1 <- rse[,2:3]
+        checkIdentical(c(nrow(rse), 2L), dim(ss1))
+        checkIdentical(rowRanges(ss1), rowRanges(rse))
+        checkIdentical(colData(ss1), colData(rse)[2:3,,drop=FALSE])
+        ss1 <- rse[2:3, 2:3]
         checkIdentical(c(2L, 2L), dim(ss1))
-        checkIdentical(rowRanges(ss1), rowRanges(sset)[2:3,,drop=FALSE])
-        checkIdentical(colData(ss1), colData(sset)[2:3,,drop=FALSE])
+        checkIdentical(rowRanges(ss1), rowRanges(rse)[2:3,,drop=FALSE])
+        checkIdentical(colData(ss1), colData(rse)[2:3,,drop=FALSE])
 
         ## character
-        ss1 <- sset
+        ss1 <- rse
         dimnames(ss1) <- list(LETTERS[seq_len(nrow(ss1))],
                                letters[seq_len(ncol(ss1))])
         ridx <- c("B", "C")
@@ -158,7 +158,7 @@ test_RangedSummarizedExperiment_subset <- function()
         checkException(ss1[,letters], "j-index out of bounds", TRUE)
 
         ## logical
-        ss1 <- sset
+        ss1 <- rse
         dimnames(ss1) <- list(LETTERS[seq_len(nrow(ss1))],
                                letters[seq_len(ncol(ss1))])
         checkEquals(ss1, ss1[TRUE,])
@@ -172,7 +172,7 @@ test_RangedSummarizedExperiment_subset <- function()
         checkIdentical(colData(ss1)[idx,,drop=FALSE], colData(ss2))
 
         ## Rle
-        ss1 <- sset
+        ss1 <- rse
         rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(ss1))
         checkIdentical(rowRanges(ss1[rle]), rowRanges(ss1[Rle(rle)]))
         checkIdentical(assays(ss1[rle]), assays(ss1[Rle(rle)]))
@@ -188,37 +188,37 @@ test_RangedSummarizedExperiment_subset <- function()
 
 test_RangedSummarizedExperiment_subsetassign <- function()
 {
-    for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]]
-        dimnames(sset) <- list(LETTERS[seq_len(nrow(sset))],
-                               letters[seq_len(ncol(sset))])
+    for (i in seq_along(rseList)) {
+        rse <- rseList[[i]]
+        dimnames(rse) <- list(LETTERS[seq_len(nrow(rse))],
+                               letters[seq_len(ncol(rse))])
         ## rows
-        ss1 <- sset
+        ss1 <- rse
         ss1[1:2,] <- ss1[2:1,]
-        checkIdentical(rowRanges(sset)[2:1,], rowRanges(ss1)[1:2,])
-        checkIdentical(rowRanges(sset[-(1:2),]), rowRanges(ss1)[-(1:2),])
-        checkIdentical(colData(sset), colData(ss1))
-        checkIdentical(c(metadata(sset), metadata(sset)), metadata(ss1))
+        checkIdentical(rowRanges(rse)[2:1,], rowRanges(ss1)[1:2,])
+        checkIdentical(rowRanges(rse[-(1:2),]), rowRanges(ss1)[-(1:2),])
+        checkIdentical(colData(rse), colData(ss1))
+        checkIdentical(c(metadata(rse), metadata(rse)), metadata(ss1))
         ## Rle
-        ss1rle <- ss1Rle <- sset
+        ss1rle <- ss1Rle <- rse
         rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(ss1))
         ss1rle[rle,] <- ss1rle[rle,]
         ss1Rle[Rle(rle),] <- ss1Rle[Rle(rle),]
         checkIdentical(rowRanges(ss1rle), rowRanges(ss1Rle))
         checkIdentical(assays(ss1rle), assays(ss1Rle))
         ## cols
-        ss1 <- sset
+        ss1 <- rse
         ss1[,1:2] <- ss1[,2:1,drop=FALSE]
-        checkIdentical(colData(sset)[2:1,,drop=FALSE],
+        checkIdentical(colData(rse)[2:1,,drop=FALSE],
                        colData(ss1)[1:2,,drop=FALSE])
-        checkIdentical(colData(sset)[-(1:2),,drop=FALSE],
+        checkIdentical(colData(rse)[-(1:2),,drop=FALSE],
                        colData(ss1)[-(1:2),,drop=FALSE])
-        checkIdentical(rowRanges(sset), rowRanges(ss1))
-        checkIdentical(c(metadata(sset), metadata(sset)), metadata(ss1))
+        checkIdentical(rowRanges(rse), rowRanges(ss1))
+        checkIdentical(c(metadata(rse), metadata(rse)), metadata(ss1))
     }
 
     ## full replacement
-    ss1 <- ss2 <- ssetList[[1]]
+    ss1 <- ss2 <- rseList[[1]]
     rowRanges(ss2) <- rev(rowRanges(ss2))
     ss1[,] <- ss2
     checkIdentical(ss1, ss2)
@@ -234,13 +234,13 @@ test_RangedSummarizedExperiment_cbind <- function()
     checkTrue(all.equal(se, empty))
 
     ## different ranges 
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1[2:4]
     rownames(se2) <- month.name[seq_len(nrow(se2))]
     checkException(quiet(cbind(se1, se2)), silent=TRUE)
 
     ## same ranges 
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1[,1:2]
     colnames(se2) <- month.name[seq_len(ncol(se2))]
     res <- cbind(se1, se2)
@@ -256,7 +256,7 @@ test_RangedSummarizedExperiment_cbind <- function()
     ## colData
     checkTrue(nrow(colData(res)) == 5)
     ## assays 
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1[,1:2]
     assays(se1) <- SimpleList("m"=matrix(rep("m", 15), nrow=5),
                               "a"=array(rep("a", 30), c(5,3,2)))
@@ -280,12 +280,12 @@ test_RangedSummarizedExperiment_rbind <- function()
     checkTrue(all.equal(se, empty))
 
     ## different samples 
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1[,1]
     checkException(quiet(rbind(se1, se2)), silent=TRUE)
 
     ## same samples 
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1
     rownames(se2) <- LETTERS[seq_len(nrow(se2))]
     res <- rbind(se1, se2)
@@ -296,13 +296,13 @@ test_RangedSummarizedExperiment_rbind <- function()
     mcols(se2) <- DataFrame("two"=6:10)
     checkException(rbind(se1, se2), silent=TRUE)
     ## colDat
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1
     colData(se2) <- DataFrame("one"=1:3, "two"=4:6)
     res <- quiet(rbind(se1, se2))
     checkTrue(ncol(colData(res)) == 3)
     ## assays 
-    se1 <- ssetList[[1]]
+    se1 <- rseList[[1]]
     se2 <- se1
     assays(se1) <- SimpleList("m"=matrix(rep("m", 15), nrow=5),
                               "a"=array(rep("a", 30), c(5,3,2)))
@@ -342,7 +342,7 @@ test_RangedSummarizedExperiment_GRanges_API <- function()
 
 test_RangedSummarizedExperiment_GRanges_values <- function()
 {
-    x <- ssetList[[1]]
+    x <- rseList[[1]]
     isAssign <- grep("<-$", .singleDispatch, value=TRUE)
     .funs <- setdiff(.singleDispatch, isAssign)
     ## 'exp' created after manual inspection of results

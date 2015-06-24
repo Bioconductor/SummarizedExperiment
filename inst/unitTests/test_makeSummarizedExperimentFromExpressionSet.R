@@ -1,7 +1,7 @@
-m <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
-mlst <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
-mList <- list(m, mlst)
-assaysList <- list(gr=SimpleList(m=m), grl=SimpleList(m=mlst))
+M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
+M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
+mList <- list(M1, M2)
+assaysList <- list(gr=SimpleList(m=M1), grl=SimpleList(m=M2))
 rowRangesList <- 
     list(gr=GRanges("chr1", IRanges(1:5, 10)), 
          grl=split(GRanges("chr1", IRanges(1:5, 10)), c(1,1,2,2,3)))
@@ -9,7 +9,7 @@ names(rowRangesList[["grl"]]) <- NULL
 colData <- DataFrame(x=letters[1:3])
 
 ## a list of one SE with GRanges and one with GRangesList
-ssetList <- 
+rseList <- 
     list(SummarizedExperiment(
            assays=assaysList[["gr"]], 
            rowRanges=rowRangesList[["gr"]], 
@@ -78,28 +78,28 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
                     as.list(assayData(simpleES2)))
 
         ## Simple SE
-        eset2 <- as(ssetList[[1]], "ExpressionSet")
+        eset2 <- as(rseList[[1]], "ExpressionSet")
         checkTrue(validObject(eset2))
 
         ## The ExpressionSet features should have the data from the
         ## SummarizedExperiment rows if they are from GRanges.
         checkIdentical(pData(featureData(eset2)),
-                       as.data.frame(rowRanges(ssetList[[1]])))
+                       as.data.frame(rowRanges(rseList[[1]])))
 
         # the rowRanges are retained if the object has them to begin with.
         se2_2 <- as(eset2, "SummarizedExperiment")
         rr_se2_2 <- unname(rowRanges(se2_2))
-        rr_eset2 <- rowRanges(ssetList[[1]])
+        rr_eset2 <- rowRanges(rseList[[1]])
         checkEquals(rr_se2_2, rr_eset2)
 
-        eset3 <- as(ssetList[[2]], "ExpressionSet")
+        eset3 <- as(rseList[[2]], "ExpressionSet")
         checkTrue(validObject(eset3))
 
         ## The ExpressionSet features should not have the data from the
         ## SummarizedExperiment rows if they are from GRangesList, but they
         ## should be empty and the same length as the number of ranges.
         checkEquals(unname(NROW(featureData(eset3))),
-                       unname(length(rowRanges(ssetList[[2]]))))
+                    unname(length(rowRanges(rseList[[2]]))))
 
         data("sample.ExpressionSet", package = "Biobase")
         eset4 <- sample.ExpressionSet
