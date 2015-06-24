@@ -709,20 +709,20 @@ setReplaceMethod("[",
         ii <- as.vector(i)
         ans_elementMetadata <- local({
             emd <- x@elementMetadata
-            emd[i,] <- mcols(value)
+            emd[i,] <- value@elementMetadata
             emd
         })
         if (is(x, "RangedSummarizedExperiment"))
             ans_rowRanges <- local({
                 r <- x@rowRanges
-                r[i] <- rowRanges(value)
-                names(r)[ii] <- names(rowRanges(value))
+                r[i] <- value@rowRanges
+                names(r)[ii] <- names(value@rowRanges)
                 r
             })
         else
             ans_NAMES <- local({
                 nms <- x@NAMES
-                nms[i] <- names(value)
+                nms[i] <- value@NAMES
                 nms
             })
     }
@@ -735,8 +735,8 @@ setReplaceMethod("[",
         jj <- as.vector(j)
         ans_colData <- local({
             c <- x@colData
-            c[j,] <- colData(value)
-            rownames(c)[jj] <- rownames(colData(value))
+            c[j,] <- value@colData
+            rownames(c)[jj] <- rownames(value@colData)
             c
         })
     }
