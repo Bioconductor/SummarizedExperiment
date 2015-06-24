@@ -433,12 +433,13 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
             fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
             i <- .SummarizedExperiment.charbound(i, rownames(x), fmt)
         }
-        ans_elementMetadata <- x@elementMetadata[i, , drop=FALSE]
-        if (is(x, "RangedSummarizedExperiment"))
-            ans_rowRanges <- x@rowRanges[i]
-        else
-            ans_NAMES <- x@NAMES[i]
         ii <- as.vector(i)
+        ans_elementMetadata <- x@elementMetadata[i, , drop=FALSE]
+        if (is(x, "RangedSummarizedExperiment")) {
+            ans_rowRanges <- x@rowRanges[i]
+        } else {
+            ans_NAMES <- x@NAMES[ii]
+        }
     }
     if (!missing(j)) {
         if (is.character(j)) {
@@ -456,30 +457,32 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
                                         assays=ans_assays)
     } else if (missing(j)) {
         ans_assays <- .SummarizedExperiment.assays.subset(x, i=ii)
-        if (is(x, "RangedSummarizedExperiment"))
+        if (is(x, "RangedSummarizedExperiment")) {
             ans <- GenomicRanges:::clone(x, ...,
                                             elementMetadata=ans_elementMetadata,
                                             rowRanges=ans_rowRanges,
                                             assays=ans_assays)
-        else
+        } else {
             ans <- GenomicRanges:::clone(x, ...,
                                             elementMetadata=ans_elementMetadata,
                                             NAMES=ans_NAMES,
                                             assays=ans_assays)
+        }
     } else {
         ans_assays <- .SummarizedExperiment.assays.subset(x, ii, jj)
-        if (is(x, "RangedSummarizedExperiment"))
+        if (is(x, "RangedSummarizedExperiment")) {
             ans <- GenomicRanges:::clone(x, ...,
                                             elementMetadata=ans_elementMetadata,
                                             rowRanges=ans_rowRanges,
                                             colData=ans_colData,
                                             assays=ans_assays)
-        else
+        } else {
             ans <- GenomicRanges:::clone(x, ...,
                                             elementMetadata=ans_elementMetadata,
                                             NAMES=ans_NAMES,
                                             colData=ans_colData,
                                             assays=ans_assays)
+        }
     }
     ans
 })
@@ -543,19 +546,20 @@ setReplaceMethod("[",
             emd[i,] <- value@elementMetadata
             emd
         })
-        if (is(x, "RangedSummarizedExperiment"))
+        if (is(x, "RangedSummarizedExperiment")) {
             ans_rowRanges <- local({
                 r <- x@rowRanges
                 r[i] <- value@rowRanges
                 names(r)[ii] <- names(value@rowRanges)
                 r
             })
-        else
+        } else {
             ans_NAMES <- local({
                 nms <- x@NAMES
-                nms[i] <- value@NAMES
+                nms[ii] <- value@NAMES
                 nms
             })
+        }
     }
 
     if (!missing(j)) {
@@ -583,36 +587,38 @@ setReplaceMethod("[",
     } else if (missing(j)) {
         ans_assays <- .SummarizedExperiment.assays.subsetgets(x, i=ii,
                                                               value=value)
-        if (is(x, "RangedSummarizedExperiment"))
+        if (is(x, "RangedSummarizedExperiment")) {
             ans <- GenomicRanges:::clone(x, ...,
                                             metadata=ans_metadata,
                                             elementMetadata=ans_elementMetadata,
                                             rowRanges=ans_rowRanges,
                                             assays=ans_assays)
-        else
+        } else {
             ans <- GenomicRanges:::clone(x, ...,
                                             metadata=ans_metadata,
                                             elementMetadata=ans_elementMetadata,
                                             NAMES=ans_NAMES,
                                             assays=ans_assays)
+        }
         msg <- .valid.SummarizedExperiment0.assays_nrow(ans)
     } else {
         ans_assays <- .SummarizedExperiment.assays.subsetgets(x, ii, jj,
                                                               value=value)
-        if (is(x, "RangedSummarizedExperiment"))
+        if (is(x, "RangedSummarizedExperiment")) {
             ans <- GenomicRanges:::clone(x, ...,
                                             metadata=ans_metadata,
                                             elementMetadata=ans_elementMetadata,
                                             rowRanges=ans_rowRanges,
                                             colData=ans_colData,
                                             assays=ans_assays)
-        else
+        } else {
             ans <- GenomicRanges:::clone(x, ...,
                                             metadata=ans_metadata,
                                             elementMetadata=ans_elementMetadata,
                                             NAMES=ans_NAMES,
                                             colData=ans_colData,
                                             assays=ans_assays)
+        }
         msg <- .valid.SummarizedExperiment0.assays_dim(ans)
     }
     if (!is.null(msg))
@@ -752,14 +758,15 @@ setMethod("rbind", "SummarizedExperiment0",
     elementMetadata <- do.call(rbind, lapply(args, slot, "elementMetadata"))
     metadata <- do.call(c, lapply(args, metadata))
 
-    if (is(args[[1L]], "RangedSummarizedExperiment"))
+    if (is(args[[1L]], "RangedSummarizedExperiment")) {
         initialize(args[[1L]],
                    rowRanges=rowRanges, colData=colData, assays=assays,
                    elementMetadata=elementMetadata, metadata=metadata)
-    else
+    } else {
         initialize(args[[1L]],
                    NAMES=NAMES, colData=colData, assays=assays,
                    elementMetadata=elementMetadata, metadata=metadata)
+    }
 }
 
 ### Appropriate for objects with same ranges and different samples.
@@ -784,14 +791,15 @@ setMethod("cbind", "SummarizedExperiment0",
     assays <- .bind.arrays(args, cbind, "assays")
     metadata <- do.call(c, lapply(args, metadata))
 
-    if (is(args[[1L]], "RangedSummarizedExperiment"))
+    if (is(args[[1L]], "RangedSummarizedExperiment")) {
         initialize(args[[1L]],
                    rowRanges=rowRanges,
                    colData=colData, assays=assays, metadata=metadata)
-    else
+    } else {
         initialize(args[[1L]],
                    elementMetadata=elementMetadata,
                    colData=colData, assays=assays, metadata=metadata)
+    }
 }
 
 .compare <- function(x, GenomicRanges=FALSE)

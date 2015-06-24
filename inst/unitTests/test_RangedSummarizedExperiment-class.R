@@ -1,7 +1,18 @@
-m <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
-mlst <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
-mList <- list(m, mlst)
-assaysList <- list(gr=SimpleList(m=m), grl=SimpleList(m=mlst))
+library(digest)
+
+.singleDispatch <-
+    c("duplicated", "end", "end<-", "granges", "ranges", 
+      "seqinfo", "seqinfo<-", "seqnames", "start", "start<-",
+      "strand", "width", "width<-")
+
+.twoDispatch <- c("compare", "Compare")
+
+.otherFuns <- c("order", "rank", "sort")
+
+M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
+M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
+mList <- list(M1, M2)
+assaysList <- list(gr=SimpleList(m=M1), grl=SimpleList(m=M2))
 rowRangesList <- 
     list(gr=GRanges("chr1", IRanges(1:5, 10)), 
          grl=split(GRanges("chr1", IRanges(1:5, 10)), c(1,1,2,2,3)))
@@ -25,22 +36,10 @@ test_RangedSummarizedExperiment_construction <- function()
     ## empty-ish
     m1 <- matrix(0, 0, 0)
     checkTrue(validObject(new("RangedSummarizedExperiment")))
-    checkTrue(validObject(SummarizedExperiment()))
-    checkTrue(validObject(
-        SummarizedExperiment(assays=SimpleList(m1))))
-    checkException(
-        SummarizedExperiment(assays=SimpleList(matrix())),
-        "assays dim mismatch", TRUE)
-    checkException(
-        SummarizedExperiment(assays=SimpleList(m1, matrix())),
-        "assays dim mismatch", TRUE)
-    checkException(
-        SummarizedExperiment(assays=SimpleList(character())),
-        "assays class", TRUE)
 
     ## substance
     for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]] 
+        sset <- ssetList[[i]]
         checkTrue(validObject(sset))
         checkIdentical(SimpleList(m=mList[[i]]), assays(sset))
         checkIdentical(rowRangesList[[i]], rowRanges(sset))
@@ -52,23 +51,14 @@ test_RangedSummarizedExperiment_construction <- function()
     assays(ss) <- SimpleList(array(1:5, c(5,3,2)))
     checkTrue(validObject(ss))
     checkTrue(all(dim(assays(ss[1:3,1:2])[[1]]) == c(3, 2, 2)))
-
-    ## matrix-of-list in assay slot
-    m <- matrix(list(), 2, 3, dimnames=list(LETTERS[1:2], letters[1:3]))
-    checkTrue(validObject(se <- SummarizedExperiment(m)))
-    checkIdentical(m, assay(se))
-    checkIdentical(m[,1:2], assay(se[,1:2]))
-
-    ## DataFrame in assay slot
-    df <- DataFrame(a=1:3, b=1:3, row.names=LETTERS[1:3])
-    checkTrue(validObject(SummarizedExperiment(list(df))))
 }
 
 test_RangedSummarizedExperiment_getters <- function()
 {
     for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]] 
-        rowRanges <- rowRangesList[[i]] 
+        sset <- ssetList[[i]]
+        rowRanges <- rowRangesList[[i]]
+
         ## dim, dimnames
         checkIdentical(c(length(rowRanges), nrow(colData)), dim(sset))
         checkIdentical(list(NULL, NULL), dimnames(sset))
@@ -78,39 +68,17 @@ test_RangedSummarizedExperiment_getters <- function()
         checkIdentical(colData, colData(sset))
         checkIdentical(list(), metadata(sset))
     }
-
-    ## assays
-    m0 <- matrix(0L, 0, 0, dimnames=list(NULL, NULL))
-    m1 <- matrix(0, 0, 0, dimnames=list(NULL, NULL))
-    a <- SimpleList(a=m0, b=m1)
-    checkIdentical(a, assays(SummarizedExperiment(assays=a)))
-    ## assay
-    checkException(
-        assay(SummarizedExperiment()), "0-length assay", TRUE)
-    checkIdentical(m0,
-        assay(SummarizedExperiment(assays=a)), "default assay")
-    checkIdentical(m1,
-        assay(SummarizedExperiment(assays=a), 2),
-        "assay, numeric index")
-    checkException(
-        assay(SummarizedExperiment(assays=a), 3),
-        "invalid assay index", TRUE)
-    checkIdentical(m1,
-        assay(SummarizedExperiment(assays=a), "b"),
-        "assay, character index")
-    checkException(
-        assay(SummarizedExperiment(assays=a), "c"),
-        "invalid assay name", TRUE)
 }
 
 test_RangedSummarizedExperiment_setters <- function()
 {
     for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]] 
-        rowRanges <- rowRangesList[[i]] 
+        sset <- ssetList[[i]]
+        rowRanges <- rowRangesList[[i]]
+
         ## row / col / metadata<-
         ss1 <- sset
-        revData <- rowRanges[rev(seq_len(length(rowRanges))),,drop=FALSE]
+        revData <- rev(rowRanges)
         rowRanges(ss1) <- revData
         checkIdentical(revData, rowRanges(ss1))
         checkException(rowRanges(ss1) <- rowRanges(sset)[1:2,,drop=FALSE],
@@ -159,8 +127,9 @@ test_RangedSummarizedExperiment_setters <- function()
 test_RangedSummarizedExperiment_subset <- function()
 {
     for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]] 
-        rowRanges <- rowRangesList[[i]] 
+        sset <- ssetList[[i]]
+        rowRanges <- rowRangesList[[i]]
+
         ## numeric
         ss1 <- sset[2:3,]
         checkIdentical(c(2L, ncol(sset)), dim(ss1))
@@ -211,16 +180,16 @@ test_RangedSummarizedExperiment_subset <- function()
 
     ## 0 columns
     se <- SummarizedExperiment(rowRanges=GRanges("chr1", IRanges(1:10, width=1)))
-    checkIdentical(dim(se[1:5, ]), c(5L, 0L)) 
+    checkIdentical(dim(se[1:5, ]), c(5L, 0L))
     ## 0 rows 
     se <- SummarizedExperiment(colData=DataFrame(samples=1:10))
-    checkIdentical(dim(se[ ,1:5]), c(0L, 5L)) 
+    checkIdentical(dim(se[ ,1:5]), c(0L, 5L))
 }
 
 test_RangedSummarizedExperiment_subsetassign <- function()
 {
     for (i in seq_along(ssetList)) {
-        sset <- ssetList[[i]] 
+        sset <- ssetList[[i]]
         dimnames(sset) <- list(LETTERS[seq_len(nrow(sset))],
                                letters[seq_len(ncol(sset))])
         ## rows
@@ -247,6 +216,7 @@ test_RangedSummarizedExperiment_subsetassign <- function()
         checkIdentical(rowRanges(sset), rowRanges(ss1))
         checkIdentical(c(metadata(sset), metadata(sset)), metadata(ss1))
     }
+
     ## full replacement
     ss1 <- ss2 <- ssetList[[1]]
     rowRanges(ss2) <- rev(rowRanges(ss2))
@@ -328,7 +298,7 @@ test_RangedSummarizedExperiment_rbind <- function()
     ## colDat
     se1 <- ssetList[[1]]
     se2 <- se1
-    colData(se2) <- DataFrame("one"=1:3, "two"=4:6)    
+    colData(se2) <- DataFrame("one"=1:3, "two"=4:6)
     res <- quiet(rbind(se1, se2))
     checkTrue(ncol(colData(res)) == 3)
     ## assays 
@@ -347,24 +317,59 @@ test_RangedSummarizedExperiment_rbind <- function()
     checkException(rbind(se1, se2), silent=TRUE) ## different variables
 }
 
-test_RangedSummarizedExperiment_assays_4d <- function()
+test_RangedSummarizedExperiment_GRanges_API <- function()
 {
-    ## [
-    a <- array(0, c(3, 3, 3, 3), list(LETTERS[1:3], letters[1:3], NULL, NULL))
-    assays <- SimpleList(a=a)
-    se <- SummarizedExperiment(assays)
-    checkIdentical(assays(se[1,])[[1]], a[1,,,,drop=FALSE])
+    ## are we targetting the correct API? signature for
+    ## RangedSummarizedExperiment method should match signature for
+    ## GenomicRanges or similar, as in each test below
 
-    ## [<-
-    a1 <- a; a1[1,,,] <- a[1,,,,drop=FALSE] + 1
-    assays(se[1,])[[1]] <- 1 + assays(se[1,])[[1]]
-    checkIdentical(assays(se)[[1]], a1)
+    for (.fun in .singleDispatch) {
+        generic <- getGeneric(.fun)
+        method <- getMethod(.fun, "RangedSummarizedExperiment")
+        checkIdentical("x", generic@signature)
+        checkIdentical(formals(generic@.Data), formals(method@.Data))
+    }
 
-    ## [, [<- don't support more than 4 dimensions
-    a <- array(0, c(3, 3, 3, 3, 3),
-               list(LETTERS[1:3], letters[1:3], NULL, NULL, NULL))
-    assays <- SimpleList(a=a)
-    se <- SummarizedExperiment(assays)
-    checkException(se[1,], silent=TRUE)
+    ## FIXME: compare, Compare
+
+    .sig <- "RangedSummarizedExperiment"
+    for (.fun in .otherFuns) {
+        generic <- getGeneric(.fun)
+        method <- getMethod(.fun, "RangedSummarizedExperiment")
+        checkIdentical(formals(generic@.Data), formals(method@.Data))
+    }        
+}
+
+test_RangedSummarizedExperiment_GRanges_values <- function()
+{
+    x <- ssetList[[1]]
+    isAssign <- grep("<-$", .singleDispatch, value=TRUE)
+    .funs <- setdiff(.singleDispatch, isAssign)
+    ## 'exp' created after manual inspection of results
+    exp <- setNames(c("02dde", "80339", "49a3f", "86757", "77198",
+                      "ec53a", "35e2c", "625d9", "3c90a"), .funs)
+    obs <- sapply(.funs, function(.fun) {
+        substr(digest(getGeneric(.fun)(x)), 1, 5)
+    })
+    checkIdentical(exp, obs)
+
+    .funs <- isAssign
+    .gets <- sub("<-$", "", isAssign)
+    for (i in seq_along(isAssign)) {
+        ## self-assignment isomorphism
+        value <- getGeneric(.gets[[i]])(x)
+        x1 <- do.call(isAssign[[i]], list(x, value=value))
+        checkIdentical(x, x1)
+    }
+}
+
+test_RangedSummarizedExperiment_split <- function()
+{
+    gr <- GRanges(Rle(c("A", "B"), c(2, 3)), IRanges(1:5, 10))
+    se <- SummarizedExperiment(M1, rowRanges=gr, colData=colData)
+    ## FIXME: unname should not be necessary
+    obs <- split(se, seqnames(se))
+    exp <- SimpleList(A=se[1:2], B=se[3:5])
+    checkEquals(obs, exp)
 }
 
