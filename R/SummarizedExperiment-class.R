@@ -112,10 +112,45 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 ### Constructor.
 ###
 
-.new_RangedSummarizedExperiment <- function(rowRanges, colData, assays,
+.get_nrow_from_assays <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(0L)
+    nrow(assays[[1L]])
+}
+
+.get_rownames_from_assays <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(NULL)
+    rownames(assays[[1L]])
+}
+
+.new_SummarizedExperiment0 <- function(assays, names, rowData, colData,
+                                       metadata)
+{
+    if (is.null(rowData)) {
+        if (is.null(names))
+            nrow <- .get_nrow_from_assays(assays)
+        else
+            nrow <- length(names)
+        rowData <- new("DataFrame", nrows=nrow)
+    }
+    if (!is(assays, "Assays"))
+        assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
+    new("SummarizedExperiment0", NAMES=names,
+                                 elementMetadata=rowData,
+                                 colData=colData,
+                                 assays=assays,
+                                 metadata=as.list(metadata))
+}
+
+.new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
                                             metadata)
 {
     elementMetadata <- new("DataFrame", nrows=length(rowRanges))
+    if (!is(assays, "Assays"))
+        assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
     new("RangedSummarizedExperiment", rowRanges=rowRanges,
                                       colData=colData,
                                       assays=assays,
@@ -123,23 +158,10 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
                                       metadata=as.list(metadata))
 }
 
-.GRangesList_assays <-
-    function(assays)
-{
-    m <- assays[[1]]
-    n <- nrow(m)
-    names <- rownames(m)
-    relist(GRanges(), PartitioningByEnd(integer(n), names=names))
-}
-
 setMethod(SummarizedExperiment, "SimpleList",
    function(assays, rowRanges=GRangesList(), colData=DataFrame(),
             metadata=list(), exptData=SimpleList())
 {
-    if (missing(rowRanges) && 0L != length(assays)) {
-        rowRanges <- .GRangesList_assays(assays)
-    }
-
     if (missing(colData) && 0L != length(assays)) {
         nms <- colnames(assays[[1]])
         if (is.null(nms) && 0L != ncol(assays[[1]]))
@@ -147,17 +169,21 @@ setMethod(SummarizedExperiment, "SimpleList",
         colData <- DataFrame(row.names=nms)
     }
 
+    if (missing(rowRanges)) {
+        ans_rownames <- .get_rownames_from_assays(assays)
+    } else {
+        ans_rownames <- names(rowRanges)
+    }
+    ans_colnames <- rownames(colData)
+    ans_dimnames <- list(ans_rownames, ans_colnames)
     FUN <- function(x) {
-        exp <- list(names(rowRanges), rownames(colData))
         ## dimnames as NULL or list(NULL, NULL)
         all(sapply(dimnames(x), is.null)) ||
             ## or consistent with row / colData
-            identical(dimnames(x)[1:2], exp)
+            identical(dimnames(x)[1:2], ans_dimnames)
     }
     if (!all(sapply(assays, FUN)))
         assays <- endoapply(assays, unname)
-    if (!is(assays, "Assays"))
-        assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
 
     ## For backward compatibility with "classic" SummarizedExperiment objects.
     if (!missing(exptData)) {
@@ -169,7 +195,13 @@ setMethod(SummarizedExperiment, "SimpleList",
         .Deprecated(msg=msg)
         metadata <- exptData
     }
-    .new_RangedSummarizedExperiment(rowRanges, colData, assays, metadata)
+
+    if (missing(rowRanges)) {
+        .new_SummarizedExperiment0(assays, ans_rownames, NULL, colData,
+                                   metadata)
+    } else {
+        .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
+    }
 })
 
 setMethod(SummarizedExperiment, "missing",
@@ -203,17 +235,29 @@ setMethod(SummarizedExperiment, "matrix",
 
 .from_RangedSummarizedExperiment_to_SummarizedExperiment0 <- function(from)
 {
-    ans_NAMES <- names(from@rowRanges)
-    ans_elementMetadata <- mcols(from@rowRanges)
-    new("SummarizedExperiment0", colData=from@colData,
-                                 assays=from@assays,
-                                 NAMES=ans_NAMES,
-                                 elementMetadata=ans_elementMetadata,
-                                 metadata=from@metadata)
+    .new_SummarizedExperiment0(from@assays,
+                               names(from@rowRanges),
+                               mcols(from@rowRanges),
+                               from@colData,
+                               from@metadata)
 }
 
 setAs("RangedSummarizedExperiment", "SummarizedExperiment0",
     .from_RangedSummarizedExperiment_to_SummarizedExperiment0
+)
+
+.from_SummarizedExperiment0_to_RangedSummarizedExperiment <- function(from)
+{
+    partitioning <- PartitioningByEnd(integer(length(from)), names=names(from))
+    rowRanges <- relist(GRanges(), partitioning)
+    .new_RangedSummarizedExperiment(from@assays,
+                                    rowRanges,
+                                    from@colData,
+                                    from@metadata)
+}
+
+setAs("SummarizedExperiment0", "RangedSummarizedExperiment",
+    .from_SummarizedExperiment0_to_RangedSummarizedExperiment
 )
 
 
@@ -544,7 +588,7 @@ setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "NULL"),
     endoapply(assays(x, withDimnames=FALSE), fun)
 }
 
-setMethod("[", c("RangedSummarizedExperiment", "ANY", "ANY"),
+setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
     function(x, i, j, ..., drop=TRUE)
 {
     if (1L != length(drop) || (!missing(drop) && drop))
@@ -559,7 +603,10 @@ setMethod("[", c("RangedSummarizedExperiment", "ANY", "ANY"),
             i <- .SummarizedExperiment.charbound(i, rownames(x), fmt)
         }
         ans_elementMetadata <- x@elementMetadata[i, , drop=FALSE]
-        ans_rowRanges <- rowRanges(x)[i]
+        if (is(x, "RangedSummarizedExperiment"))
+            ans_rowRanges <- x@rowRanges[i]
+        else
+            ans_NAMES <- x@NAMES[i]
         ii <- as.vector(i)
     }
     if (!missing(j)) {
@@ -578,17 +625,30 @@ setMethod("[", c("RangedSummarizedExperiment", "ANY", "ANY"),
                                         assays=ans_assays)
     } else if (missing(j)) {
         ans_assays <- .SummarizedExperiment.assays.subset(x, i=ii)
-        ans <- GenomicRanges:::clone(x, ...,
-                                        elementMetadata=ans_elementMetadata,
-                                        rowRanges=ans_rowRanges,
-                                        assays=ans_assays)
+        if (is(x, "RangedSummarizedExperiment"))
+            ans <- GenomicRanges:::clone(x, ...,
+                                            elementMetadata=ans_elementMetadata,
+                                            rowRanges=ans_rowRanges,
+                                            assays=ans_assays)
+        else
+            ans <- GenomicRanges:::clone(x, ...,
+                                            elementMetadata=ans_elementMetadata,
+                                            NAMES=ans_NAMES,
+                                            assays=ans_assays)
     } else {
         ans_assays <- .SummarizedExperiment.assays.subset(x, ii, jj)
-        ans <- GenomicRanges:::clone(x, ...,
-                                        elementMetadata=ans_elementMetadata,
-                                        rowRanges=ans_rowRanges,
-                                        colData=ans_colData,
-                                        assays=ans_assays)
+        if (is(x, "RangedSummarizedExperiment"))
+            ans <- GenomicRanges:::clone(x, ...,
+                                            elementMetadata=ans_elementMetadata,
+                                            rowRanges=ans_rowRanges,
+                                            colData=ans_colData,
+                                            assays=ans_assays)
+        else
+            ans <- GenomicRanges:::clone(x, ...,
+                                            elementMetadata=ans_elementMetadata,
+                                            NAMES=ans_NAMES,
+                                            colData=ans_colData,
+                                            assays=ans_assays)
     }
     ans
 })
@@ -633,7 +693,7 @@ setMethod("[", c("RangedSummarizedExperiment", "ANY", "ANY"),
 }
 
 setReplaceMethod("[",
-    c("RangedSummarizedExperiment", "ANY", "ANY", "RangedSummarizedExperiment"),
+    c("SummarizedExperiment0", "ANY", "ANY", "SummarizedExperiment0"),
     function(x, i, j, ..., value)
 {
     if (missing(i) && missing(j))
@@ -649,15 +709,22 @@ setReplaceMethod("[",
         ii <- as.vector(i)
         ans_elementMetadata <- local({
             emd <- x@elementMetadata
-            emd[i,] <- value@elementMetadata
+            emd[i,] <- mcols(value)
             emd
         })
-        ans_rowRanges <- local({
-            r <- rowRanges(x)
-            r[i] <- rowRanges(value)
-            names(r)[ii] <- names(rowRanges(value))
-            r
-        })
+        if (is(x, "RangedSummarizedExperiment"))
+            ans_rowRanges <- local({
+                r <- x@rowRanges
+                r[i] <- rowRanges(value)
+                names(r)[ii] <- names(rowRanges(value))
+                r
+            })
+        else
+            ans_NAMES <- local({
+                nms <- x@NAMES
+                nms[i] <- names(value)
+                nms
+            })
     }
 
     if (!missing(j)) {
@@ -668,8 +735,8 @@ setReplaceMethod("[",
         jj <- as.vector(j)
         ans_colData <- local({
             c <- x@colData
-            c[j,] <- value@colData
-            rownames(c)[jj] <- rownames(value@colData)
+            c[j,] <- colData(value)
+            rownames(c)[jj] <- rownames(colData(value))
             c
         })
     }
@@ -685,21 +752,36 @@ setReplaceMethod("[",
     } else if (missing(j)) {
         ans_assays <- .SummarizedExperiment.assays.subsetgets(x, i=ii,
                                                               value=value)
-        ans <- GenomicRanges:::clone(x, ...,
-                                        metadata=ans_metadata,
-                                        elementMetadata=ans_elementMetadata,
-                                        rowRanges=ans_rowRanges,
-                                        assays=ans_assays)
+        if (is(x, "RangedSummarizedExperiment"))
+            ans <- GenomicRanges:::clone(x, ...,
+                                            metadata=ans_metadata,
+                                            elementMetadata=ans_elementMetadata,
+                                            rowRanges=ans_rowRanges,
+                                            assays=ans_assays)
+        else
+            ans <- GenomicRanges:::clone(x, ...,
+                                            metadata=ans_metadata,
+                                            elementMetadata=ans_elementMetadata,
+                                            NAMES=ans_NAMES,
+                                            assays=ans_assays)
         msg <- .valid.SummarizedExperiment0.assays_nrow(ans)
     } else {
         ans_assays <- .SummarizedExperiment.assays.subsetgets(x, ii, jj,
                                                               value=value)
-        ans <- GenomicRanges:::clone(x, ...,
-                                        metadata=ans_metadata,
-                                        elementMetadata=ans_elementMetadata,
-                                        rowRanges=ans_rowRanges,
-                                        colData=ans_colData,
-                                        assays=ans_assays)
+        if (is(x, "RangedSummarizedExperiment"))
+            ans <- GenomicRanges:::clone(x, ...,
+                                            metadata=ans_metadata,
+                                            elementMetadata=ans_elementMetadata,
+                                            rowRanges=ans_rowRanges,
+                                            colData=ans_colData,
+                                            assays=ans_assays)
+        else
+            ans <- GenomicRanges:::clone(x, ...,
+                                            metadata=ans_metadata,
+                                            elementMetadata=ans_elementMetadata,
+                                            NAMES=ans_NAMES,
+                                            colData=ans_colData,
+                                            assays=ans_assays)
         msg <- .valid.SummarizedExperiment0.assays_dim(ans)
     }
     if (!is.null(msg))
@@ -800,53 +882,85 @@ setMethod(show, "SummarizedExperiment0",
 ###
 
 ### Appropriate for objects with different ranges and same samples.
-setMethod("rbind", "RangedSummarizedExperiment",
+setMethod("rbind", "SummarizedExperiment0",
     function(..., deparse.level=1)
 {
     args <- unname(list(...))
-    .rbind.RangedSummarizedExperiment(args)
+    .rbind.SummarizedExperiment(args)
 })
 
-.rbind.RangedSummarizedExperiment <- function(args)
+.rbind.SummarizedExperiment <- function(args)
 {
     if (!.compare(lapply(args, colnames)))
             stop("'...' objects must have the same colnames")
     if (!.compare(lapply(args, ncol)))
             stop("'...' objects must have the same number of samples")
 
-    rowRanges <- do.call(c, lapply(args, rowRanges))
+    if (is(args[[1L]], "RangedSummarizedExperiment")) {
+        rowRanges <- do.call(c, lapply(args, rowRanges))
+    } else {
+        ## Code below taken from combine_GAlignments_objects() from the
+        ## GenomicAlignments package.
+
+        ## Combine "NAMES" slots.
+        NAMES_slots <- lapply(args, function(x) x@NAMES)
+        ## TODO: Use elementIsNull() here when it becomes available.
+        has_no_names <- sapply(NAMES_slots, is.null, USE.NAMES=FALSE)
+        if (all(has_no_names)) {
+            NAMES <- NULL
+        } else {
+            noname_idx <- which(has_no_names)
+            if (length(noname_idx) != 0L)
+                NAMES_slots[noname_idx] <-
+                    lapply(elementLengths(args[noname_idx]), character)
+            NAMES <- unlist(NAMES_slots, use.names=FALSE)
+        }
+    }
     colData <- .cbind.DataFrame(args, colData, "colData")
     assays <- .bind.arrays(args, rbind, "assays")
     elementMetadata <- do.call(rbind, lapply(args, slot, "elementMetadata"))
     metadata <- do.call(c, lapply(args, metadata))
 
-    initialize(args[[1L]],
-               rowRanges=rowRanges, colData=colData, assays=assays,
-               elementMetadata=elementMetadata, metadata=metadata)
+    if (is(args[[1L]], "RangedSummarizedExperiment"))
+        initialize(args[[1L]],
+                   rowRanges=rowRanges, colData=colData, assays=assays,
+                   elementMetadata=elementMetadata, metadata=metadata)
+    else
+        initialize(args[[1L]],
+                   NAMES=NAMES, colData=colData, assays=assays,
+                   elementMetadata=elementMetadata, metadata=metadata)
 }
 
 ### Appropriate for objects with same ranges and different samples.
-setMethod("cbind", "RangedSummarizedExperiment",
+setMethod("cbind", "SummarizedExperiment0",
     function(..., deparse.level=1)
 {
     args <- unname(list(...))
-    .cbind.RangedSummarizedExperiment(args)
+    .cbind.SummarizedExperiment(args)
 })
 
-.cbind.RangedSummarizedExperiment <- function(args)
+.cbind.SummarizedExperiment <- function(args)
 {
-    if (!.compare(lapply(args, rowRanges), TRUE))
-        stop("'...' object ranges (rows) are not compatible")
-
-    rowRanges <- rowRanges(args[[1L]])
-    mcols(rowRanges) <- .cbind.DataFrame(args, mcols, "mcols")
+    if (is(args[[1L]], "RangedSummarizedExperiment")) {
+        if (!.compare(lapply(args, rowRanges), TRUE))
+            stop("'...' object ranges (rows) are not compatible")
+        rowRanges <- rowRanges(args[[1L]])
+        mcols(rowRanges) <- .cbind.DataFrame(args, mcols, "mcols")
+    } else {
+        elementMetadata <- .cbind.DataFrame(args, mcols, "mcols")
+    }
     colData <- do.call(rbind, lapply(args, colData))
     assays <- .bind.arrays(args, cbind, "assays")
     metadata <- do.call(c, lapply(args, metadata))
 
-    initialize(args[[1L]],
-               rowRanges=rowRanges, colData=colData, assays=assays,
-               metadata=metadata)
+    if (is(args[[1L]], "RangedSummarizedExperiment"))
+        initialize(args[[1L]],
+                   rowRanges=rowRanges,
+                   colData=colData, assays=assays, metadata=metadata)
+    else
+        initialize(args[[1L]],
+                   elementMetadata=elementMetadata,
+                   colData=colData, assays=assays, metadata=metadata)
 }
 
 .compare <- function(x, GenomicRanges=FALSE)
@@ -970,9 +1084,9 @@ setReplaceMethod("exptData", "SummarizedExperiment0",
 
 ### Used in GenomicRanges!
 .from_SummarizedExperiment_to_RangedSummarizedExperiment <- function(from)
-    .new_RangedSummarizedExperiment(from@rowData,
+    .new_RangedSummarizedExperiment(from@assays,
+                                    from@rowData,
                                     from@colData,
-                                    from@assays,
                                     from@exptData)
 
 ### Should work on any object that (1) belongs to a class that now derives
@@ -988,9 +1102,9 @@ setMethod(updateObject, "RangedSummarizedExperiment",
         rse <- .from_SummarizedExperiment_to_RangedSummarizedExperiment(object)
     } else if (!(.hasSlot(object, "NAMES") &&
                  .hasSlot(object, "elementMetadata"))) {
-        rse <- .new_RangedSummarizedExperiment(object@rowRanges,
+        rse <- .new_RangedSummarizedExperiment(object@assays,
+                                               object@rowRanges,
                                                object@colData,
-                                               object@assays,
                                                object@metadata)
     } else {
         return(object)

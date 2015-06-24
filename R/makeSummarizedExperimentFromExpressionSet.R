@@ -239,3 +239,7 @@ setAs("RangedSummarizedExperiment", "ExpressionSet", function(from)
                                    )
 })
 
+setAs("SummarizedExperiment0", "ExpressionSet", function(from)
+    as(as(from, "RangedSummarizedExperiment"), "ExpressionSet")
+)
+

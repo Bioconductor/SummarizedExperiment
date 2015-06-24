@@ -16,6 +16,7 @@
 
 % Coercion
 \alias{coerce,RangedSummarizedExperiment,SummarizedExperiment0-method}
+\alias{coerce,SummarizedExperiment0,RangedSummarizedExperiment-method}
 
 % Accessors
 \alias{length,SummarizedExperiment0-method}
@@ -58,9 +59,9 @@
 \alias{dimnames<-,RangedSummarizedExperiment,NULL-method}
 
 % Subsetting
-\alias{[,RangedSummarizedExperiment-method}
-\alias{[,RangedSummarizedExperiment,ANY-method}
-\alias{[<-,RangedSummarizedExperiment,ANY,ANY,RangedSummarizedExperiment-method}
+\alias{[,SummarizedExperiment0-method}
+\alias{[,SummarizedExperiment0,ANY-method}
+\alias{[<-,SummarizedExperiment0,ANY,ANY,SummarizedExperiment0-method}
 
 % Quick colData access
 \alias{[[,SummarizedExperiment0,ANY,missing-method}
@@ -72,8 +73,8 @@
 \alias{show,SummarizedExperiment0-method}
 
 % Combine 
-\alias{rbind,RangedSummarizedExperiment-method}
-\alias{cbind,RangedSummarizedExperiment-method}
+\alias{rbind,SummarizedExperiment0-method}
+\alias{cbind,SummarizedExperiment0-method}
 
 % Backward compatibility with "classic" SummarizedExperiment objects
 \alias{exptData,SummarizedExperiment0-method}
@@ -168,14 +169,14 @@ colData(x, ...) <- value
 
 ## Subsetting
 
-\S4method{[}{RangedSummarizedExperiment}(x, i, j, ..., drop=TRUE)
-\S4method{[}{RangedSummarizedExperiment,ANY,ANY,RangedSummarizedExperiment}(x, i, j) <- value
+\S4method{[}{SummarizedExperiment0}(x, i, j, ..., drop=TRUE)
+\S4method{[}{SummarizedExperiment0,ANY,ANY,SummarizedExperiment0}(x, i, j) <- value
 \S4method{subset}{RangedSummarizedExperiment}(x, subset, select, ...)
 
 ## Combining 
 
-\S4method{cbind}{RangedSummarizedExperiment}(..., deparse.level=1)
-\S4method{rbind}{RangedSummarizedExperiment}(..., deparse.level=1)
+\S4method{cbind}{SummarizedExperiment0}(..., deparse.level=1)
+\S4method{rbind}{SummarizedExperiment0}(..., deparse.level=1)
 
 }
 

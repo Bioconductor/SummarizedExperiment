@@ -6,6 +6,7 @@
 \alias{geneRangeMapper}
 \alias{coerce,ExpressionSet,RangedSummarizedExperiment-method}
 \alias{coerce,RangedSummarizedExperiment,ExpressionSet-method}
+\alias{coerce,SummarizedExperiment0,ExpressionSet-method}
 
 
 \title{Make a RangedSummarizedExperiment object from an ExpressionSet and
