@@ -2,6 +2,7 @@
 \docType{class}
 
 % Class
+\alias{class:SummarizedExperiment0}
 \alias{SummarizedExperiment0-class}
 \alias{SummarizedExperiment0}
 
@@ -9,17 +10,12 @@
 \alias{length,SummarizedExperiment0-method}
 \alias{names,SummarizedExperiment0-method}
 \alias{names<-,SummarizedExperiment0-method}
-\alias{metadata<-,SummarizedExperiment0-method}
 \alias{exptData,SummarizedExperiment0-method}
 \alias{exptData<-,SummarizedExperiment0-method}
 \alias{colData}
 \alias{colData,SummarizedExperiment0-method}
 \alias{colData<-}
 \alias{colData<-,SummarizedExperiment0,DataFrame-method}
-\alias{assayNames}
-\alias{assayNames,SummarizedExperiment0-method}
-\alias{assayNames<-}
-\alias{assayNames<-,SummarizedExperiment0,character-method}
 \alias{assays}
 \alias{assays,SummarizedExperiment0-method}
 \alias{assays<-}
@@ -33,17 +29,21 @@
 \alias{assay<-,SummarizedExperiment0,missing,matrix-method}
 \alias{assay<-,SummarizedExperiment0,numeric,matrix-method}
 \alias{assay<-,SummarizedExperiment0,character,matrix-method}
+\alias{assayNames}
+\alias{assayNames,SummarizedExperiment0-method}
+\alias{assayNames<-}
+\alias{assayNames<-,SummarizedExperiment0,character-method}
 \alias{dim,SummarizedExperiment0-method}
 \alias{dimnames,SummarizedExperiment0-method}
 \alias{dimnames<-,SummarizedExperiment0,list-method}
 \alias{dimnames<-,SummarizedExperiment0,NULL-method}
 
 % Subsetting
-\alias{extractROWS,SummarizedExperiment0,ANY-method}
-\alias{replaceROWS,SummarizedExperiment0-method}
 \alias{[,SummarizedExperiment0-method}
 \alias{[,SummarizedExperiment0,ANY-method}
 \alias{[<-,SummarizedExperiment0,ANY,ANY,SummarizedExperiment0-method}
+\alias{extractROWS,SummarizedExperiment0,ANY-method}
+\alias{replaceROWS,SummarizedExperiment0-method}
 
 % Quick colData access
 \alias{[[,SummarizedExperiment0,ANY,missing-method}
@@ -355,11 +355,7 @@ colData(x, ...) <- value
   alternative requirements for the assays, e.g., backed by file-based
   storage like NetCDF or the \code{ff} package, while re-using the existing
   SummarizedExperiment0 class without modification.
-  The requirements on Assays are list-like semantics (e.g.,
-  \code{sapply}, \code{[[} subsetting, \code{names}) with elements
-  having matrix- or array-like semantics (e.g., \code{dim},
-  \code{dimnames}). These requirements can be made more precise if
-  developers express interest.
+  See \link{Assays} for more information.
 
   The current \code{assays} slot is implemented as a reference class
   that has copy-on-change semantics. This means that modifying non-assay
@@ -371,30 +367,6 @@ colData(x, ...) <- value
   use of the \code{withDimnames=FALSE} argument, which benefits speed
   and memory use by not copying dimnames from the row- and colData
   elements to each assay.
-
-  In a little more detail, a small reference class hierarchy (not
-  exported from the \pkg{GenomicRanges} name space) defines a reference
-  class ShallowData with a single field \code{data} of type \code{ANY},
-  and a derived class ShallowSimpleListAssays that specializes
-  the type of \code{data} as \link{SimpleList}, and
-  \code{contains=c("ShallowData", "Assays")}. The assays slot contains
-  an instance of ShallowSimpleListAssays. Invoking
-  \code{assays()} on a SummarizedExperiment0 re-dispatches from
-  the \code{assays} slot to retrieve the \link{SimpleList} from the
-  field of the reference class. This was achieved by implementing a
-  generic (not exported) \code{value(x, name, ...)}, with a method
-  implemented on SummarizedExperiment0 that retrieves a slot when
-  \code{name} is a slot containing an S4 object in \code{x}, and a field
-  when \code{name} is a slot containing a ShallowData instance in
-  \code{x}. Copy-on-change semantics is maintained by implementing the
-  \code{clone} method (\code{clone} methods are supposed to do a deep
-  copy, \code{update} methods a shallow copy; the \code{clone} generic
-  is introduced, and not exported, in the \pkg{GenomicRanges} package). The
-  \sQuote{getter} and \sQuote{setter} code for methods implemented on
-  SummarizedExperiment0 use \code{value} for slot access, and
-  \code{clone} for replacement. This makes it easy to implement
-  ShallowData instances for other slots if the need arises.
-
 }
 
 \author{Martin Morgan, \url{mtmorgan@fhcrc.org}}

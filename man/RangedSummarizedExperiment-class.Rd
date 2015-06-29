@@ -2,6 +2,7 @@
 \docType{class}
 
 % Class
+\alias{class:RangedSummarizedExperiment}
 \alias{RangedSummarizedExperiment-class}
 \alias{RangedSummarizedExperiment}
 
@@ -60,8 +61,6 @@
 \alias{strand,RangedSummarizedExperiment-method}
 \alias{strand<-,RangedSummarizedExperiment,ANY-method}
 \alias{subset,RangedSummarizedExperiment-method}
-\alias{values,RangedSummarizedExperiment-method}
-\alias{values<-,RangedSummarizedExperiment-method}
 \alias{width,RangedSummarizedExperiment-method}
 \alias{width<-,RangedSummarizedExperiment-method}
 

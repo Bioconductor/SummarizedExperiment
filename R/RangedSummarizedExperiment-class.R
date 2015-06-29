@@ -52,12 +52,19 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 {
     elementMetadata <- new("DataFrame", nrows=length(rowRanges))
     if (!is(assays, "Assays"))
-        assays <- GenomicRanges:::.ShallowSimpleListAssays(data=assays)
+        assays <- Assays(assays)
     new("RangedSummarizedExperiment", rowRanges=rowRanges,
                                       colData=colData,
                                       assays=assays,
                                       elementMetadata=elementMetadata,
                                       metadata=as.list(metadata))
+}
+
+get_rownames_from_assays <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(NULL)
+    rownames(assays[[1L]])
 }
 
 setMethod(SummarizedExperiment, "SimpleList",
@@ -79,13 +86,14 @@ setMethod(SummarizedExperiment, "SimpleList",
     ans_colnames <- rownames(colData)
     ans_dimnames <- list(ans_rownames, ans_colnames)
     FUN <- function(x) {
-        ## dimnames as NULL or list(NULL, NULL)
+        ## dimnames(x) as NULL or list(NULL, NULL)
         all(sapply(dimnames(x), is.null)) ||
-            ## or consistent with row / colData
+            ## or consistent with 'ans_dimnames'
             identical(dimnames(x)[1:2], ans_dimnames)
     }
     if (!all(sapply(assays, FUN)))
         assays <- endoapply(assays, unname)
+    assays <- Assays(assays)
 
     ## For backward compatibility with "classic" SummarizedExperiment objects.
     if (!missing(exptData)) {
@@ -167,12 +175,13 @@ setAs("SummarizedExperiment0", "RangedSummarizedExperiment",
 ###
 
 setMethod(rowRanges, "RangedSummarizedExperiment",
-    function(x, ...) value(x, "rowRanges"))
+    function(x, ...) x@rowRanges
+)
 
 .RangedSummarizedExperiment.rowRanges.replace <-
     function(x, ..., value)
 {
-    x <- GenomicRanges:::clone(
+    x <- initialize(
             x, ...,
             rowRanges=value,
             elementMetadata=new("DataFrame", nrows=length(value)))
@@ -197,7 +206,7 @@ setReplaceMethod("names", "RangedSummarizedExperiment",
 {
     rowRanges <- rowRanges(x)
     names(rowRanges) <- value
-    GenomicRanges:::clone(x, rowRanges=rowRanges)
+    initialize(x, rowRanges=rowRanges)
 })
 
 setMethod(dimnames, "RangedSummarizedExperiment",
@@ -213,7 +222,7 @@ setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
     names(rowRanges) <- value[[1]]
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    GenomicRanges:::clone(x, rowRanges=rowRanges, colData=colData)
+    initialize(x, rowRanges=rowRanges, colData=colData)
 })
 
 
@@ -308,7 +317,7 @@ setMethod(mcols, "RangedSummarizedExperiment",
 setReplaceMethod("mcols", "RangedSummarizedExperiment",
     function(x, ..., value)
 {
-    GenomicRanges:::clone(x, rowRanges=local({
+    initialize(x, rowRanges=local({
         r <- rowRanges(x)
         mcols(r) <- value
         r
@@ -328,19 +337,6 @@ setReplaceMethod("elementMetadata", "RangedSummarizedExperiment",
     function(x, ..., value)
 {
     elementMetadata(rowRanges(x), ...) <- value
-    x
-})
-
-setMethod(values, "RangedSummarizedExperiment",
-    function(x, ...)
-{
-    values(rowRanges(x), ...)
-})
-
-setReplaceMethod("values", "RangedSummarizedExperiment",
-    function(x, ..., value)
-{
-    values(rowRanges(x), ...) <- value
     x
 })
 

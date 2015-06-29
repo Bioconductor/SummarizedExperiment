@@ -84,6 +84,7 @@ exportMethods(
 ###
 
 export(
+    Assays,
     .DollarNames.SummarizedExperiment0,
     makeSummarizedExperimentFromExpressionSet,
     naiveRangeMapper, probeRangeMapper, geneRangeMapper
