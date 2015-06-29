@@ -26,7 +26,9 @@
 \alias{AssaysInEnv}
 \alias{length,AssaysInEnv-method}
 \alias{names,AssaysInEnv-method}
+\alias{names<-,AssaysInEnv-method}
 \alias{[[,AssaysInEnv,ANY,ANY-method}
+\alias{[[<-,AssaysInEnv,ANY,ANY-method}
 \alias{coerce,SimpleList,AssaysInEnv-method}
 \alias{coerce,AssaysInEnv,SimpleList-method}
 
@@ -55,16 +57,29 @@
   An Assays croncrete subclass needs to implement (b) (required) plus,
   optionally any of the methods in (c).
 
-  IMPORTANT: Replacement methods (\code{names<-}, \code{[[<-}, \code{[<-})
-  \emph{must} copy the object instead of trying to modify it in-place.
-  The default methods for Assays objects do that. This ensures that Assays
-  objects have a copy-on-change semantics. Note that this is particularly
-  important for croncrete subclasses like ShallowSimpleListAssays that are
-  based on objects with reference semantics.
+  IMPORTANT: Methods that return a modified Assays object (a.k.a.
+  endomorphisms), that is, \code{[} as well as replacement methods
+  \code{names<-}, \code{[[<-}, and \code{[<-}, must respect the
+  \emph{copy-on-change contract}.
+  With objects that don't make use of references internally, the developer
+  doesn't need to take any special action for that because it's automatically
+  taken care of by R itself. However, for objects that do make use of
+  references internally (e.g. environments, external pointers, pointer to a
+  file on disk, etc...), the developer needs to be careful to implement
+  endomorphisms with copy-on-change semantics.
+  This can easily be achieved (and is what the default methods for Assays
+  objects do) by performaing a full (deep) copy of the object before modifying
+  it instead of trying to modify it in-place. Note that the full (deep) copy
+  is not always necessary in order to achieve copy-on-change semantics: it's
+  enough (and often preferrable for performance reasons) to copy only the
+  parts of the objects that need to be modified.
 
-  Assays has currently 2 implemenations which are formalized by concrete
+  Assays has currently 2 implementations which are formalized by concrete
   subclasses ShallowSimpleListAssays and AssaysInEnv, the former being the
-  default.
+  default. AssaysInEnv is a \emph{broken} alternative to
+  ShallowSimpleListAssays that does NOT respect the \emph{copy-on-change
+  contract}. It is only provided for illustration purposes (see source file
+  Assays-class.R for the details).
 
   About ShallowSimpleListAssays: In a little more detail, a small
   reference class hierarchy (not exported from the \pkg{GenomicRanges}
@@ -87,10 +102,15 @@
 }
 
 \examples{
+## ---------------------------------------------------------------------
+## DIRECT MANIPULATION OF Assays OBJECTS
+## ---------------------------------------------------------------------
 m1 <- matrix(runif(24), ncol=3)
 m2 <- matrix(runif(24), ncol=3)
 a <- Assays(SimpleList(m1, m2))
 a
+
+as(a, "SimpleList")
 
 length(a)
 a[[2]]
@@ -109,4 +129,27 @@ a[["a2"]]
 
 rbind(a, a)
 cbind(a, a)
+
+## ---------------------------------------------------------------------
+## COPY-ON-CHANGE CONTRACT
+## ---------------------------------------------------------------------
+
+## ShallowSimpleListAssays objects have copy-on-change semantics but not
+## AssaysInEnv objects. For example:
+ssla <- as(SimpleList(m1, m2), "ShallowSimpleListAssays")
+aie <- as(SimpleList(m1, m2), "AssaysInEnv")
+
+## No names on 'ssla' and 'aie':
+names(ssla)
+names(aie)
+
+ssla2 <- ssla
+aie2 <- aie
+names(ssla2) <- names(aie2) <- c("A1", "A2")
+
+names(ssla)  # still NULL (as expected)
+
+names(aie)   # changed! (because the names<-,AssaysInEnv method is not
+             # implemented in a way that respects the copy-on-change
+             # contract)
 }

@@ -15,12 +15,21 @@
 ### An Assays croncrete subclass needs to implement (b) (required) plus
 ### optionally any of the methods in (c).
 ###
-### IMPORTANT: Replacement methods (names<-, [[<-, [<-) MUST copy the object
-### instead of trying to modify it in-place. The default methods defined below
-### (for Assays objects) do that. This ensures that Assays objects have a
-### copy-on-change semantics. Note that this is particularly important for
-### croncrete subclasses like ShallowSimpleListAssays that are based on objects
-### with reference semantics.
+### IMPORTANT: Methods that return a modified Assays object (a.k.a.
+### endomorphisms), that is, [ as well as replacement methods names<-, [[<-,
+### and [<-, must respect the copy-on-change contract. With objects that
+### don't make use of references internally, the developer doesn't need to
+### take any special action for that because it's automatically taken care of
+### by R itself. However, for objects that do make use of references internally
+### (e.g. environments, external pointers, pointer to a file on disk, etc...),
+### the developer needs to be careful to implement endomorphisms with
+### copy-on-change semantics. This can easily be achieved (and is what the
+### default methods for Assays objects do) by performaing a full (deep) copy
+### of the object before modifying it instead of trying to modify it in-place.
+### Note that the full (deep) copy is not always necessary in order to achieve
+### copy-on-change semantics: it's enough (and often preferrable for
+### performance reasons) to copy only the parts of the objects that need to
+### be modified.
 ###
 
 
@@ -69,7 +78,7 @@ Assays <- function(assays=SimpleList())
 {
     assays <- .normarg_assays(assays)
     ans <- as(assays, "ShallowSimpleListAssays")
-    #ans <- as(assays, "AssaysInEnv")  # as an alternative
+    #ans <- as(assays, "AssaysInEnv")  # as a *broken* alternative
     validObject(ans)
     ans
 }
@@ -273,13 +282,11 @@ setAs("ShallowSimpleListAssays", "SimpleList", function(from) from$data)
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### AssaysInEnv class
 ###
-### An alternative to ShallowSimpleListAssays, just for fun and as a proof of
-### concept. To make this the default assays storage, coerce to AssaysInEnv
-### instead of ShallowSimpleListAssays in the Assays() constructor function
-### above.
+### A *broken* alternative to ShallowSimpleListAssays that does NOT respect
+### the copy-on-change contract (only provided for illustration purposes).
 ###
 ### We implement the REQUIRED coercions plus OPTIONAL methods: length, names,
-### and [[.
+### names<-, [[, and [[<-.
 ###
 
 setClass("AssaysInEnv",
@@ -287,15 +294,37 @@ setClass("AssaysInEnv",
     representation(envir="environment")
 )
 
+.NAMES_SYMBOL <- ".names"  # must begin with a . so is ommitted by ls() 
+
 setMethod("length", "AssaysInEnv", function(x) length(x@envir) - 1L)
 
-setMethod("names", "AssaysInEnv", function(x) x@envir[[".names"]])
+setMethod("names", "AssaysInEnv", function(x) x@envir[[.NAMES_SYMBOL]])
+
+### Does NOT respect the copy-on-change contract!
+setReplaceMethod("names", "AssaysInEnv",
+    function(x, value)
+    {
+        value <- S4Vectors:::normalize_names_replacement_value(value, x)
+        x@envir[[.NAMES_SYMBOL]] <- value
+        x
+    }
+)
 
 setMethod("[[", "AssaysInEnv",
     function(x, i, j, ...)
     {
         key <- setNames(ls(x@envir, sorted=TRUE), names(x))[[i]]
         get(key, envir=x@envir)
+    }
+)
+
+### Does NOT respect the copy-on-change contract!
+setReplaceMethod("[[", "AssaysInEnv",
+    function(x, i, j, ..., value)
+    {
+        key <- setNames(ls(x@envir, sorted=TRUE), names(x))[[i]]
+        assign(key, value, envir=x@envir)
+        x
     }
 )
 
@@ -307,7 +336,7 @@ setAs("SimpleList", "AssaysInEnv",
         keys <- paste(sprintf("%09d", seq_along(from)), from_names, sep=":")
         names(from) <- keys
         envir <- list2env(from, parent=emptyenv())
-        envir[[".names"]] <- from_names
+        envir[[.NAMES_SYMBOL]] <- from_names
         new("AssaysInEnv", envir=envir)
     }
 )
