@@ -10,7 +10,7 @@ Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
 Depends: R (>= 3.2), methods, GenomicRanges (>= 1.21.8), Biobase
-Imports: BiocGenerics, S4Vectors (>= 0.7.6), IRanges, GenomeInfoDb
+Imports: BiocGenerics (>= 0.15.3), S4Vectors (>= 0.7.6), IRanges, GenomeInfoDb
 Suggests: annotate, AnnotationDbi, GenomicFeatures, BiocStyle, knitr, rmarkdown
 VignetteBuilder: knitr
 License: Artistic-2.0

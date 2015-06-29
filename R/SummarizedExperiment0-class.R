@@ -111,7 +111,7 @@ setReplaceMethod("names", "SummarizedExperiment0",
     function(x, value)
     {
         NAMES <- S4Vectors:::normalize_names_replacement_value(value, x)
-        BiocGenerics:::updateS4(x, NAMES=NAMES)
+        BiocGenerics:::replaceSlots(x, NAMES=NAMES)
     }
 )
 
@@ -138,7 +138,7 @@ setReplaceMethod("colData", c("SummarizedExperiment0", "DataFrame"),
 {
     if (nrow(value) != ncol(x))
         stop("nrow of supplied 'colData' must equal ncol of object")
-    BiocGenerics:::updateS4(x, colData=value)
+    BiocGenerics:::replaceSlots(x, colData=value)
 })
 
 setMethod(assays, "SummarizedExperiment0",
@@ -162,7 +162,7 @@ setMethod(assays, "SummarizedExperiment0",
     }, logical(1), xdimnames=dimnames(x))
     if (!all(ok))
         stop("current and replacement dimnames() differ")
-    x <- BiocGenerics:::updateS4(x, assays=Assays(value))
+    x <- BiocGenerics:::replaceSlots(x, assays=Assays(value))
     ## validObject(x) should be called below because it would then fully
     ## re-validate objects that derive from SummarizedExperiment0 (e.g.
     ## DESeqDataSet objects) after the user sets the assays slot with
@@ -283,7 +283,7 @@ setReplaceMethod("dimnames", c("SummarizedExperiment0", "list"),
     NAMES <- S4Vectors:::normalize_names_replacement_value(value[[1]], x)
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    BiocGenerics:::updateS4(x, NAMES=NAMES, colData=colData)
+    BiocGenerics:::replaceSlots(x, NAMES=NAMES, colData=colData)
 })
 
 setReplaceMethod("dimnames", c("SummarizedExperiment0", "NULL"),
@@ -343,18 +343,18 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
 
     if (missing(i)) {
         ans_assays <- x@assays[ , jj]
-        ans <- BiocGenerics:::updateS4(x, ...,
+        ans <- BiocGenerics:::replaceSlots(x, ...,
                        colData=ans_colData,
                        assays=ans_assays)
     } else if (missing(j)) {
         ans_assays <- x@assays[ii, ]
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
                        assays=ans_assays)
         } else {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
                        assays=ans_assays)
@@ -362,13 +362,13 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
     } else {
         ans_assays <- x@assays[ii, jj]
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
                        colData=ans_colData,
                        assays=ans_assays)
         } else {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
                        colData=ans_colData,
@@ -434,7 +434,7 @@ setReplaceMethod("[",
             a[ , jj] <- value@assays
             a
         })
-        ans <- BiocGenerics:::updateS4(x, ...,
+        ans <- BiocGenerics:::replaceSlots(x, ...,
                    metadata=ans_metadata,
                    colData=ans_colData,
                    assays=ans_assays)
@@ -446,13 +446,13 @@ setReplaceMethod("[",
             a
         })
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
                        assays=ans_assays)
         } else {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
@@ -466,14 +466,14 @@ setReplaceMethod("[",
             a
         })
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
                        colData=ans_colData,
                        assays=ans_assays)
         } else {
-            ans <- BiocGenerics:::updateS4(x, ...,
+            ans <- BiocGenerics:::replaceSlots(x, ...,
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
@@ -637,11 +637,11 @@ setMethod("rbind", "SummarizedExperiment0",
     metadata <- do.call(c, lapply(args, metadata))
 
     if (is(args[[1L]], "RangedSummarizedExperiment")) {
-        BiocGenerics:::updateS4(args[[1L]],
+        BiocGenerics:::replaceSlots(args[[1L]],
             rowRanges=rowRanges, colData=colData, assays=assays,
             elementMetadata=elementMetadata, metadata=metadata)
     } else {
-        BiocGenerics:::updateS4(args[[1L]],
+        BiocGenerics:::replaceSlots(args[[1L]],
             NAMES=NAMES, colData=colData, assays=assays,
             elementMetadata=elementMetadata, metadata=metadata)
     }
@@ -670,11 +670,11 @@ setMethod("cbind", "SummarizedExperiment0",
     metadata <- do.call(c, lapply(args, metadata))
 
     if (is(args[[1L]], "RangedSummarizedExperiment")) {
-        BiocGenerics:::updateS4(args[[1L]],
+        BiocGenerics:::replaceSlots(args[[1L]],
             rowRanges=rowRanges,
             colData=colData, assays=assays, metadata=metadata)
     } else {
-        BiocGenerics:::updateS4(args[[1L]],
+        BiocGenerics:::replaceSlots(args[[1L]],
             elementMetadata=elementMetadata,
             colData=colData, assays=assays, metadata=metadata)
     }
