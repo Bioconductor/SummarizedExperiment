@@ -16,7 +16,11 @@
 ### optionally any of the methods in (c).
 ###
 ### IMPORTANT: Replacement methods (names<-, [[<-, [<-) MUST copy the object
-### instead of trying to modify it in-place.
+### instead of trying to modify it in-place. The default methods defined below
+### (for Assays objects) do that. This ensures that Assays objects have a
+### copy-on-change semantics. Note that this is particularly important for
+### croncrete subclasses like ShallowSimpleListAssays that are based on objects
+### with reference semantics.
 ###
 
 
