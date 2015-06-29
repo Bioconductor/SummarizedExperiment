@@ -117,7 +117,6 @@ colData(x, ...) <- value
   \item{x}{A SummarizedExperiment0 object.}
 
   \item{...}{
-
     For \code{assay}, \code{...} may contain \code{withDimnames}, which is
     forwarded to \code{assays}.
 
@@ -125,10 +124,10 @@ colData(x, ...) <- value
     objects to be combined.
 
     For other accessors, ignored.
-
   }
 
-  \item{i, j}{For \code{assay}, \code{assay<-}, \code{i} is an integer or
+  \item{i, j}{
+    For \code{assay}, \code{assay<-}, \code{i} is an integer or
     numeric scalar; see \sQuote{Details} for additional constraints.
 
     For \code{[,SummarizedExperiment0},
@@ -140,7 +139,6 @@ colData(x, ...) <- value
     \code{[[<-,SummarizedExperiment0}, \code{i} is a scalar index (e.g.,
     \code{character(1)} or \code{integer(1)}) into a column of
     \code{colData}.
-
   }
 
   \item{name}{A symbol representing the name of a column of
