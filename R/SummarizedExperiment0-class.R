@@ -111,7 +111,7 @@ setReplaceMethod("names", "SummarizedExperiment0",
     function(x, value)
     {
         NAMES <- S4Vectors:::normalize_names_replacement_value(value, x)
-        initialize(x, NAMES=NAMES)
+        BiocGenerics:::updateS4(x, NAMES=NAMES)
     }
 )
 
@@ -138,7 +138,7 @@ setReplaceMethod("colData", c("SummarizedExperiment0", "DataFrame"),
 {
     if (nrow(value) != ncol(x))
         stop("nrow of supplied 'colData' must equal ncol of object")
-    initialize(x, colData=value)
+    BiocGenerics:::updateS4(x, colData=value)
 })
 
 setMethod(assays, "SummarizedExperiment0",
@@ -162,7 +162,7 @@ setMethod(assays, "SummarizedExperiment0",
     }, logical(1), xdimnames=dimnames(x))
     if (!all(ok))
         stop("current and replacement dimnames() differ")
-    x <- initialize(x, assays=Assays(value))
+    x <- BiocGenerics:::updateS4(x, assays=Assays(value))
     ## validObject(x) should be called below because it would then fully
     ## re-validate objects that derive from SummarizedExperiment0 (e.g.
     ## DESeqDataSet objects) after the user sets the assays slot with
@@ -283,7 +283,7 @@ setReplaceMethod("dimnames", c("SummarizedExperiment0", "list"),
     NAMES <- S4Vectors:::normalize_names_replacement_value(value[[1]], x)
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    initialize(x, NAMES=NAMES, colData=colData)
+    BiocGenerics:::updateS4(x, NAMES=NAMES, colData=colData)
 })
 
 setReplaceMethod("dimnames", c("SummarizedExperiment0", "NULL"),
@@ -343,36 +343,36 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
 
     if (missing(i)) {
         ans_assays <- x@assays[ , jj]
-        ans <- initialize(x, ...,
-                             colData=ans_colData,
-                             assays=ans_assays)
+        ans <- BiocGenerics:::updateS4(x, ...,
+                       colData=ans_colData,
+                       assays=ans_assays)
     } else if (missing(j)) {
         ans_assays <- x@assays[ii, ]
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- initialize(x, ...,
-                                 elementMetadata=ans_elementMetadata,
-                                 rowRanges=ans_rowRanges,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       elementMetadata=ans_elementMetadata,
+                       rowRanges=ans_rowRanges,
+                       assays=ans_assays)
         } else {
-            ans <- initialize(x, ...,
-                                 elementMetadata=ans_elementMetadata,
-                                 NAMES=ans_NAMES,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       elementMetadata=ans_elementMetadata,
+                       NAMES=ans_NAMES,
+                       assays=ans_assays)
         }
     } else {
         ans_assays <- x@assays[ii, jj]
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- initialize(x, ...,
-                                 elementMetadata=ans_elementMetadata,
-                                 rowRanges=ans_rowRanges,
-                                 colData=ans_colData,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       elementMetadata=ans_elementMetadata,
+                       rowRanges=ans_rowRanges,
+                       colData=ans_colData,
+                       assays=ans_assays)
         } else {
-            ans <- initialize(x, ...,
-                                 elementMetadata=ans_elementMetadata,
-                                 NAMES=ans_NAMES,
-                                 colData=ans_colData,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       elementMetadata=ans_elementMetadata,
+                       NAMES=ans_NAMES,
+                       colData=ans_colData,
+                       assays=ans_assays)
         }
     }
     ans
@@ -434,10 +434,10 @@ setReplaceMethod("[",
             a[ , jj] <- value@assays
             a
         })
-        ans <- initialize(x, ...,
-                             metadata=ans_metadata,
-                             colData=ans_colData,
-                             assays=ans_assays)
+        ans <- BiocGenerics:::updateS4(x, ...,
+                   metadata=ans_metadata,
+                   colData=ans_colData,
+                   assays=ans_assays)
         msg <- .valid.SummarizedExperiment0.assays_ncol(ans)
     } else if (missing(j)) {
         ans_assays <- local({
@@ -446,17 +446,17 @@ setReplaceMethod("[",
             a
         })
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- initialize(x, ...,
-                                 metadata=ans_metadata,
-                                 elementMetadata=ans_elementMetadata,
-                                 rowRanges=ans_rowRanges,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       metadata=ans_metadata,
+                       elementMetadata=ans_elementMetadata,
+                       rowRanges=ans_rowRanges,
+                       assays=ans_assays)
         } else {
-            ans <- initialize(x, ...,
-                                 metadata=ans_metadata,
-                                 elementMetadata=ans_elementMetadata,
-                                 NAMES=ans_NAMES,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       metadata=ans_metadata,
+                       elementMetadata=ans_elementMetadata,
+                       NAMES=ans_NAMES,
+                       assays=ans_assays)
         }
         msg <- .valid.SummarizedExperiment0.assays_nrow(ans)
     } else {
@@ -466,19 +466,19 @@ setReplaceMethod("[",
             a
         })
         if (is(x, "RangedSummarizedExperiment")) {
-            ans <- initialize(x, ...,
-                                 metadata=ans_metadata,
-                                 elementMetadata=ans_elementMetadata,
-                                 rowRanges=ans_rowRanges,
-                                 colData=ans_colData,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       metadata=ans_metadata,
+                       elementMetadata=ans_elementMetadata,
+                       rowRanges=ans_rowRanges,
+                       colData=ans_colData,
+                       assays=ans_assays)
         } else {
-            ans <- initialize(x, ...,
-                                 metadata=ans_metadata,
-                                 elementMetadata=ans_elementMetadata,
-                                 NAMES=ans_NAMES,
-                                 colData=ans_colData,
-                                 assays=ans_assays)
+            ans <- BiocGenerics:::updateS4(x, ...,
+                       metadata=ans_metadata,
+                       elementMetadata=ans_elementMetadata,
+                       NAMES=ans_NAMES,
+                       colData=ans_colData,
+                       assays=ans_assays)
         }
         msg <- .valid.SummarizedExperiment0.assays_dim(ans)
     }
@@ -637,13 +637,13 @@ setMethod("rbind", "SummarizedExperiment0",
     metadata <- do.call(c, lapply(args, metadata))
 
     if (is(args[[1L]], "RangedSummarizedExperiment")) {
-        initialize(args[[1L]],
-                   rowRanges=rowRanges, colData=colData, assays=assays,
-                   elementMetadata=elementMetadata, metadata=metadata)
+        BiocGenerics:::updateS4(args[[1L]],
+            rowRanges=rowRanges, colData=colData, assays=assays,
+            elementMetadata=elementMetadata, metadata=metadata)
     } else {
-        initialize(args[[1L]],
-                   NAMES=NAMES, colData=colData, assays=assays,
-                   elementMetadata=elementMetadata, metadata=metadata)
+        BiocGenerics:::updateS4(args[[1L]],
+            NAMES=NAMES, colData=colData, assays=assays,
+            elementMetadata=elementMetadata, metadata=metadata)
     }
 }
 
@@ -670,13 +670,13 @@ setMethod("cbind", "SummarizedExperiment0",
     metadata <- do.call(c, lapply(args, metadata))
 
     if (is(args[[1L]], "RangedSummarizedExperiment")) {
-        initialize(args[[1L]],
-                   rowRanges=rowRanges,
-                   colData=colData, assays=assays, metadata=metadata)
+        BiocGenerics:::updateS4(args[[1L]],
+            rowRanges=rowRanges,
+            colData=colData, assays=assays, metadata=metadata)
     } else {
-        initialize(args[[1L]],
-                   elementMetadata=elementMetadata,
-                   colData=colData, assays=assays, metadata=metadata)
+        BiocGenerics:::updateS4(args[[1L]],
+            elementMetadata=elementMetadata,
+            colData=colData, assays=assays, metadata=metadata)
     }
 }
 

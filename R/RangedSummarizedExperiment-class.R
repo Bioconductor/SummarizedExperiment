@@ -181,10 +181,9 @@ setMethod(rowRanges, "RangedSummarizedExperiment",
 .RangedSummarizedExperiment.rowRanges.replace <-
     function(x, ..., value)
 {
-    x <- initialize(
-            x, ...,
-            rowRanges=value,
-            elementMetadata=new("DataFrame", nrows=length(value)))
+    x <- BiocGenerics:::updateS4(x, ...,
+             rowRanges=value,
+             elementMetadata=new("DataFrame", nrows=length(value)))
     msg <- .valid.SummarizedExperiment0.assays_nrow(x)
     if (!is.null(msg))
         stop(msg)
@@ -206,7 +205,7 @@ setReplaceMethod("names", "RangedSummarizedExperiment",
 {
     rowRanges <- rowRanges(x)
     names(rowRanges) <- value
-    initialize(x, rowRanges=rowRanges)
+    BiocGenerics:::updateS4(x, rowRanges=rowRanges)
 })
 
 setMethod(dimnames, "RangedSummarizedExperiment",
@@ -222,7 +221,7 @@ setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
     names(rowRanges) <- value[[1]]
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    initialize(x, rowRanges=rowRanges, colData=colData)
+    BiocGenerics:::updateS4(x, rowRanges=rowRanges, colData=colData)
 })
 
 
@@ -317,7 +316,7 @@ setMethod(mcols, "RangedSummarizedExperiment",
 setReplaceMethod("mcols", "RangedSummarizedExperiment",
     function(x, ..., value)
 {
-    initialize(x, rowRanges=local({
+    BiocGenerics:::updateS4(x, rowRanges=local({
         r <- rowRanges(x)
         mcols(r) <- value
         r
