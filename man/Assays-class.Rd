@@ -35,11 +35,15 @@
 \title{Assays objects}
 
 \description{
-  The Assays virtual class and its implementations (ShallowSimpleListAssays
-  and AssaysInEnv) are used for storing the assays of a
-  \link{SummarizedExperiment0} object. These classes are not meant to be
-  used directly by the end-user.
-  This man page contains material meant for package developers.
+  The Assays virtual class and its methods provide a formal abstraction
+  of the assays slot of \link{SummarizedExperiment0} objects.
+
+  ShallowSimpleListAssays is a concrete subclass of Assays and is 
+  currently the default implementation of Assays objects. Other
+  implementations (e.g. disk-based) could easily be added.
+
+  Note that these classes are not meant to be used directly by the end-user
+  and the material in this man page is aimed at package developers.
 }
 
 \details{
