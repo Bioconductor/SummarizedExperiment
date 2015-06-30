@@ -15,6 +15,10 @@
 \alias{rbind,Assays-method}
 \alias{cbind,Assays-method}
 
+\alias{class:SimpleListAssays}
+\alias{SimpleListAssays-class}
+\alias{SimpleListAssays}
+
 \alias{class:ShallowSimpleListAssays}
 \alias{ShallowSimpleListAssays-class}
 \alias{ShallowSimpleListAssays}
@@ -38,9 +42,9 @@
   The Assays virtual class and its methods provide a formal abstraction
   of the assays slot of \link{SummarizedExperiment0} objects.
 
-  ShallowSimpleListAssays is a concrete subclass of Assays and is 
-  currently the default implementation of Assays objects. Other
-  implementations (e.g. disk-based) could easily be added.
+  SimpleListAssays and ShallowSimpleListAssays are concrete subclasses of
+  Assays with the latter being currently the default implementation of Assays
+  objects. Other implementations (e.g. disk-based) could easily be added.
 
   Note that these classes are not meant to be used directly by the end-user
   and the material in this man page is aimed at package developers.
@@ -52,8 +56,10 @@
 
   The Assays API consists of:
   \itemize{
-    \item (a) the \code{Assays()} constructor function
-    \item (b) lossless back and forth coercion from/to \link{SimpleList}
+    \item (a) The \code{Assays()} constructor function.
+    \item (b) Lossless back and forth coercion from/to \link{SimpleList}.
+              The coercion method from \link{SimpleList} doesn't need (and
+              should not) validate the returned object.
     \item (c) \code{length}, \code{names}, \code{`names<-`},
               \code{[[}, \code{`[[<-`},
               \code{dim}, \code{[}, \code{`[<-`}, \code{rbind}, \code{cbind}.
@@ -78,17 +84,17 @@
   enough (and often preferrable for performance reasons) to copy only the
   parts of the objects that need to be modified.
 
-  Assays has currently 2 implementations which are formalized by concrete
-  subclasses ShallowSimpleListAssays and AssaysInEnv, the former being the
-  default. AssaysInEnv is a \emph{broken} alternative to
-  ShallowSimpleListAssays that does NOT respect the \emph{copy-on-change
-  contract}. It is only provided for illustration purposes (see source file
-  Assays-class.R for the details).
+  Assays has currently 3 implementations which are formalized by concrete
+  subclasses SimpleListAssays, ShallowSimpleListAssays, and AssaysInEnv.
+  ShallowSimpleListAssays is the default. AssaysInEnv is a \emph{broken}
+  alternative to ShallowSimpleListAssays that does NOT respect the
+  \emph{copy-on-change contract}. It is only provided for illustration
+  purposes (see source file Assays-class.R for the details).
 
-  About ShallowSimpleListAssays: In a little more detail, a small
-  reference class hierarchy (not exported from the \pkg{GenomicRanges}
-  name space) defines a reference class ShallowData with a single field
-  \code{data} of type \code{ANY}, and a derived class ShallowSimpleListAssays
+  A little more detail about ShallowSimpleListAssays: a small reference
+  class hierarchy (not exported from the \pkg{GenomicRanges} name space)
+  defines a reference class ShallowData with a single field \code{data}
+  of type \code{ANY}, and a derived class ShallowSimpleListAssays
   that specializes the type of \code{data} as \link{SimpleList}, and
   \code{contains=c("ShallowData", "Assays")}. The assays slot of a
   \link{SummarizedExperiment0} object contains an instance of

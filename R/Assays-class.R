@@ -8,8 +8,10 @@
 ### is defunct (in BioC 2.3).
 ###
 ### The Assays API consists of:
-###   (a) the Assays() constructor function
-###   (b) lossless back and forth coercion from/to SimpleList
+###   (a) The Assays() constructor function.
+###   (b) Lossless back and forth coercion from/to SimpleList. The coercion
+###       method from SimpleList doesn't need (and should not) validate the
+###       returned object.
 ###   (c) length, names, names<-, [[, [[<-, dim, [, [<-, rbind, cbind
 ###
 ### An Assays croncrete subclass needs to implement (b) (required) plus
@@ -41,7 +43,7 @@
 
 .valid.Assays <- function(x)
 {
-    assays <- as(x, "SimpleList")
+    assays <- as(x, "SimpleList", strict=FALSE)
     if (!is(assays, "SimpleList"))
         return("'assays' must be a SimpleList object")
     if (length(assays) == 0L)
@@ -77,35 +79,59 @@ setValidity2("Assays", .valid.Assays)
 Assays <- function(assays=SimpleList())
 {
     assays <- .normarg_assays(assays)
+    #ans <- as(assays, "SimpleListAssays")
     ans <- as(assays, "ShallowSimpleListAssays")
-    #ans <- as(assays, "AssaysInEnv")  # as a *broken* alternative
+    #ans <- as(assays, "AssaysInEnv")  # a *broken* alternative
     validObject(ans)
     ans
 }
 
 ### Accessors
 
-setMethod("length", "Assays", function(x) length(as(x, "SimpleList")))
+.SL_get_length <- selectMethod("length", "SimpleList")
+setMethod("length", "Assays",
+    function(x)
+    {
+        assays <- as(x, "SimpleList", strict=FALSE)
+        .SL_get_length(assays)
+    }
+)
 
-setMethod("names", "Assays", function(x) names(as(x, "SimpleList")))
+.SL_get_names <- selectMethod("names", "SimpleList")
+setMethod("names", "Assays",
+    function(x)
+    {
+        assays <- as(x, "SimpleList", strict=FALSE)
+        .SL_get_names(assays)
+    }
+)
 
+.SL_set_names <- selectMethod("names<-", "SimpleList")
 setReplaceMethod("names", "Assays",
     function(x, value)
     {
-        assays <- as(x, "SimpleList")
-        names(assays) <- value
+        assays <- as(x, "SimpleList", strict=FALSE)
+        assays <- .SL_set_names(assays, value)
         as(assays, class(x))
     }
 )
 
-setMethod("[[", "Assays", function(x, i, j, ...) as(x, "SimpleList")[[i]])
+setMethod("[[", "Assays",
+    function(x, i, j, ...)
+    {
+        assays <- as(x, "SimpleList", strict=FALSE)
+        getListElement(assays, i)
+    }
+)
 
 setReplaceMethod("[[", "Assays",
     function(x, i, j, ..., value)
     {
-        assays <- as(x, "SimpleList")
-        assays[[i]] <- value
-        as(assays, class(x))
+        assays <- as(x, "SimpleList", strict=FALSE)
+        assays <- setListElement(assays, i, value)
+        ans <- as(assays, class(x))
+        validObject(ans)
+        ans
     }
 )
 
@@ -151,7 +177,7 @@ setMethod("dim", "Assays",
                    stop("'[' on assays() with >4 dimensions not supported"))
         }
     }
-    assays <- as(x, "SimpleList")
+    assays <- as(x, "SimpleList", strict=FALSE)
     as(endoapply(assays, fun), class(x))
 }
 
@@ -193,8 +219,8 @@ setMethod("[", "Assays",
             x
         }
     }
-    a <- as(x, "SimpleList")
-    v <- as(value, "SimpleList")
+    a <- as(x, "SimpleList", strict=FALSE)
+    v <- as(value, "SimpleList", strict=FALSE)
     as(mendoapply(fun, x=a, value=v), class(x))
 }
 
@@ -252,7 +278,7 @@ setReplaceMethod("[", "Assays",
         res <- lapply(uvar, .bind_assay_elements, lst=lst, bind=bind)
         names(res) <- uvar
     }
-    Assays(res)
+    as(res, class(len1))
 }
 
 setMethod("rbind", "Assays",
@@ -262,6 +288,17 @@ setMethod("rbind", "Assays",
 setMethod("cbind", "Assays",
     function(..., deparse.level=1) .bind_Assays(unname(list(...)), cbind)
 )
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### SimpleListAssays class
+###
+
+### The order of inheritance is important: first Assays, then SimpleList!
+setClass("SimpleListAssays", contains=c("Assays", "SimpleList"))
+
+### Lossless back and forth coercion from/to SimpleList are automatically
+### taken care of by automatic methods defined by the methods package.
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
