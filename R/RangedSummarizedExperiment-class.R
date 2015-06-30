@@ -185,7 +185,8 @@ setMethod(rowRanges, "RangedSummarizedExperiment",
         x <- as(x, "RangedSummarizedExperiment")
     x <- BiocGenerics:::replaceSlots(x, ...,
              rowRanges=value,
-             elementMetadata=new("DataFrame", nrows=length(value)))
+             elementMetadata=new("DataFrame", nrows=length(value)),
+             check=FALSE)
     msg <- .valid.SummarizedExperiment0.assays_nrow(x)
     if (!is.null(msg))
         stop(msg)
@@ -207,7 +208,7 @@ setReplaceMethod("names", "RangedSummarizedExperiment",
 {
     rowRanges <- rowRanges(x)
     names(rowRanges) <- value
-    BiocGenerics:::replaceSlots(x, rowRanges=rowRanges)
+    BiocGenerics:::replaceSlots(x, rowRanges=rowRanges, check=FALSE)
 })
 
 setMethod(dimnames, "RangedSummarizedExperiment",
@@ -223,7 +224,10 @@ setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
     names(rowRanges) <- value[[1]]
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    BiocGenerics:::replaceSlots(x, rowRanges=rowRanges, colData=colData)
+    BiocGenerics:::replaceSlots(x,
+        rowRanges=rowRanges,
+        colData=colData,
+        check=FALSE)
 })
 
 
@@ -318,11 +322,13 @@ setMethod(mcols, "RangedSummarizedExperiment",
 setReplaceMethod("mcols", "RangedSummarizedExperiment",
     function(x, ..., value)
 {
-    BiocGenerics:::replaceSlots(x, rowRanges=local({
-        r <- rowRanges(x)
-        mcols(r) <- value
-        r
-    }))
+    BiocGenerics:::replaceSlots(x,
+        rowRanges=local({
+            r <- rowRanges(x)
+            mcols(r) <- value
+            r
+        }),
+        check=FALSE)
 })
 
 ### mcols() is the recommended way for accessing the metadata columns.

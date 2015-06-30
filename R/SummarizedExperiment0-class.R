@@ -111,7 +111,7 @@ setReplaceMethod("names", "SummarizedExperiment0",
     function(x, value)
     {
         NAMES <- S4Vectors:::normalize_names_replacement_value(value, x)
-        BiocGenerics:::replaceSlots(x, NAMES=NAMES)
+        BiocGenerics:::replaceSlots(x, NAMES=NAMES, check=FALSE)
     }
 )
 
@@ -138,7 +138,7 @@ setReplaceMethod("colData", c("SummarizedExperiment0", "DataFrame"),
 {
     if (nrow(value) != ncol(x))
         stop("nrow of supplied 'colData' must equal ncol of object")
-    BiocGenerics:::replaceSlots(x, colData=value)
+    BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
 
 setMethod(assays, "SummarizedExperiment0",
@@ -162,7 +162,7 @@ setMethod(assays, "SummarizedExperiment0",
     }, logical(1), xdimnames=dimnames(x))
     if (!all(ok))
         stop("current and replacement dimnames() differ")
-    x <- BiocGenerics:::replaceSlots(x, assays=Assays(value))
+    x <- BiocGenerics:::replaceSlots(x, assays=Assays(value), check=FALSE)
     ## validObject(x) should be called below because it would then fully
     ## re-validate objects that derive from SummarizedExperiment0 (e.g.
     ## DESeqDataSet objects) after the user sets the assays slot with
@@ -283,7 +283,7 @@ setReplaceMethod("dimnames", c("SummarizedExperiment0", "list"),
     NAMES <- S4Vectors:::normalize_names_replacement_value(value[[1]], x)
     colData <- colData(x)
     rownames(colData) <- value[[2]]
-    BiocGenerics:::replaceSlots(x, NAMES=NAMES, colData=colData)
+    BiocGenerics:::replaceSlots(x, NAMES=NAMES, colData=colData, check=FALSE)
 })
 
 setReplaceMethod("dimnames", c("SummarizedExperiment0", "NULL"),
@@ -345,19 +345,22 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
         ans_assays <- x@assays[ , jj]
         ans <- BiocGenerics:::replaceSlots(x, ...,
                        colData=ans_colData,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
     } else if (missing(j)) {
         ans_assays <- x@assays[ii, ]
         if (is(x, "RangedSummarizedExperiment")) {
             ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         } else {
             ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         }
     } else {
         ans_assays <- x@assays[ii, jj]
@@ -366,13 +369,15 @@ setMethod("[", c("SummarizedExperiment0", "ANY", "ANY"),
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
                        colData=ans_colData,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         } else {
             ans <- BiocGenerics:::replaceSlots(x, ...,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
                        colData=ans_colData,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         }
     }
     ans
@@ -437,7 +442,8 @@ setReplaceMethod("[",
         ans <- BiocGenerics:::replaceSlots(x, ...,
                    metadata=ans_metadata,
                    colData=ans_colData,
-                   assays=ans_assays)
+                   assays=ans_assays,
+                   check=FALSE)
         msg <- .valid.SummarizedExperiment0.assays_ncol(ans)
     } else if (missing(j)) {
         ans_assays <- local({
@@ -450,13 +456,15 @@ setReplaceMethod("[",
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         } else {
             ans <- BiocGenerics:::replaceSlots(x, ...,
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         }
         msg <- .valid.SummarizedExperiment0.assays_nrow(ans)
     } else {
@@ -471,14 +479,16 @@ setReplaceMethod("[",
                        elementMetadata=ans_elementMetadata,
                        rowRanges=ans_rowRanges,
                        colData=ans_colData,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         } else {
             ans <- BiocGenerics:::replaceSlots(x, ...,
                        metadata=ans_metadata,
                        elementMetadata=ans_elementMetadata,
                        NAMES=ans_NAMES,
                        colData=ans_colData,
-                       assays=ans_assays)
+                       assays=ans_assays,
+                       check=FALSE)
         }
         msg <- .valid.SummarizedExperiment0.assays_dim(ans)
     }
