@@ -278,7 +278,7 @@ setReplaceMethod("[", "Assays",
         res <- lapply(uvar, .bind_assay_elements, lst=lst, bind=bind)
         names(res) <- uvar
     }
-    as(res, class(len1))
+    as(SimpleList(res), class(lst[[1L]]))
 }
 
 setMethod("rbind", "Assays",

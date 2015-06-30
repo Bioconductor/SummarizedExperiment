@@ -178,9 +178,11 @@ setMethod(rowRanges, "RangedSummarizedExperiment",
     function(x, ...) x@rowRanges
 )
 
-.RangedSummarizedExperiment.rowRanges.replace <-
+.SummarizedExperiment0.rowRanges.replace <-
     function(x, ..., value)
 {
+    if (!is(x, "RangedSummarizedExperiment"))
+        x <- as(x, "RangedSummarizedExperiment")
     x <- BiocGenerics:::replaceSlots(x, ...,
              rowRanges=value,
              elementMetadata=new("DataFrame", nrows=length(value)))
@@ -190,11 +192,11 @@ setMethod(rowRanges, "RangedSummarizedExperiment",
     x
 }
 
-setReplaceMethod("rowRanges", c("RangedSummarizedExperiment", "GenomicRanges"),
-    .RangedSummarizedExperiment.rowRanges.replace)
+setReplaceMethod("rowRanges", c("SummarizedExperiment0", "GenomicRanges"),
+    .SummarizedExperiment0.rowRanges.replace)
 
-setReplaceMethod("rowRanges", c("RangedSummarizedExperiment", "GRangesList"),
-    .RangedSummarizedExperiment.rowRanges.replace)
+setReplaceMethod("rowRanges", c("SummarizedExperiment0", "GRangesList"),
+    .SummarizedExperiment0.rowRanges.replace)
 
 setMethod("names", "RangedSummarizedExperiment",
     function(x) names(rowRanges(x))

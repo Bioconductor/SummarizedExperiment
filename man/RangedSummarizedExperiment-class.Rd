@@ -21,8 +21,8 @@
 \alias{rowRanges}
 \alias{rowRanges,RangedSummarizedExperiment-method}
 \alias{rowRanges<-}
-\alias{rowRanges<-,RangedSummarizedExperiment,GenomicRanges-method}
-\alias{rowRanges<-,RangedSummarizedExperiment,GRangesList-method}
+\alias{rowRanges<-,SummarizedExperiment0,GenomicRanges-method}
+\alias{rowRanges<-,SummarizedExperiment0,GRangesList-method}
 \alias{names,RangedSummarizedExperiment-method}
 \alias{names<-,RangedSummarizedExperiment-method}
 \alias{dimnames,RangedSummarizedExperiment-method}
@@ -138,7 +138,13 @@ rowRanges(x, ...) <- value
 
   }
 
-  \item{x}{A RangedSummarizedExperiment object.}
+  \item{x}{A RangedSummarizedExperiment object. The \code{rowRanges} setter
+    will also accept a \link{SummarizedExperiment0} object and will first
+    coerce it to RangedSummarizedExperiment before it sets \code{value} on
+    it.}
+
+  \item{value}{A \link[GenomicRanges]{GRanges} or
+    \link[GenomicRanges]{GRangesList} object.}
 
   \item{subset}{An expression which, when evaluated in the
     context of \code{rowRanges(x)}, is a logical vector indicating
@@ -147,9 +153,6 @@ rowRanges(x, ...) <- value
   \item{select}{An expression which, when evaluated in the
     context of \code{colData(x)}, is a logical vector indicating
     elements or rows to keep: missing values are taken as false.}
-
-  \item{value}{A \link[GenomicRanges]{GRanges} or
-    \link[GenomicRanges]{GRangesList} object.}
 
 }
 
@@ -310,6 +313,12 @@ se0 <- as(rse, "SummarizedExperiment0")
 se0
 
 as(se0, "RangedSummarizedExperiment")
+
+## Setting rowRanges on a SummarizedExperiment0 object turns it into a
+## RangedSummarizedExperiment object:
+se <- se0
+rowRanges(se) <- rowRanges
+se  # RangedSummarizedExperiment
 
 ## Sanity checks:
 stopifnot(identical(assays(se0), assays(rse)))
