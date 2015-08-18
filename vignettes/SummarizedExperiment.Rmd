@@ -34,6 +34,12 @@ redo fig. 2 of http://www.nature.com/nmeth/journal/v12/n2/abs/nmeth.3252.html
 
 ## Experiment-wide metadata
 
+# Putting it together
+
+Often, SummarizedExperiment objects are returned by functions written
+by other packages. It is possilbe to create a SummarizedExperiment 'by
+hand'.
+
 # Common operations on _SummarizedExperiment_
 
 Subsetting
