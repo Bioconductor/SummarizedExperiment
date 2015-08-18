@@ -1,7 +1,7 @@
 ---
 title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
 author: "Martin Morgan"
-date: "Revised: 14 May, 2015"
+date: "Revised: 18 August, 2015"
 output:
   BiocStyle::html_document:
     toc: true
@@ -19,15 +19,36 @@ BiocStyle::markdown()
 
 # Parts of a _SummarizedExperiment_
 
+redo fig. 2 of http://www.nature.com/nmeth/journal/v12/n2/abs/nmeth.3252.html
+
+- Visual presentation of parts of SE
+- pseudo-code illustrating manipulation
+
 ## Assays
 
 ## 'Row' (regions-of-interest) data
 
 ### Genomic ranges or data frames?
 
-## Experimental metadata
+## 'Column' (sample) data
+
+## Experiment-wide metadata
 
 # Common operations on _SummarizedExperiment_
+
+Subsetting
+
+- Two-dimensional `[`
+- `se$<colData column>` for easy sample selection
+
+Getters and setters
+
+- `rowRanges()` / (`mcols()`), `colData()`, `metadata()`
+- `assay()` versus `assays()`
+
+Range-based operations
+
+- e.g., `subsetByOverlaps(se, roi)`
 
 # Case study revisited -- _SummarizedExperiment_ in action
 
