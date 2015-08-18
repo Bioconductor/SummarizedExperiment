@@ -90,7 +90,7 @@ What should happen before the BioC 3.2 release:
 (b) Write the vignette in new SummarizedExperiment package.
 
 What should happen in BioC 3.3 (preferably at the beginning of the
-devel cycle soon after the BioC 3.2 release):
+devel cycle i.e. soon after the BioC 3.2 release):
 
 (c) Remove the old SummarizedExperiment class entirely from the
     GenomicRanges package. Right now it's deprecated only so that
@@ -166,6 +166,9 @@ devel cycle soon after the BioC 3.2 release):
 (l) Update the SummarizedExperiment vignette.
 
 I'm probably missing a few things that we'll discover along the road.
+I'll take care of (a) in September and can take care of (c)-(l) after the
+BioC 3.2 release. I'm happy to leave (b) (SummarizedExperiment vignette) to
+someone else...
 
 H.P. - August 2015
 
