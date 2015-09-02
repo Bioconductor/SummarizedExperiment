@@ -127,7 +127,7 @@ Often, SummarizedExperiment objects are returned by functions written
 by other packages. However it is possible to create a `SummarizedExperiment` 'by
 hand'.
 ```{r construct}
-rows <- 200
+nrows <- 200
 ncols <- 6
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
     rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),
