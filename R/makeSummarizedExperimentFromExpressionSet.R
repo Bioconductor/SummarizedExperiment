@@ -160,10 +160,10 @@ geneRangeMapper <- function(txDbPackage, key = "ENTREZID")
     }
 }
 
-makeSummarizedExperimentFromExpressionSet <- function(from, mapFun = naiveRangeMapper)
+makeSummarizedExperimentFromExpressionSet <- function(from, mapFun = naiveRangeMapper, ...)
 {
         mapFun <- match.fun(mapFun)
-        rowRanges <- mapFun(from)
+        rowRanges <- mapFun(from, ...)
         matches <- match(names(rowRanges),
                          featureNames(from),
                          nomatch = 0)

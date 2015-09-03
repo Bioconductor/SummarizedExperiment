@@ -24,7 +24,8 @@
 
 \usage{
 makeSummarizedExperimentFromExpressionSet(from,
-                                          mapFun=naiveRangeMapper)
+                                          mapFun=naiveRangeMapper,
+                                          ...)
 
 ## range mapping functions
 naiveRangeMapper(from)
@@ -45,6 +46,9 @@ geneRangeMapper(txDbPackage, key = "ENTREZID")
     \link[Biobase]{ExpressionSet}.
 
     The \code{naiveRangeMapper} function is used by default.
+  }
+  \item{...}{
+    Additional arguments passed to \code{mapFun}.
   }
   \item{txDbPackage}{
     A character string with the Transcript Database to use for the mapping.
