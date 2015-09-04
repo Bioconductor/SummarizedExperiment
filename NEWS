@@ -1,0 +1,8 @@
+CHANGES IN VERSION 0.3.*
+------------------------
+
+NEW FEATURES
+
+    o readKallisto() and readKallistoBootstrap() input kallisto
+      transcript quantification output into SummarizedExperiment (and
+      other) instances.

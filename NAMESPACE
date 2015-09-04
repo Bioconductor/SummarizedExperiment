@@ -87,7 +87,8 @@ export(
     Assays,
     .DollarNames.SummarizedExperiment0,
     makeSummarizedExperimentFromExpressionSet,
-    naiveRangeMapper, probeRangeMapper, geneRangeMapper
+    naiveRangeMapper, probeRangeMapper, geneRangeMapper,
+    readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS
 )
 
 
