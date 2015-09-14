@@ -121,6 +121,15 @@ accessed using `metadata()`.
 metadata(se)
 ```
 
+Note that `metadata()` is just a simple list, so it is appropriate for _any_
+experiment wide metadata the user wishes to save, such as storing model
+formulas.
+```{r metadata-formula}
+metadata(se)$formula <- counts ~ dex + albut
+
+metadata(se)
+```
+
 # Putting it together
 
 Often, SummarizedExperiment objects are returned by functions written
