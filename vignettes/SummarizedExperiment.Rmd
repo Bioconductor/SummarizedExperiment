@@ -15,6 +15,13 @@ vignette: >
 BiocStyle::markdown()
 ```
 
+```{r include = FALSE}
+# download current version of SE diagram
+download.file("https://docs.google.com/feeds/download/drawings/Export?id=1kiC8Qlo1mhSnLDqkGiRNPSo6GWn3C2duBszCFbJCB-g&exportFormat=svg", "SE.svg")
+```
+
+![Summarized Experiment](SE.svg)
+
 # Motivating use case
 
 The `SummarizedExperiment` class is used to store rectangular matrices of
@@ -205,7 +212,8 @@ to subset a `SummarizedExperiment` object by an interval.
 ```{r overlap}
 # Subset for only rows which are in the interval 100,000 to 110,000 of
 # chromosome 1
-subsetByOverlaps(se, GRanges(seqnames="1", ranges=100000:1100000))
+roi <- GRanges(seqnames="1", ranges=100000:1100000)
+subsetByOverlaps(se, roi)
 ```
 
 # Case study revisited -- _SummarizedExperiment_ in action
