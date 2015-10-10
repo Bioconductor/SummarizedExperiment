@@ -207,7 +207,7 @@ setMethod(assay, c("SummarizedExperiment0", "numeric"),
 })
 
 setMethod(assay, c("SummarizedExperiment0", "character"),
-    function(x, i = names(x)[1], ...)
+    function(x, i, ...)
 {
     msg <- paste0("'assay(<", class(x), ">, i=\"character\", ...)' ",
                   "invalid subscript 'i'")
@@ -241,7 +241,7 @@ setReplaceMethod("assay",
 
 setReplaceMethod("assay",
     c("SummarizedExperiment0", "character", "matrix"),
-    function(x, i = names(x)[1], ..., value)
+    function(x, i, ..., value)
 {
     assays(x, ...)[[i]] <- value
     x
