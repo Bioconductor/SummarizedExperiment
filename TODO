@@ -163,7 +163,8 @@ devel cycle i.e. soon after the BioC 3.2 release):
 (k) Remove the SummarizedExperiment-class.R and
     SummarizedExperiment-rowData-methods.R files from GenomicRanges.
 
-(l) Update the SummarizedExperiment vignette.
+(l) Update the SummarizedExperiment vignette (including completing section
+    on extending SummarizedExperiment).
 
 I'm probably missing a few things that we'll discover along the road.
 I'll take care of (a) in September and can take care of (c)-(l) after the
