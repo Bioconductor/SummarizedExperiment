@@ -447,8 +447,8 @@ setMethod("order", "RangedSummarizedExperiment",
 })
 
 setMethod("rank", "RangedSummarizedExperiment",
-    function (x, na.last = TRUE,
-              ties.method = c("average", "first", "random", "max", "min"))
+    function(x, na.last = TRUE,
+        ties.method = c("average", "first", "last", "random", "max", "min"))
 {
     ties.method <- match.arg(ties.method)
     rank(rowRanges(x), na.last=na.last, ties.method=ties.method)
