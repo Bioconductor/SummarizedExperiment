@@ -7,7 +7,7 @@ library(digest)
 
 .twoDispatch <- c("compare", "Compare")
 
-.otherFuns <- c("order", "rank", "sort")
+.otherFuns <- c("is.unsorted", "order", "rank", "sort")
 
 M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
 M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))

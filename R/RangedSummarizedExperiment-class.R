@@ -438,6 +438,16 @@ setReplaceMethod("ranges", "RangedSummarizedExperiment",
 
 ## order, rank, sort
 
+setMethod("is.unsorted", "RangedSummarizedExperiment",
+    function(x, na.rm = FALSE, strictly = FALSE, ignore.strand = FALSE)
+{
+    x <- rowRanges(x)
+    if (!is(x, "GenomicRanges"))
+        stop("is.unsorted() is not yet supported when 'rowRanges(x)' is a ",
+             class(x), " object")
+    callGeneric()
+})
+
 setMethod("order", "RangedSummarizedExperiment",
     function(..., na.last = TRUE, decreasing = FALSE)
 {
@@ -455,9 +465,16 @@ setMethod("rank", "RangedSummarizedExperiment",
 })
 
 setMethod("sort", "RangedSummarizedExperiment",
-    function(x, decreasing = FALSE, ...)
+    function(x, decreasing = FALSE, ignore.strand = FALSE)
 {
-    x[order(rowRanges(x), decreasing=decreasing),]
+    x_rowRanges <- rowRanges(x)
+    if (!is(x_rowRanges, "GenomicRanges"))
+        stop("sort() is not yet supported when 'rowRanges(x)' is a ",
+             class(x_rowRanges), " object")
+    oo <- GenomicRanges:::.order_GenomicRanges(x_rowRanges,
+                                               decreasing = decreasing,
+                                               ignore.strand = ignore.strand)
+    x[oo]
 })
 
 ## seqinfo (also seqlevels, genome, seqlevels<-, genome<-), seqinfo<-

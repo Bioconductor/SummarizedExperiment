@@ -44,6 +44,7 @@
 \alias{end,RangedSummarizedExperiment-method}
 \alias{end<-,RangedSummarizedExperiment-method}
 \alias{granges,RangedSummarizedExperiment-method}
+\alias{is.unsorted,RangedSummarizedExperiment-method}
 \alias{mcols,RangedSummarizedExperiment-method}
 \alias{mcols<-,RangedSummarizedExperiment-method}
 \alias{order,RangedSummarizedExperiment-method}
@@ -200,11 +201,11 @@ rowRanges(x, ...) <- value
 
   Supported operations include: \code{\link{compare}},
   \code{\link{duplicated}}, \code{\link{end}}, \code{\link{end<-}}, 
-  \code{\link{granges}}, \code{\link{match}}, \code{\link{mcols}},
-  \code{\link{mcols<-}}, \code{\link{order}}, \code{\link{ranges}},
-  \code{\link{ranges<-}}, \code{\link{rank}}, \code{\link{seqinfo}},
-  \code{\link{seqinfo<-}}, \code{\link{seqnames}}, \code{\link{sort}}, 
-  \code{\link{start}}, \code{\link{start<-}},
+  \code{\link{granges}}, \code{\link{is.unsorted}}, \code{\link{match}},
+  \code{\link{mcols}}, \code{\link{mcols<-}}, \code{\link{order}},
+  \code{\link{ranges}}, \code{\link{ranges<-}}, \code{\link{rank}},
+  \code{\link{seqinfo}}, \code{\link{seqinfo<-}}, \code{\link{seqnames}},
+  \code{\link{sort}}, \code{\link{start}}, \code{\link{start<-}},
   \code{\link{strand}}, \code{\link{strand<-}},
   \code{\link{width}}, \code{\link{width<-}}.
 
