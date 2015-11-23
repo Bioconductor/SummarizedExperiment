@@ -20,6 +20,7 @@ rseList <-
            rowRanges=rowRangesList[["grl"]],
            colData=colData))
 
+
 test_intra_range_methods <- function()
 {
     #for (i in 1:2) {

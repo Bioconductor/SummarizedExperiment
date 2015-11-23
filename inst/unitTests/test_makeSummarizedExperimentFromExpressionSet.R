@@ -1,6 +1,5 @@
 M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
 M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
-mList <- list(M1, M2)
 assaysList <- list(gr=SimpleList(m=M1), grl=SimpleList(m=M2))
 rowRangesList <- 
     list(gr=GRanges("chr1", IRanges(1:5, 10)), 
