@@ -117,12 +117,17 @@ setReplaceMethod("names", "SummarizedExperiment0",
 
 ### We define an exptData() getter and setter for backward compatibility with
 ### "classic" SummarizedExperiment objects.
+setGeneric("exptData", function(x, ...) standardGeneric("exptData"))
+
 setMethod("exptData", "SummarizedExperiment0",
     function(x, ...)
 {
     .Deprecated("metadata")
     SimpleList(metadata(x, ...))
 })
+
+setGeneric("exptData<-",
+    function(x, ..., value) standardGeneric("exptData<-"))
 
 setReplaceMethod("exptData", "SummarizedExperiment0",
     function(x, ..., value)
@@ -131,7 +136,15 @@ setReplaceMethod("exptData", "SummarizedExperiment0",
     `metadata<-`(x, ..., value=value)
 })
 
+## rowData, colData seem too vague, but from eSet derived classes wanted to
+## call the rows / cols something different from 'features' or 'samples', so
+## might as well avoid the issue
+setGeneric("colData", function(x, ...) standardGeneric("colData"))
+
 setMethod(colData, "SummarizedExperiment0", function(x, ...) x@colData)
+
+setGeneric("colData<-",
+    function(x, ..., value) standardGeneric("colData<-"))
 
 setReplaceMethod("colData", c("SummarizedExperiment0", "DataFrame"),
     function(x, ..., value)
@@ -140,6 +153,10 @@ setReplaceMethod("colData", c("SummarizedExperiment0", "DataFrame"),
         stop("nrow of supplied 'colData' must equal ncol of object")
     BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
+
+setGeneric("assays",
+    function(x, ..., withDimnames=TRUE) standardGeneric("assays"),
+    signature="x")
 
 setMethod(assays, "SummarizedExperiment0",
     function(x, ..., withDimnames=TRUE)
@@ -150,6 +167,10 @@ setMethod(assays, "SummarizedExperiment0",
     else
         assays
 })
+
+setGeneric("assays<-",
+    function(x, ..., withDimnames=TRUE, value) standardGeneric("assays<-"),
+    signature=c("x", "value"))
 
 .SummarizedExperiment.assays.replace <-
     function(x, ..., withDimnames=TRUE, value)
@@ -183,6 +204,8 @@ setReplaceMethod("assays", c("SummarizedExperiment0", "SimpleList"),
 
 setReplaceMethod("assays", c("SummarizedExperiment0", "list"),
     .SummarizedExperiment.assays.replace)
+
+setGeneric("assay", function(x, i, ...) standardGeneric("assay"))
 
 ## convenience for common use case
 setMethod(assay, c("SummarizedExperiment0", "missing"),
@@ -221,6 +244,9 @@ setMethod(assay, c("SummarizedExperiment0", "character"),
     res
 })
 
+setGeneric("assay<-",
+    function(x, i, ..., value) standardGeneric("assay<-"))
+
 setReplaceMethod("assay", c("SummarizedExperiment0", "missing", "matrix"),
     function(x, i, ..., value)
 {
@@ -247,11 +273,16 @@ setReplaceMethod("assay",
     x
 })
 
+setGeneric("assayNames", function(x, ...) standardGeneric("assayNames"))
+
 setMethod("assayNames", "SummarizedExperiment0",
     function(x, ...)
 {
     names(assays(x, withDimnames=FALSE))
 })
+
+setGeneric("assayNames<-",
+    function(x, ..., value) standardGeneric("assayNames<-"))
 
 setReplaceMethod("assayNames", c("SummarizedExperiment0", "character"),
     function(x, ..., value)

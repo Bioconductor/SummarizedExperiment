@@ -10,7 +10,9 @@
 \alias{length,SummarizedExperiment0-method}
 \alias{names,SummarizedExperiment0-method}
 \alias{names<-,SummarizedExperiment0-method}
+\alias{exptData}
 \alias{exptData,SummarizedExperiment0-method}
+\alias{exptData<-}
 \alias{exptData<-,SummarizedExperiment0-method}
 \alias{colData}
 \alias{colData,SummarizedExperiment0-method}

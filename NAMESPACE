@@ -13,12 +13,7 @@ import(Biobase)
 ###
 
 exportClasses(
-    ## TODO: Uncomment the line below once these helper classes are defined in
-    ## the SummarizedExperiment package. Otherwise, RangedSummarizedExperiment
-    ## objects that have been serialized *before* these helper classes were
-    ## moved are going to look broken (i.e. validObjet() will fail on them).
-    #Assays, ShallowData, ShallowSimpleListAssays,
-
+    Assays, ShallowData, ShallowSimpleListAssays,
     SummarizedExperiment0,
     RangedSummarizedExperiment
 )
@@ -66,16 +61,7 @@ exportMethods(
 
     ## Generics defined in GenomeInfoDb:
     seqinfo, "seqinfo<-",
-    seqnames, "seqnames<-",
-
-    ## Generics defined in GenomicRanges (at some point, these generics will
-    ## be defined in SummarizedExperiment):
-    SummarizedExperiment,
-    rowRanges, "rowRanges<-",
-    colData, "colData<-",
-    assayNames, "assayNames<-",
-    assays, "assays<-",
-    assay, "assay<-"
+    seqnames, "seqnames<-"
 )
 
 
@@ -98,9 +84,23 @@ export(
 ###
 
 export(
+    SummarizedExperiment,
+    exptData, "exptData<-",
+    rowRanges, "rowRanges<-",
+    colData, "colData<-",
+    assayNames, "assayNames<-",
+    assays, "assays<-",
+    assay, "assay<-"
 )
 
 ### Exactly the same list as above.
 exportMethods(
+    SummarizedExperiment,
+    exptData, "exptData<-",
+    rowRanges, "rowRanges<-",
+    colData, "colData<-",
+    assayNames, "assayNames<-",
+    assays, "assays<-",
+    assay, "assay<-"
 )
 

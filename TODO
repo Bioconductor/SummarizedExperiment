@@ -83,9 +83,9 @@ What should happen before the BioC 3.2 release:
 
 (a) Remove test_SummarizedExperiment-rowData-methods.R from the
     GenomicRanges package (but first make sure that no testing
-    is lost by checking that test_RangedSummarizedExperiment-class.R
-    in the SummarizedExperiment package contains the same set of
-    tests).
+    is lost by checking that the unit tests in SummarizedExperiment
+    cover everything that was in
+    test_SummarizedExperiment-rowData-methods.R).
 
 (b) Write the vignette in new SummarizedExperiment package.
 

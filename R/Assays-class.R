@@ -2,11 +2,6 @@
 ### Assays objects
 ### -------------------------------------------------------------------------
 ###
-### The Assays, ShallowData, and ShallowSimpleListAssays classes are helper
-### classes that are currently defined in the SummarizedExperiment package.
-### Move them here once the "old" SummarizedExperiment class in GenomicRanges
-### is defunct (in BioC 2.3).
-###
 ### The Assays API consists of:
 ###   (a) The Assays() constructor function.
 ###   (b) Lossless back and forth coercion from/to SimpleList. The coercion
@@ -38,6 +33,8 @@
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Assays class
 ###
+
+setClass("Assays")
 
 ### Validity
 
@@ -307,10 +304,15 @@ setClass("SimpleListAssays", contains=c("Assays", "SimpleList"))
 ### We implement the REQUIRED coercions only.
 ###
 
-### GenomicRanges:::.ShallowSimpleListAssays0 seems a little bit faster than
-### two-step constructor GenomicRanges:::.ShallowSimpleListAssays (June 2015)
+.ShallowData <- setRefClass("ShallowData",
+    fields = list( data = "ANY" ))
+
+.ShallowSimpleListAssays0 <- setRefClass("ShallowSimpleListAssays",
+    fields = list( data = "SimpleList" ),
+    contains = c("ShallowData", "Assays"))
+
 setAs("SimpleList", "ShallowSimpleListAssays",
-    function(from) GenomicRanges:::.ShallowSimpleListAssays0(data=from)
+    function(from) .ShallowSimpleListAssays0(data=from)
 )
 
 setAs("ShallowSimpleListAssays", "SimpleList", function(from) from$data)

@@ -25,7 +25,7 @@ test_SummarizedExperiment_GenomicRanges_coercion <- function()
 
         checkTrue(validObject(eset1))
 
-        se1 <- as(eset1, "SummarizedExperiment")
+        se1 <- as(eset1, "RangedSummarizedExperiment")
 
         checkTrue(validObject(se1))
 
@@ -34,7 +34,7 @@ test_SummarizedExperiment_GenomicRanges_coercion <- function()
         eset2 <- sample.ExpressionSet
         checkTrue(validObject(eset2))
 
-        se2 <- as(eset2, "SummarizedExperiment")
+        se2 <- as(eset2, "RangedSummarizedExperiment")
 
         checkTrue(validObject(se2))
 
@@ -69,7 +69,8 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
         ## Back and forth empty ES
         simpleES <- ExpressionSet()
 
-        simpleES2 <- as(as(simpleES, "SummarizedExperiment"), "ExpressionSet")
+        simpleES2 <- as(as(simpleES, "RangedSummarizedExperiment"),
+                        "ExpressionSet")
 
         checkTrue(validObject(simpleES2))
 
@@ -86,7 +87,7 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
                        as.data.frame(rowRanges(rseList[[1]])))
 
         # the rowRanges are retained if the object has them to begin with.
-        se2_2 <- as(eset2, "SummarizedExperiment")
+        se2_2 <- as(eset2, "RangedSummarizedExperiment")
         rr_se2_2 <- unname(rowRanges(se2_2))
         rr_eset2 <- rowRanges(rseList[[1]])
         checkEquals(rr_se2_2, rr_eset2)
@@ -103,7 +104,7 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
         data("sample.ExpressionSet", package = "Biobase")
         eset4 <- sample.ExpressionSet
 
-        eset5 <- as(as(eset4, "SummarizedExperiment"), "ExpressionSet")
+        eset5 <- as(as(eset4, "RangedSummarizedExperiment"), "ExpressionSet")
 
         checkTrue(validObject(eset5))
 
@@ -150,7 +151,7 @@ test_GenomicRanges_SummarizedExperiment_coercion_mappingFunctions <- function()
     ## makeSummarizedExperimentFromExpressionSet should be the same as `as`
     ## with default args
     checkEquals(makeSummarizedExperimentFromExpressionSet(eset1),
-                as(eset1, "SummarizedExperiment"))
+                as(eset1, "RangedSummarizedExperiment"))
 
     ## probeRangeMapper
     ## valid object from empty object

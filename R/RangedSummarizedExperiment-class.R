@@ -67,6 +67,9 @@ get_rownames_from_assays <- function(assays)
     rownames(assays[[1L]])
 }
 
+setGeneric("SummarizedExperiment",
+    function(assays, ...) standardGeneric("SummarizedExperiment"))
+
 setMethod(SummarizedExperiment, "SimpleList",
    function(assays, rowRanges=GRangesList(), colData=DataFrame(),
             metadata=list(), exptData=SimpleList())
@@ -174,9 +177,14 @@ setAs("SummarizedExperiment0", "RangedSummarizedExperiment",
 ### Getters and setters.
 ###
 
+setGeneric("rowRanges", function(x, ...) standardGeneric("rowRanges"))
+
 setMethod(rowRanges, "RangedSummarizedExperiment",
     function(x, ...) x@rowRanges
 )
+
+setGeneric("rowRanges<-",
+    function(x, ..., value) standardGeneric("rowRanges<-"))
 
 .SummarizedExperiment0.rowRanges.replace <-
     function(x, ..., value)

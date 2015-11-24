@@ -19,6 +19,10 @@
 \alias{SimpleListAssays-class}
 \alias{SimpleListAssays}
 
+\alias{class:ShallowData}
+\alias{ShallowData-class}
+\alias{ShallowData}
+
 \alias{class:ShallowSimpleListAssays}
 \alias{ShallowSimpleListAssays-class}
 \alias{ShallowSimpleListAssays}
