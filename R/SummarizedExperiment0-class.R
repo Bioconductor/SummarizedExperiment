@@ -107,26 +107,18 @@ setReplaceMethod("names", "SummarizedExperiment0",
     }
 )
 
-### We define an exptData() getter and setter for backward compatibility with
-### "classic" SummarizedExperiment objects.
 setGeneric("exptData", function(x, ...) standardGeneric("exptData"))
 
 setMethod("exptData", "SummarizedExperiment0",
-    function(x, ...)
-{
-    .Deprecated("metadata")
-    SimpleList(metadata(x, ...))
-})
+    function(x, ...) .Defunct("metadata")
+)
 
 setGeneric("exptData<-",
     function(x, ..., value) standardGeneric("exptData<-"))
 
 setReplaceMethod("exptData", "SummarizedExperiment0",
-    function(x, ..., value)
-{
-    .Deprecated("metadata<-")
-    `metadata<-`(x, ..., value=value)
-})
+    function(x, ..., value) .Defunct("metadata<-")
+)
 
 ## rowData, colData seem too vague, but from eSet derived classes wanted to
 ## call the rows / cols something different from 'features' or 'samples', so

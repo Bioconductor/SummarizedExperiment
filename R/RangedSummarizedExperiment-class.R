@@ -72,7 +72,7 @@ setGeneric("SummarizedExperiment",
 
 setMethod(SummarizedExperiment, "SimpleList",
    function(assays, rowRanges=GRangesList(), colData=DataFrame(),
-            metadata=list(), exptData=SimpleList())
+            metadata=list())
 {
     if (missing(colData) && 0L != length(assays)) {
         nms <- colnames(assays[[1]])
@@ -97,17 +97,6 @@ setMethod(SummarizedExperiment, "SimpleList",
     if (!all(sapply(assays, FUN)))
         assays <- endoapply(assays, unname)
     assays <- Assays(assays)
-
-    ## For backward compatibility with "classic" SummarizedExperiment objects.
-    if (!missing(exptData)) {
-        if (!missing(metadata))
-            stop("only one of 'metadata' and 'exptData' can be ",
-                 "specified, but not both")
-        msg <- c("the 'exptData' argument is deprecated, ",
-                 "please use 'metadata' instead")
-        .Deprecated(msg=msg)
-        metadata <- exptData
-    }
 
     if (missing(rowRanges)) {
         new_SummarizedExperiment0(assays, ans_rownames, NULL, colData, metadata)
