@@ -21,6 +21,19 @@ rseList <-
            colData=colData))
 
 
+test_interfaces <- function()
+{
+    generic_functions <- c("shift", "narrow", "resize",
+                           "flank", "promoters",
+                           "restrict", "trim")
+    for (fun in generic_functions) {
+        generic <- getGeneric(fun)
+        method <- getMethod(fun, "RangedSummarizedExperiment")
+        checkIdentical("x", generic@signature)
+        checkIdentical(formals(generic@.Data), formals(method@.Data))
+    }
+}
+
 test_intra_range_methods <- function()
 {
     #for (i in 1:2) {

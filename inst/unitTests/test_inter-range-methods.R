@@ -21,18 +21,29 @@ rseList <-
            colData=colData))
 
 
+test_interfaces <- function()
+{
+    generic_functions <- c("isDisjoint", "disjointBins")
+    for (fun in generic_functions) {
+        generic <- getGeneric(fun)
+        method <- getMethod(fun, "RangedSummarizedExperiment")
+        checkIdentical("x", generic@signature)
+        checkIdentical(formals(generic@.Data), formals(method@.Data))
+    }
+}
+
 test_inter_range_methods <- function()
 {
     #for (i in 1:2) {
     for (i in 1L) {
-        ## isDisjoint
         x <- rseList[[i]]
+
+        ## isDisjoint
         target <- isDisjoint(rowRanges(x))
         current <- isDisjoint(x)
         checkIdentical(target, current)
 
         ## disjointBins
-        x <- rseList[[i]]
         target <- disjointBins(rowRanges(x))
         current <- disjointBins(x)
         checkIdentical(target, current)

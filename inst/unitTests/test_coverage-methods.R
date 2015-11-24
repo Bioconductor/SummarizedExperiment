@@ -21,21 +21,29 @@ rseList <-
            colData=colData))
 
 
+test_interfaces <- function()
+{
+    generic_functions <- "coverage"
+    for (fun in generic_functions) {
+        generic <- getGeneric(fun)
+        method <- getMethod(fun, "RangedSummarizedExperiment")
+        checkIdentical("x", generic@signature)
+        checkIdentical(formals(generic@.Data), formals(method@.Data))
+    }
+}
+
 test_coverage_RangedSummarizedExperiment <- function()
 {
-    generic <- getGeneric("coverage")
-    method <- getMethod("coverage", "RangedSummarizedExperiment")
-    checkIdentical("x", generic@signature)
-    checkIdentical(formals(generic@.Data), formals(method@.Data))
-
     for (i in 1:2) {
-        target <- coverage(rowRanges(rseList[[i]]))
-        current <- coverage(rseList[[i]])
+        x <- rseList[[i]]
+
+        target <- coverage(rowRanges(x))
+        current <- coverage(x)
         checkIdentical(target, current)
 
-        weight <- runif(length(rseList[[i]]))
-        target <- coverage(rowRanges(rseList[[i]]), weight=weight)
-        current <- coverage(rseList[[i]], weight=weight)
+        weight <- runif(length(x))
+        target <- coverage(rowRanges(x), weight=weight)
+        current <- coverage(x, weight=weight)
         checkIdentical(target, current)
     }
 }
