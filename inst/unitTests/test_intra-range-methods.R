@@ -36,38 +36,43 @@ test_interfaces <- function()
 
 test_intra_range_methods <- function()
 {
+    identical_SummarizedExperiment <- function(x, y) {
+        x@assays <- as(assays(x), "SimpleListAssays")
+        y@assays <- as(assays(y), "SimpleListAssays")
+        identical(x, y)
+    }
     #for (i in 1:2) {
     for (i in 1L) {
         ## shift
         target <- rseList[[i]]
         rowRanges(target) <- shift(rowRanges(target), 50)
         current <- shift(rseList[[i]], 50)
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
 
         ## narrow
         target <- rseList[[i]]
         rowRanges(target) <- narrow(rowRanges(target), 2, -2)
         current <- narrow(rseList[[i]], 2, -2)
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
 
         ## resize
         target <- rseList[[i]]
         rowRanges(target) <- resize(rowRanges(target), 8)
         current <- resize(rseList[[i]], 8)
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
 
         ## flank
         target <- rseList[[i]]
         rowRanges(target) <- flank(rowRanges(target), 5, both=TRUE)
         current <- flank(rseList[[i]], 5, both=TRUE)
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
 
         ## promoters
         target <- rseList[[i]]
         rowRanges(target) <- promoters(rowRanges(target),
                                        upstream=20, downstream=5)
         current <- promoters(rseList[[i]], upstream=20, downstream=5)
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
 
         ## restrict
         target <- rseList[[i]]
@@ -75,14 +80,14 @@ test_intra_range_methods <- function()
                                       keep.all.ranges=TRUE)
         current <- restrict(rseList[[i]], start=2, end=3,
                             keep.all.ranges=TRUE)
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
 
         ## trim
         suppressWarnings(seqlengths(rseList[[i]]) <- 8)
         target <- rseList[[i]]
         rowRanges(target) <- trim(rowRanges(target))
         current <- trim(rseList[[i]])
-        checkIdentical(target, current)
+        checkTrue(identical_SummarizedExperiment(target, current))
         seqlengths(rseList[[i]]) <- NA
     }
 }

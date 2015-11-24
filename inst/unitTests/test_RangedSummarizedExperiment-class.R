@@ -147,7 +147,7 @@ test_RangedSummarizedExperiment_subset <- function()
         ## character
         ss1 <- rse
         dimnames(ss1) <- list(LETTERS[seq_len(nrow(ss1))],
-                               letters[seq_len(ncol(ss1))])
+                              letters[seq_len(ncol(ss1))])
         ridx <- c("B", "C")
         checkIdentical(rowRanges(ss1[ridx,]), rowRanges(ss1)[ridx,])
         checkIdentical(rowRanges(ss1["C",]), rowRanges(ss1)["C",,drop=FALSE])
@@ -160,7 +160,7 @@ test_RangedSummarizedExperiment_subset <- function()
         ## logical
         ss1 <- rse
         dimnames(ss1) <- list(LETTERS[seq_len(nrow(ss1))],
-                               letters[seq_len(ncol(ss1))])
+                              letters[seq_len(ncol(ss1))])
         checkEquals(ss1, ss1[TRUE,])
         checkIdentical(c(0L, ncol(ss1)), dim(ss1[FALSE,]))
         checkEquals(ss1, ss1[,TRUE])
@@ -191,7 +191,7 @@ test_RangedSummarizedExperiment_subsetassign <- function()
     for (i in seq_along(rseList)) {
         rse <- rseList[[i]]
         dimnames(rse) <- list(LETTERS[seq_len(nrow(rse))],
-                               letters[seq_len(ncol(rse))])
+                              letters[seq_len(ncol(rse))])
         ## rows
         ss1 <- rse
         ss1[1:2,] <- ss1[2:1,]

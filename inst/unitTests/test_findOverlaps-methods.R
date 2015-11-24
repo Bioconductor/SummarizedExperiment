@@ -44,6 +44,11 @@ test_interfaces <- function()
 
 test_findOverlaps_methods <- function()
 {
+    identical_SummarizedExperiment <- function(x, y) {
+        x@assays <- as(assays(x), "SimpleListAssays")
+        y@assays <- as(assays(y), "SimpleListAssays")
+        identical(x, y)
+    }
     for (i in 1:2) {
         x <- rseList[[i]]
         for (j in 1:2) {
@@ -77,11 +82,6 @@ test_findOverlaps_methods <- function()
             checkIdentical(target, current)
 
             ## subsetByOverlaps
-            identical_SummarizedExperiment <- function(x, y) {
-                x@assays <- as(assays(x), "SimpleListAssays")
-                y@assays <- as(assays(y), "SimpleListAssays")
-                identical(x, y)
-            }
             target <- subsetByOverlaps(x, rowRanges(y))
             current <- subsetByOverlaps(x, rowRanges(y))
             checkTrue(identical_SummarizedExperiment(target, current))
