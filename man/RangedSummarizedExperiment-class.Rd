@@ -28,9 +28,6 @@
 \alias{dimnames,RangedSummarizedExperiment-method}
 \alias{dimnames<-,RangedSummarizedExperiment,list-method}
 
-% Transition from "classic" SummarizedExperiment objects
-\alias{updateObject,RangedSummarizedExperiment-method}
-
 % GenomicRanges compatibility methods
 \alias{Compare,ANY,RangedSummarizedExperiment-method}
 \alias{Compare,RangedSummarizedExperiment,ANY-method}

@@ -38,7 +38,6 @@ exportMethods(
     cbind, rbind,
     duplicated, match,
     is.unsorted, order, rank, sort,
-    updateObject,
     start, "start<-", end, "end<-", width, "width<-",
     strand, "strand<-",
 

@@ -33,13 +33,6 @@ setMethod("parallelSlotNames", "SummarizedExperiment0",
 ### Validity.
 ###
 
-.valid.SummarizedExperiment0.assays_current <- function(x)
-{
-    if (!is(slot(x, "assays"), "Assays"))
-        return("'assays' is out-of-date; use updateObject()")
-    NULL
-}
-
 .valid.SummarizedExperiment0.assays_nrow <- function(x)
 {
     if (length(x@assays) == 0L)
@@ -66,8 +59,7 @@ setMethod("parallelSlotNames", "SummarizedExperiment0",
 
 .valid.SummarizedExperiment0 <- function(x)
 {
-    c(.valid.SummarizedExperiment0.assays_current(x),
-      .valid.SummarizedExperiment0.assays_dim(x))
+    .valid.SummarizedExperiment0.assays_dim(x)
 }
 
 setValidity2("SummarizedExperiment0", .valid.SummarizedExperiment0)
