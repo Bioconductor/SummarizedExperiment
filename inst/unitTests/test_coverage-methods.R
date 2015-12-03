@@ -41,7 +41,7 @@ test_coverage_RangedSummarizedExperiment <- function()
         current <- coverage(x)
         checkIdentical(target, current)
 
-        weight <- runif(length(x))
+        weight <- runif(length(unlist(rowRanges(x)))) # unlist() a no-op for GRL
         target <- coverage(rowRanges(x), weight=weight)
         current <- coverage(x, weight=weight)
         checkIdentical(target, current)

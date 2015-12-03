@@ -78,7 +78,9 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
                     as.list(assayData(simpleES2)))
 
         ## Simple SE
-        eset2 <- as(rseList[[1]], "ExpressionSet")
+        simpleSE <- rseList[[1]]
+        assayNames(simpleSE) <- "exprs" # No warning 'No assay named exprs..."
+        eset2 <- as(simpleSE, "ExpressionSet")
         checkTrue(validObject(eset2))
 
         ## The ExpressionSet features should have the data from the
@@ -92,7 +94,9 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
         rr_eset2 <- rowRanges(rseList[[1]])
         checkEquals(rr_se2_2, rr_eset2)
 
-        eset3 <- as(rseList[[2]], "ExpressionSet")
+        simpleSE <- rseList[[2]]
+        assayNames(simpleSE) <- "exprs" # No warning 'No assay named exprs..."
+        eset3 <- as(simpleSE, "ExpressionSet")
         checkTrue(validObject(eset3))
 
         ## The ExpressionSet features should not have the data from the
