@@ -256,22 +256,23 @@ setReplaceMethod("[", "Assays",
     if (length(lst) == 0L)
         return(Assays())
     lens <- sapply(lst, length)
+    if (length(unique(lens)) != 1)
+        stop("assays must have the same length")
     len1 <- lens[1L]
-    if (any(lens != len1))
-        stop("elements in assays must have the same length")
     if (len1 == 0L)
         return(Assays())
     var <- lapply(lst, names)
-    if (is.null(uvar <- unique(unlist(var)))) {
+    uvar <- unique(unlist(var))
+    if (is.null(uvar)) {
         ## no names, match by position
-        res <- lapply(seq_along(len1),
+        res <- lapply(seq_len(len1),
                       .bind_assay_elements, lst=lst, bind=bind)
     } else {
         ## match by name
-        ok <- all(sapply(var[-1],
-                  function(xelt) all(identical(xelt, var[[1]]))))
+        ok <- all(vapply(var, function(x, y) identical(sort(x), y),
+                         logical(1), sort(uvar)))
         if (!ok)
-            stop("elements in assays must have the same names")
+            stop("assays must have the same names()")
         res <- lapply(uvar, .bind_assay_elements, lst=lst, bind=bind)
         names(res) <- uvar
     }
