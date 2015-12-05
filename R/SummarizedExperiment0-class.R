@@ -39,7 +39,7 @@ setMethod("parallelSlotNames", "SummarizedExperiment0",
         return(NULL)
     if (nrow(x@assays) != length(x)) {
         txt <- sprintf(
-            "\n  'assays' rows (%d) must equal 'mcols’ rows (%d)",
+            "\n  'assay' rows (%d) must equal 'mcols' rows (%d)",
             nrow(x@assays), length(x))
         return(txt)
     }
@@ -52,7 +52,7 @@ setMethod("parallelSlotNames", "SummarizedExperiment0",
         return(NULL)
     if (ncol(x@assays) != nrow(colData(x))) {
         txt <- sprintf(
-            "\n  'assays' columns (%d) must equal 'colData’ rows (%d)",
+            "\n  'assay' columns (%d) must equal 'colData' rows (%d)",
             nrow(x@assays), length(x))
         return(txt)
     }
