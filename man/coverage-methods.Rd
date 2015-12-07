@@ -68,12 +68,12 @@ rowRanges <- GRanges(rep(c("chr1", "chr2"), c(5, 15)),
                      seqlengths=c(chr1=1800, chr2=1300))
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
-se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
+rse <- SummarizedExperiment(assays=SimpleList(counts=counts),
                             rowRanges=rowRanges, colData=colData)
 
-cvg0 <- coverage(se0)
-cvg0
-stopifnot(identical(cvg0, coverage(rowRanges(se0))))
+cvg <- coverage(rse)
+cvg
+stopifnot(identical(cvg, coverage(rowRanges(rse))))
 }
 
 \keyword{methods}

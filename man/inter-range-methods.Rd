@@ -75,18 +75,18 @@ rowRanges <- GRanges(rep(c("chr1", "chr2"), c(5, 15)),
                      strand=Rle(c("+", "-"), c(12, 8)))
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
-se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
-                            rowRanges=rowRanges, colData=colData)
-se1 <- shift(se0, 99*start(se0))
+rse0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
+                             rowRanges=rowRanges, colData=colData)
+rse1 <- shift(rse0, 99*start(rse0))
 
-isDisjoint(se0)  # FALSE
-isDisjoint(se1)  # TRUE
+isDisjoint(rse0)  # FALSE
+isDisjoint(rse1)  # TRUE
 
-bins0 <- disjointBins(se0)
+bins0 <- disjointBins(rse0)
 bins0
-stopifnot(identical(bins0, disjointBins(rowRanges(se0))))
+stopifnot(identical(bins0, disjointBins(rowRanges(rse0))))
 
-bins1 <- disjointBins(se1)
+bins1 <- disjointBins(rse1)
 bins1
 stopifnot(all(bins1 == bins1[1]))
 }

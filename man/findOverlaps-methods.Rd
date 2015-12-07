@@ -135,15 +135,15 @@ rowRanges <- GRanges(rep(c("chr1", "chr2"), c(5, 15)),
                      strand=Rle(c("+", "-"), c(12, 8)))
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
-se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
-                            rowRanges=rowRanges, colData=colData)
-se1 <- shift(se0, 100)
+rse0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
+                             rowRanges=rowRanges, colData=colData)
+rse1 <- shift(rse0, 100)
 
-hits <- findOverlaps(se0, se1)
+hits <- findOverlaps(rse0, rse1)
 hits
-stopifnot(identical(hits, findOverlaps(rowRanges(se0), rowRanges(se1))))
-stopifnot(identical(hits, findOverlaps(se0, rowRanges(se1))))
-stopifnot(identical(hits, findOverlaps(rowRanges(se0), se1)))
+stopifnot(identical(hits, findOverlaps(rowRanges(rse0), rowRanges(rse1))))
+stopifnot(identical(hits, findOverlaps(rse0, rowRanges(rse1))))
+stopifnot(identical(hits, findOverlaps(rowRanges(rse0), rse1)))
 }
 
 \keyword{methods}

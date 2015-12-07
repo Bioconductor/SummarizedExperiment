@@ -71,7 +71,7 @@ setGeneric("SummarizedExperiment",
     function(assays, ...) standardGeneric("SummarizedExperiment"))
 
 setMethod(SummarizedExperiment, "SimpleList",
-   function(assays, rowRanges=GRangesList(), colData=DataFrame(),
+   function(assays, rowData=NULL, rowRanges=GRangesList(), colData=DataFrame(),
             metadata=list())
 {
     if (missing(colData) && 0L != length(assays)) {
@@ -81,11 +81,23 @@ setMethod(SummarizedExperiment, "SimpleList",
         colData <- DataFrame(row.names=nms)
     }
 
-    if (missing(rowRanges)) {
-        ans_rownames <- get_rownames_from_assays(assays)
+    if (is.null(rowData)) {
+        if (missing(rowRanges)) {
+            ans_rownames <- get_rownames_from_assays(assays)
+        } else {
+            ans_rownames <- names(rowRanges)
+        }
     } else {
-        ans_rownames <- names(rowRanges)
+        if (!missing(rowRanges))
+            stop("only one of 'rowData' and 'rowRanges' can be specified")
+        if (is(rowData, "GenomicRangesORGRangesList")) {
+            rowRanges <- rowData
+            ans_rownames <- names(rowRanges)
+        } else {
+            ans_rownames <- rownames(rowData)
+        }
     }
+
     ans_colnames <- rownames(colData)
     ans_dimnames <- list(ans_rownames, ans_colnames)
     FUN <- function(x) {
@@ -98,8 +110,9 @@ setMethod(SummarizedExperiment, "SimpleList",
         assays <- endoapply(assays, unname)
     assays <- Assays(assays)
 
-    if (missing(rowRanges)) {
-        new_SummarizedExperiment(assays, ans_rownames, NULL, colData, metadata)
+    if (missing(rowRanges) && !is(rowData, "GenomicRangesORGRangesList")) {
+        new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
+                                 metadata)
     } else {
         .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
     }
@@ -137,10 +150,10 @@ setMethod(SummarizedExperiment, "matrix",
 .from_RangedSummarizedExperiment_to_SummarizedExperiment <- function(from)
 {
     new_SummarizedExperiment(from@assays,
-                              names(from@rowRanges),
-                              mcols(from@rowRanges),
-                              from@colData,
-                              from@metadata)
+                             names(from@rowRanges),
+                             mcols(from@rowRanges),
+                             from@colData,
+                             from@metadata)
 }
 
 setAs("RangedSummarizedExperiment", "SummarizedExperiment",

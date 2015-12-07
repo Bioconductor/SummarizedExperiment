@@ -96,8 +96,8 @@ this).
 ```{r DataFrame}
 counts <- matrix(1:15, 5, 3, dimnames=list(LETTERS[1:5], LETTERS[1:3]))
 
-se0 <- SummarizedExperiment(assays=list(counts=counts))
-rowData(se0) <- DataFrame(month=month.name[1:5], day=1:5)
+se0 <- SummarizedExperiment(assays=list(counts=counts),
+                            rowData=DataFrame(month=month.name[1:5], day=1:5))
 
 # Subset all January assays
 se0[rowData(se0)$month == "January", ]
@@ -178,8 +178,8 @@ se[, se$cell == "N61311"]
 ```{r getSet}
 counts <- matrix(1:15, 5, 3, dimnames=list(LETTERS[1:5], LETTERS[1:3]))
 
-se0 <- SummarizedExperiment(assays=list(counts=counts))
-rowData(se0) <- DataFrame(month=month.name[1:5], day=1:5)
+se0 <- SummarizedExperiment(assays=list(counts=counts),
+                            rowData=DataFrame(month=month.name[1:5], day=1:5))
 
 # Subset all January assays
 se0[rowData(se0)$month == "January", ]

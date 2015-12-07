@@ -131,6 +131,9 @@ colData(x, ...) <- value
     For \code{assay}, \code{...} may contain \code{withDimnames}, which is
     forwarded to \code{assays}.
 
+    For \code{rowData}, arguments passed thru \code{...} are forwarded to
+    \code{\link[S4Vectors]{mcols}}.
+
     For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment
     objects to be combined.
 
@@ -202,8 +205,8 @@ colData(x, ...) <- value
   Columns of the \link{DataFrame} represent different sample
   attributes, e.g., tissue of origin, etc. Columns of the
   \link{DataFrame} can themselves be annotated (via the
-  \code{\link{mcols}} function). Column names typically provide a short
-  identifier unique to each sample.
+  \code{\link[S4Vectors]{mcols}} function). Column names typically
+  provide a short identifier unique to each sample.
 
   A SummarizedExperiment object can also contain information about
   the overall experiment, for instance the lab in which it was conducted,
@@ -391,6 +394,10 @@ colData(x, ...) <- value
 
     \item \link[S4Vectors]{DataFrame}, \link[S4Vectors]{SimpleList}, and
           \link[S4Vectors]{Annotated} objects in the \pkg{S4Vectors} package.
+
+    \item The \code{\link[S4Vectors]{metadata}} and
+          \code{\link[S4Vectors]{mcols}} accessors in the \pkg{S4Vectors}
+          package.
   }
 }
 
@@ -408,6 +415,9 @@ assayNames(se0)
 head(assay(se0))
 assays(se0) <- endoapply(assays(se0), asinh)
 head(assay(se0))
+
+rowData(se0)
+colData(se0)
 
 se0[, se0$Treatment == "ChIP"]
 

@@ -119,33 +119,33 @@ rowRanges <- GRanges(rep(c("chr1", "chr2"), c(5, 15)),
                      strand=Rle(c("+", "-"), c(12, 8)))
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
-se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
-                            rowRanges=rowRanges, colData=colData)
-se1 <- shift(se0, 100)
+rse0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
+                             rowRanges=rowRanges, colData=colData)
+rse1 <- shift(rse0, 100)
 
-res <- nearest(se0, se1)
+res <- nearest(rse0, rse1)
 res
-stopifnot(identical(res, nearest(rowRanges(se0), rowRanges(se1))))
-stopifnot(identical(res, nearest(se0, rowRanges(se1))))
-stopifnot(identical(res, nearest(rowRanges(se0), se1)))
+stopifnot(identical(res, nearest(rowRanges(rse0), rowRanges(rse1))))
+stopifnot(identical(res, nearest(rse0, rowRanges(rse1))))
+stopifnot(identical(res, nearest(rowRanges(rse0), rse1)))
 
-res <- nearest(se0)  # missing subject
+res <- nearest(rse0)  # missing subject
 res
-stopifnot(identical(res, nearest(rowRanges(se0))))
+stopifnot(identical(res, nearest(rowRanges(rse0))))
 
-hits <- nearest(se0, se1, select="all")
+hits <- nearest(rse0, rse1, select="all")
 hits
 stopifnot(identical(
   hits,
-  nearest(rowRanges(se0), rowRanges(se1), select="all")
+  nearest(rowRanges(rse0), rowRanges(rse1), select="all")
 ))
 stopifnot(identical(
   hits,
-  nearest(se0, rowRanges(se1), select="all")
+  nearest(rse0, rowRanges(rse1), select="all")
 ))
 stopifnot(identical(
   hits,
-  nearest(rowRanges(se0), se1, select="all")
+  nearest(rowRanges(rse0), rse1, select="all")
 ))
 }
 

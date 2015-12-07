@@ -2,15 +2,19 @@ M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
 M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
 mList <- list(M1, M2)
 assaysList <- list(M1=SimpleList(m=M1), M2=SimpleList(m=M2))
-colData <- DataFrame(x=letters[1:3])
+rowData1 <- DataFrame(id1=LETTERS[1:5])
+rowData2 <- new("DataFrame", nrows=3L)
+rowDataList <- list(rowData1, rowData2)
+colData0 <- DataFrame(x=letters[1:3])
 
 se0List <-
     list(SummarizedExperiment(
-           assays=assaysList[["M1"]], 
-           colData=colData),
+           assays=assaysList[["M1"]],
+           rowData=rowData1,
+           colData=colData0),
          SummarizedExperiment(
-           assays=assaysList[["M2"]], 
-           colData=colData))
+           assays=assaysList[["M2"]],
+           colData=colData0))
 
 
 test_SummarizedExperiment_construction <- function()
@@ -36,7 +40,8 @@ test_SummarizedExperiment_construction <- function()
         se0 <- se0List[[i]] 
         checkTrue(validObject(se0))
         checkIdentical(SimpleList(m=mList[[i]]), assays(se0))
-        checkIdentical(DataFrame(x=letters[1:3]), colData(se0))
+        checkIdentical(rowDataList[[i]], rowData(se0))
+        checkIdentical(colData0, colData(se0))
     }
 
     ## array in assays slot
@@ -62,11 +67,12 @@ test_SummarizedExperiment_getters <- function()
         se0 <- se0List[[i]] 
 
         ## dim, dimnames
-        checkIdentical(c(nrow(mList[[i]]), nrow(colData)), dim(se0))
+        checkIdentical(c(nrow(mList[[i]]), nrow(colData0)), dim(se0))
         checkIdentical(list(NULL, NULL), dimnames(se0))
 
         ## col / metadata
-        checkIdentical(colData, colData(se0))
+        checkIdentical(rowDataList[[i]], rowData(se0))
+        checkIdentical(colData0, colData(se0))
         checkIdentical(list(), metadata(se0))
     }
 
@@ -100,42 +106,51 @@ test_SummarizedExperiment_setters <- function()
         se0 <- se0List[[i]] 
 
         ## row / col / metadata<-
-        ss1 <- se0
-        revData <- colData[rev(seq_len(nrow(colData))),,drop=FALSE]
-        colData(ss1) <- revData
-        checkIdentical(revData, colData(ss1))
-        checkException(colData(ss1) <- colData(se0)[1:2,,drop=FALSE],
+        se1 <- se0
+
+        rowData <- rowDataList[[i]]
+        rowData <- rowData[rev(seq_len(nrow(rowData))),,drop=FALSE]
+        rowData(se1) <- rowData
+        checkIdentical(rowData, rowData(se1))
+        checkException(rowData(se1) <- rowData(se0)[1:2,,drop=FALSE],
+                       "incorrect row dimensions", TRUE)
+
+        colData <- colData0[rev(seq_len(nrow(colData0))),,drop=FALSE]
+        colData(se1) <- colData
+        checkIdentical(colData, colData(se1))
+        checkException(colData(se1) <- colData(se0)[1:2,,drop=FALSE],
                        "incorrect col dimensions", TRUE)
+
         lst <- list("foo", "bar")
-        metadata(ss1) <- lst
-        checkIdentical(lst, metadata(ss1))
+        metadata(se1) <- lst
+        checkIdentical(lst, metadata(se1))
 
         ## assay / assays
-        ss1 <- se0
-        assay(ss1) <- assay(ss1)+1
-        checkIdentical(assay(se0)+1, assay(ss1))
-        ss1 <- se0
-        assay(ss1, 1) <- assay(ss1, 1) + 1
-        checkIdentical(assay(se0, "m") + 1, assay(ss1, "m"))
-        ss1 <- se0
-        assay(ss1, "m") <- assay(ss1, "m") + 1
-        checkIdentical(assay(se0, "m")+1, assay(ss1, "m"))
+        se1 <- se0
+        assay(se1) <- assay(se1)+1
+        checkIdentical(assay(se0)+1, assay(se1))
+        se1 <- se0
+        assay(se1, 1) <- assay(se1, 1) + 1
+        checkIdentical(assay(se0, "m") + 1, assay(se1, "m"))
+        se1 <- se0
+        assay(se1, "m") <- assay(se1, "m") + 1
+        checkIdentical(assay(se0, "m")+1, assay(se1, "m"))
 
         ## dimnames<-
-        ss1 <- se0
-        dimnames <- list(letters[seq_len(nrow(ss1))],
-                         LETTERS[seq_len(ncol(ss1))])
-        rownames(ss1) <- dimnames[[1]]
-        colnames(ss1) <- dimnames[[2]]
-        checkIdentical(dimnames, dimnames(ss1))
-        colData1 <- colData
+        se1 <- se0
+        dimnames <- list(letters[seq_len(nrow(se1))],
+                         LETTERS[seq_len(ncol(se1))])
+        rownames(se1) <- dimnames[[1]]
+        colnames(se1) <- dimnames[[2]]
+        checkIdentical(dimnames, dimnames(se1))
+        colData1 <- colData0
         row.names(colData1) <- dimnames[[2]]
-        checkIdentical(colData1, colData(ss1))
-        ss1 <- se0
-        dimnames(ss1) <- dimnames
-        checkIdentical(dimnames, dimnames(ss1))
-        dimnames(ss1) <- NULL
-        checkIdentical(list(NULL, NULL), dimnames(ss1))
+        checkIdentical(colData1, colData(se1))
+        se1 <- se0
+        dimnames(se1) <- dimnames
+        checkIdentical(dimnames, dimnames(se1))
+        dimnames(se1) <- NULL
+        checkIdentical(list(NULL, NULL), dimnames(se1))
     }
 }
 
@@ -145,44 +160,46 @@ test_SummarizedExperiment_subset <- function()
         se0 <- se0List[[i]] 
 
         ## numeric
-        ss1 <- se0[2:3,]
-        checkIdentical(c(2L, ncol(se0)), dim(ss1))
-        checkIdentical(colData(ss1), colData(se0))
-        ss1 <- se0[,2:3]
-        checkIdentical(c(nrow(se0), 2L), dim(ss1))
-        checkIdentical(colData(ss1), colData(se0)[2:3,,drop=FALSE])
-        ss1 <- se0[2:3, 2:3]
-        checkIdentical(c(2L, 2L), dim(ss1))
-        checkIdentical(colData(ss1), colData(se0)[2:3,,drop=FALSE])
+        se1 <- se0[2:3,]
+        checkIdentical(c(2L, ncol(se0)), dim(se1))
+        checkIdentical(rowData(se1), rowData(se0)[2:3,,drop=FALSE])
+        checkIdentical(colData(se1), colData(se0))
+        se1 <- se0[,2:3]
+        checkIdentical(c(nrow(se0), 2L), dim(se1))
+        checkIdentical(rowData(se1), rowData(se0))
+        checkIdentical(colData(se1), colData(se0)[2:3,,drop=FALSE])
+        se1 <- se0[2:3, 2:3]
+        checkIdentical(c(2L, 2L), dim(se1))
+        checkIdentical(colData(se1), colData(se0)[2:3,,drop=FALSE])
 
         ## character
-        ss1 <- se0
-        dimnames(ss1) <- list(LETTERS[seq_len(nrow(ss1))],
-                               letters[seq_len(ncol(ss1))])
+        se1 <- se0
+        dimnames(se1) <- list(LETTERS[seq_len(nrow(se1))],
+                               letters[seq_len(ncol(se1))])
         ridx <- c("B", "C")
-        checkException(ss1[LETTERS,], "i-index out of bounds", TRUE)
+        checkException(se1[LETTERS,], "i-index out of bounds", TRUE)
         cidx <- c("b", "c")
-        checkIdentical(colData(ss1[,cidx]), colData(ss1)[cidx,,drop=FALSE])
-        checkIdentical(colData(ss1[,"a"]), colData(ss1)["a",,drop=FALSE])
-        checkException(ss1[,letters], "j-index out of bounds", TRUE)
+        checkIdentical(colData(se1[,cidx]), colData(se1)[cidx,,drop=FALSE])
+        checkIdentical(colData(se1[,"a"]), colData(se1)["a",,drop=FALSE])
+        checkException(se1[,letters], "j-index out of bounds", TRUE)
 
         ## logical
-        ss1 <- se0
-        dimnames(ss1) <- list(LETTERS[seq_len(nrow(ss1))],
-                               letters[seq_len(ncol(ss1))])
-        checkEquals(ss1, ss1[TRUE,])
-        checkIdentical(c(0L, ncol(ss1)), dim(ss1[FALSE,]))
-        checkEquals(ss1, ss1[,TRUE])
-        checkIdentical(c(nrow(ss1), 0L), dim(ss1[,FALSE]))
+        se1 <- se0
+        dimnames(se1) <- list(LETTERS[seq_len(nrow(se1))],
+                               letters[seq_len(ncol(se1))])
+        checkEquals(se1, se1[TRUE,])
+        checkIdentical(c(0L, ncol(se1)), dim(se1[FALSE,]))
+        checkEquals(se1, se1[,TRUE])
+        checkIdentical(c(nrow(se1), 0L), dim(se1[,FALSE]))
         idx <- c(TRUE, FALSE)               # recycling
-        ss2 <- ss1[idx,]
-        ss2 <- ss1[,idx]
-        checkIdentical(colData(ss1)[idx,,drop=FALSE], colData(ss2))
+        se2 <- se1[idx,]
+        se2 <- se1[,idx]
+        checkIdentical(colData(se1)[idx,,drop=FALSE], colData(se2))
 
         ## Rle
-        ss1 <- se0
-        rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(ss1))
-        checkIdentical(assays(ss1[rle]), assays(ss1[Rle(rle)]))
+        se1 <- se0
+        rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(se1))
+        checkIdentical(assays(se1[rle]), assays(se1[Rle(rle)]))
     }
 
     ## 0 columns
@@ -200,30 +217,30 @@ test_SummarizedExperiment_subsetassign <- function()
         dimnames(se0) <- list(LETTERS[seq_len(nrow(se0))],
                                letters[seq_len(ncol(se0))])
         ## rows
-        ss1 <- se0
-        ss1[1:2,] <- ss1[2:1,]
-        checkIdentical(colData(se0), colData(ss1))
-        checkIdentical(c(metadata(se0), metadata(se0)), metadata(ss1))
+        se1 <- se0
+        se1[1:2,] <- se1[2:1,]
+        checkIdentical(colData(se0), colData(se1))
+        checkIdentical(c(metadata(se0), metadata(se0)), metadata(se1))
         ## Rle
-        ss1rle <- ss1Rle <- se0
-        rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(ss1))
-        ss1rle[rle,] <- ss1rle[rle,]
-        ss1Rle[Rle(rle),] <- ss1Rle[Rle(rle),]
-        checkIdentical(assays(ss1rle), assays(ss1Rle))
+        se1rle <- se1Rle <- se0
+        rle <- rep(c(TRUE, FALSE), each=3, length.out=nrow(se1))
+        se1rle[rle,] <- se1rle[rle,]
+        se1Rle[Rle(rle),] <- se1Rle[Rle(rle),]
+        checkIdentical(assays(se1rle), assays(se1Rle))
         ## cols
-        ss1 <- se0
-        ss1[,1:2] <- ss1[,2:1,drop=FALSE]
+        se1 <- se0
+        se1[,1:2] <- se1[,2:1,drop=FALSE]
         checkIdentical(colData(se0)[2:1,,drop=FALSE],
-                       colData(ss1)[1:2,,drop=FALSE])
+                       colData(se1)[1:2,,drop=FALSE])
         checkIdentical(colData(se0)[-(1:2),,drop=FALSE],
-                       colData(ss1)[-(1:2),,drop=FALSE])
-        checkIdentical(c(metadata(se0), metadata(se0)), metadata(ss1))
+                       colData(se1)[-(1:2),,drop=FALSE])
+        checkIdentical(c(metadata(se0), metadata(se0)), metadata(se1))
     }
 
     ## full replacement
-    ss1 <- ss2 <- se0List[[1]]
-    ss1[,] <- ss2
-    checkIdentical(ss1, ss2)
+    se1 <- se2 <- se0List[[1]]
+    se1[,] <- se2
+    checkIdentical(se1, se2)
 }
 
 test_SummarizedExperiment_assays_4d <- function()

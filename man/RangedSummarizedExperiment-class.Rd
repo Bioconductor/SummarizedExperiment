@@ -84,7 +84,7 @@
 ## Constructor
 
 SummarizedExperiment(assays, ...)
-\S4method{SummarizedExperiment}{SimpleList}(assays, rowRanges=GRangesList(),
+\S4method{SummarizedExperiment}{SimpleList}(assays, rowData=NULL, rowRanges=GRangesList(),
     colData=DataFrame(), metadata=list())
 \S4method{SummarizedExperiment}{missing}(assays, ...)
 \S4method{SummarizedExperiment}{list}(assays, ...)
@@ -111,12 +111,20 @@ rowRanges(x, ...) <- value
     across elements and with the row names of \code{rowRanges} and
     \code{colData}.}
 
-  \item{rowRanges}{A \link{GRanges} or \link{GRangesList} object describing 
-    the ranges of interest. Names, if present, become the row names of the
-    RangedSummarizedExperiment. The length of the \link{GRanges} or the
-    \link{GRangesList} must equal the number of rows of the matrices in
-    \code{assays}. If \code{rowRanges} is missing, a
-    \link{SummarizedExperiment} instance is returned.}
+  \item{rowData}{A \link[S4Vectors]{DataFrame} object describing 
+    the rows. Row names, if present, become the row names of the
+    SummarizedExperiment object. The number of rows of the
+    \link[S4Vectors]{DataFrame} must equal the number of rows of the
+    matrices in \code{assays}.}
+
+  \item{rowRanges}{A \link[GenomicRanges]{GRanges} or
+    \link[GenomicRanges]{GRangesList} object describing the ranges of
+    interest. Names, if present, become the row names of the
+    SummarizedExperiment object. The length of the
+    \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}
+    must equal the number of rows of the matrices in \code{assays}.
+    If \code{rowRanges} is missing, a \link{SummarizedExperiment}
+    instance is returned.}
 
   \item{colData}{An optional \link{DataFrame} describing the
     samples. Row names, if present, become the column names of the
@@ -284,6 +292,7 @@ head(assay(rse))
 
 rowRanges(rse)
 rowData(rse)  # same as 'mcols(rowRanges(rse))'
+colData(rse)
 
 rse[, rse$Treatment == "ChIP"]
 

@@ -113,37 +113,37 @@ rowRanges <- GRanges(rep(c("chr1", "chr2"), c(5, 15)),
                      strand=Rle(c("+", "-"), c(12, 8)))
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
-se0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
-                            rowRanges=rowRanges, colData=colData)
+rse0 <- SummarizedExperiment(assays=SimpleList(counts=counts),
+                             rowRanges=rowRanges, colData=colData)
 
-se1 <- shift(se0, 1)
+rse1 <- shift(rse0, 1)
 stopifnot(identical(
-  rowRanges(se1),
-  shift(rowRanges(se0), 1)
+  rowRanges(rse1),
+  shift(rowRanges(rse0), 1)
 ))
 
-se2 <- narrow(se0, start=10, end=-15)
+se2 <- narrow(rse0, start=10, end=-15)
 stopifnot(identical(
   rowRanges(se2),
-  narrow(rowRanges(se0), start=10, end=-15)
+  narrow(rowRanges(rse0), start=10, end=-15)
 ))
 
-se3 <- resize(se0, width=75)
+se3 <- resize(rse0, width=75)
 stopifnot(identical(
   rowRanges(se3),
-  resize(rowRanges(se0), width=75)
+  resize(rowRanges(rse0), width=75)
 ))
 
-se4 <- flank(se0, width=20)
+se4 <- flank(rse0, width=20)
 stopifnot(identical(
   rowRanges(se4),
-  flank(rowRanges(se0), width=20)
+  flank(rowRanges(rse0), width=20)
 ))
 
-se5 <- restrict(se0, start=200, end=700, keep.all.ranges=TRUE)
+se5 <- restrict(rse0, start=200, end=700, keep.all.ranges=TRUE)
 stopifnot(identical(
   rowRanges(se5),
-  restrict(rowRanges(se0), start=200, end=700, keep.all.ranges=TRUE)
+  restrict(rowRanges(rse0), start=200, end=700, keep.all.ranges=TRUE)
 ))
 }
 
