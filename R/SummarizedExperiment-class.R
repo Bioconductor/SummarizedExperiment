@@ -37,11 +37,11 @@ setMethod("parallelSlotNames", "SummarizedExperiment",
     if (length(x@assays) == 0L)
         return(NULL)
     assays_nrow <- nrow(x@assays)
-    mcols_nrow <- length(x)
-    if (assays_nrow != mcols_nrow) {
+    rowData_nrow <- length(x)
+    if (assays_nrow != rowData_nrow) {
         txt <- sprintf(
-            "\n  nb of rows in 'assay' (%d) must equal nb of rows in 'mcols' (%d)",
-            assays_nrow, mcols_nrow)
+            "\n  nb of rows in 'assay' (%d) must equal nb of rows in 'rowData' (%d)",
+            assays_nrow, rowData_nrow)
         return(txt)
     }
     NULL
@@ -81,7 +81,7 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 ###
 
 new_SummarizedExperiment <- function(assays, names, rowData, colData,
-                                      metadata)
+                                     metadata)
 {
     if (!is(assays, "Assays"))
         assays <- Assays(assays)
@@ -134,6 +134,20 @@ setReplaceMethod("exptData", "SummarizedExperiment",
 ## rowData, colData seem too vague, but from eSet derived classes wanted to
 ## call the rows / cols something different from 'features' or 'samples', so
 ## might as well avoid the issue
+
+setGeneric("rowData", function(x, ...) standardGeneric("rowData"))
+
+setMethod(rowData, "SummarizedExperiment",
+    function(x, ...) mcols(x, ...)
+)
+
+setGeneric("rowData<-",
+    function(x, ..., value) standardGeneric("rowData<-"))
+
+setReplaceMethod("rowData", c("SummarizedExperiment", "DataFrame"),
+    function(x, ..., value) `mcols<-`(x, ..., value=value)
+)
+
 setGeneric("colData", function(x, ...) standardGeneric("colData"))
 
 setMethod(colData, "SummarizedExperiment", function(x, ...) x@colData)
@@ -612,12 +626,8 @@ setMethod("show", "SummarizedExperiment",
     if (dlen[[1]]) scat("rownames(%d): %s\n", dimnames[[1]])
     else scat("rownames: NULL\n")
 
-    ## mcols()
-    mcolnames <- names(mcols(object))
-    fmt <- "metadata column names(%d): %s\n"
-    if (is(object, "RangedSummarizedExperiment"))
-        fmt <- paste("rowRanges", fmt)
-    scat(fmt, mcolnames)
+    ## rowData()
+    scat("rowData names(%d): %s\n", names(rowData(object)))
 
     ## colnames()
     if (dlen[[2]]) scat("colnames(%d): %s\n", dimnames[[2]])

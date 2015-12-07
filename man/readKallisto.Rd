@@ -62,7 +62,7 @@ readKallistoBootstrap(file, i, j)
   A \code{SummarizedExperiment}, \code{list}, or \code{matrix},
   depending on the value of argument \code{as}; by default a
   \code{SummarizedExperiment}. The \code{as="SummarizedExperiment"}
-  \code{mcols(rowRanges(se))} the length of each transcript;
+  \code{rowData(se)} the length of each transcript;
   \code{colData(se)} includes summary information on each sample,
   including the number of targets and bootstraps, the kallisto and index
   version, the start time and operating system call used to create the

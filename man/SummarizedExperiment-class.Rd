@@ -17,6 +17,10 @@
 \alias{exptData,SummarizedExperiment-method}
 \alias{exptData<-}
 \alias{exptData<-,SummarizedExperiment-method}
+\alias{rowData}
+\alias{rowData,SummarizedExperiment-method}
+\alias{rowData<-}
+\alias{rowData<-,SummarizedExperiment,DataFrame-method}
 \alias{colData}
 \alias{colData,SummarizedExperiment-method}
 \alias{colData<-}
@@ -92,6 +96,8 @@ assays(x, ..., withDimnames=TRUE)
 assays(x, ..., withDimnames=TRUE) <- value
 assay(x, i, ...)
 assay(x, i, ...) <- value
+rowData(x, ...)
+rowData(x, ...) <- value
 colData(x, ...)
 colData(x, ...) <- value
 #dim(x)
@@ -179,7 +185,7 @@ colData(x, ...) <- value
   The rows of a SummarizedExperiment object represent features
   of interest. Information about these features is stored in a
   \link{DataFrame} object, accessible using the function
-  \code{\link{mcols}}. The \link{DataFrame} must have as many rows
+  \code{rowData}. The \link{DataFrame} must have as many rows
   as there are rows in the SummarizedExperiment object, with each row
   of the \link{DataFrame} providing information on the feature in the
   corresponding row of the SummarizedExperiment object. Columns of the
@@ -248,6 +254,11 @@ colData(x, ...) <- value
     \item{\code{assayNames(x)}, \code{assayNames(x) <- value}:}{Get or
      set the names of \code{assay()} elements.}
 
+    \item{\code{rowData(x)}, \code{rowData(x) <- value}:}{Get or set the
+      row data. \code{value} is a \link{DataFrame} object. Row
+      names of \code{value} must be NULL or consistent with the existing
+      row names of \code{x}.}
+
     \item{\code{colData(x)}, \code{colData(x) <- value}:}{Get or set the
       column data. \code{value} is a \link{DataFrame} object. Row
       names of \code{value} must be NULL or consistent with the existing
@@ -313,7 +324,7 @@ colData(x, ...) <- value
       but different samples (columns in \code{assays}).
       The colnames in \code{colData(SummarizedExperiment)} must match or
       an error is thrown.
-      Duplicate columns of \code{mcols(SummarizedExperiment)} must
+      Duplicate columns of \code{rowData(SummarizedExperiment)} must
       contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
@@ -327,7 +338,7 @@ colData(x, ...) <- value
     \item{\code{rbind(...)}:}{
       \code{rbind} combines objects with the same samples
       but different features of interest (rows in \code{assays}).
-      The colnames in \code{mcols(SummarizedExperiment)} must match or
+      The colnames in \code{rowData(SummarizedExperiment)} must match or
       an error is thrown.
       Duplicate columns of \code{colData(SummarizedExperiment)} must
       contain the same data. 

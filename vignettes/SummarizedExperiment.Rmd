@@ -97,10 +97,10 @@ this).
 counts <- matrix(1:15, 5, 3, dimnames=list(LETTERS[1:5], LETTERS[1:3]))
 
 se0 <- SummarizedExperiment(assays=list(counts=counts))
-mcols(se0) <- DataFrame(month=month.name[1:5], day=1:5)
+rowData(se0) <- DataFrame(month=month.name[1:5], day=1:5)
 
 # Subset all January assays
-se0[mcols(se0)$month == "January", ]
+se0[rowData(se0)$month == "January", ]
 ```
 
 ## 'Column' (sample) data
@@ -174,15 +174,15 @@ se[, se$cell == "N61311"]
 
 ## Getters and setters ##
 
-- `rowRanges()` / (`mcols()`), `colData()`, `metadata()`
+- `rowRanges()` / (`rowData()`), `colData()`, `metadata()`
 ```{r getSet}
 counts <- matrix(1:15, 5, 3, dimnames=list(LETTERS[1:5], LETTERS[1:3]))
 
 se0 <- SummarizedExperiment(assays=list(counts=counts))
-mcols(se0) <- DataFrame(month=month.name[1:5], day=1:5)
+rowData(se0) <- DataFrame(month=month.name[1:5], day=1:5)
 
 # Subset all January assays
-se0[mcols(se0)$month == "January", ]
+se0[rowData(se0)$month == "January", ]
 ```
 
 - `assay()` versus `assays()`

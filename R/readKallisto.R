@@ -134,7 +134,7 @@ readKallisto <-
     }, SummarizedExperiment={
         se0 <- SummarizedExperiment(assays=assays,
                                     colData=as(colData, "DataFrame"))
-        mcols(se0) <- as(rowData, "DataFrame")
+        rowData(se0) <- as(rowData, "DataFrame")
         se0
     })
 }

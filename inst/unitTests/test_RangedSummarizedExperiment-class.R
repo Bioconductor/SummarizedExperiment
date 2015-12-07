@@ -247,11 +247,11 @@ test_RangedSummarizedExperiment_cbind <- function()
     checkTrue(nrow(res) == 5)
     checkTrue(ncol(res) == 5)
     ## rowRanges
-    mcols(se1) <- DataFrame("one"=1:5)
-    mcols(se2) <- DataFrame("two"=6:10)
+    rowData(se1) <- DataFrame("one"=1:5)
+    rowData(se2) <- DataFrame("two"=6:10)
     res <- quiet(cbind(se1, se2))
     checkIdentical(names(mcols(rowRanges(res))), c("one", "two"))
-    mcols(se2) <- DataFrame("one"=6:10, "two"=6:10)
+    rowData(se2) <- DataFrame("one"=6:10, "two"=6:10)
     checkException(cbind(se1, se2), silent=TRUE)
     ## colData
     checkTrue(nrow(colData(res)) == 5)
@@ -292,8 +292,8 @@ test_RangedSummarizedExperiment_rbind <- function()
     checkTrue(nrow(res) == 10)
     checkTrue(ncol(res) == 3)
     ## rowRanges
-    mcols(se1) <- DataFrame("one"=1:5)
-    mcols(se2) <- DataFrame("two"=6:10)
+    rowData(se1) <- DataFrame("one"=1:5)
+    rowData(se2) <- DataFrame("two"=6:10)
     checkException(rbind(se1, se2), silent=TRUE)
     ## colDat
     se1 <- rseList[[1]]

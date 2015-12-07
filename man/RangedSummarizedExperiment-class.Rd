@@ -230,7 +230,7 @@ rowRanges(x, ...) <- value
       using an expression \code{subset} referring to columns of
       \code{rowRanges(x)} (including \sQuote{seqnames}, \sQuote{start},
       \sQuote{end}, \sQuote{width}, \sQuote{strand}, and
-      \code{names(mcols(x))}) and / or \code{select} referring to
+      \code{names(rowData(x))}) and / or \code{select} referring to
       column names of \code{colData(x)}.}
 
   }
@@ -283,7 +283,7 @@ assays(rse) <- endoapply(assays(rse), asinh)
 head(assay(rse))
 
 rowRanges(rse)
-mcols(rse)  # same as mcols(rowRanges(rse))
+rowData(rse)  # same as 'mcols(rowRanges(rse))'
 
 rse[, rse$Treatment == "ChIP"]
 
@@ -319,6 +319,6 @@ se  # RangedSummarizedExperiment
 stopifnot(identical(assays(se0), assays(rse)))
 stopifnot(identical(dim(se0), dim(rse)))
 stopifnot(identical(dimnames(se0), dimnames(rse)))
-stopifnot(identical(mcols(se0), mcols(rse)))
+stopifnot(identical(rowData(se0), rowData(rse)))
 stopifnot(identical(colData(se0), colData(rse)))
 }
