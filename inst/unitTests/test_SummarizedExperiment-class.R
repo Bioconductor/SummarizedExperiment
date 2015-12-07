@@ -13,11 +13,11 @@ se0List <-
            colData=colData))
 
 
-test_SummarizedExperiment0_construction <- function()
+test_SummarizedExperiment_construction <- function()
 {
     ## empty-ish
     m1 <- matrix(0, 0, 0)
-    checkTrue(validObject(new("SummarizedExperiment0")))
+    checkTrue(validObject(new("SummarizedExperiment")))
     checkTrue(validObject(SummarizedExperiment()))
     checkTrue(validObject(
         SummarizedExperiment(assays=SimpleList(m1))))
@@ -56,7 +56,7 @@ test_SummarizedExperiment0_construction <- function()
     checkTrue(validObject(SummarizedExperiment(list(df))))
 }
 
-test_SummarizedExperiment0_getters <- function()
+test_SummarizedExperiment_getters <- function()
 {
     for (i in seq_along(se0List)) {
         se0 <- se0List[[i]] 
@@ -94,7 +94,7 @@ test_SummarizedExperiment0_getters <- function()
         "invalid assay name", TRUE)
 }
 
-test_SummarizedExperiment0_setters <- function()
+test_SummarizedExperiment_setters <- function()
 {
     for (i in seq_along(se0List)) {
         se0 <- se0List[[i]] 
@@ -139,7 +139,7 @@ test_SummarizedExperiment0_setters <- function()
     }
 }
 
-test_SummarizedExperiment0_subset <- function()
+test_SummarizedExperiment_subset <- function()
 {
     for (i in seq_along(se0List)) {
         se0 <- se0List[[i]] 
@@ -193,7 +193,7 @@ test_SummarizedExperiment0_subset <- function()
     checkIdentical(dim(se[ ,1:5]), c(0L, 5L)) 
 }
 
-test_SummarizedExperiment0_subsetassign <- function()
+test_SummarizedExperiment_subsetassign <- function()
 {
     for (i in seq_along(se0List)) {
         se0 <- se0List[[i]] 
@@ -226,7 +226,7 @@ test_SummarizedExperiment0_subsetassign <- function()
     checkIdentical(ss1, ss2)
 }
 
-test_SummarizedExperiment0_assays_4d <- function()
+test_SummarizedExperiment_assays_4d <- function()
 {
     ## [
     a <- array(0, c(3, 3, 3, 3), list(LETTERS[1:3], letters[1:3], NULL, NULL))

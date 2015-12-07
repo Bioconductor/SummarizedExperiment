@@ -4,7 +4,7 @@ Description: The SummarizedExperiment container contains one or more assays,
 	each represented by a matrix-like object of numeric or other mode.
 	The rows typically represent genomic ranges of interest and the columns
 	represent samples.
-Version: 1.1.5
+Version: 1.1.6
 Encoding: UTF-8
 Author: Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès 
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
@@ -17,7 +17,7 @@ Suggests: annotate, AnnotationDbi, GenomicFeatures, BiocStyle, knitr, rmarkdown,
 VignetteBuilder: knitr
 License: Artistic-2.0
 Collate: Assays-class.R
-	SummarizedExperiment0-class.R
+	SummarizedExperiment-class.R
 	RangedSummarizedExperiment-class.R
 	intra-range-methods.R
 	inter-range-methods.R

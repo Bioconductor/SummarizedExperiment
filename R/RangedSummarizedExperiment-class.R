@@ -8,7 +8,7 @@
 ### (this is checked by the validity method). The top-level mcols are stored on
 ### the rowRanges component.
 setClass("RangedSummarizedExperiment",
-    contains="SummarizedExperiment0",
+    contains="SummarizedExperiment",
     representation(
         rowRanges="GenomicRangesORGRangesList"
     ),
@@ -99,7 +99,7 @@ setMethod(SummarizedExperiment, "SimpleList",
     assays <- Assays(assays)
 
     if (missing(rowRanges)) {
-        new_SummarizedExperiment0(assays, ans_rownames, NULL, colData, metadata)
+        new_SummarizedExperiment(assays, ans_rownames, NULL, colData, metadata)
     } else {
         .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
     }
@@ -134,20 +134,20 @@ setMethod(SummarizedExperiment, "matrix",
 ### forth between SummarizedExperiment and ExpressionSet.
 ###
 
-.from_RangedSummarizedExperiment_to_SummarizedExperiment0 <- function(from)
+.from_RangedSummarizedExperiment_to_SummarizedExperiment <- function(from)
 {
-    new_SummarizedExperiment0(from@assays,
+    new_SummarizedExperiment(from@assays,
                               names(from@rowRanges),
                               mcols(from@rowRanges),
                               from@colData,
                               from@metadata)
 }
 
-setAs("RangedSummarizedExperiment", "SummarizedExperiment0",
-    .from_RangedSummarizedExperiment_to_SummarizedExperiment0
+setAs("RangedSummarizedExperiment", "SummarizedExperiment",
+    .from_RangedSummarizedExperiment_to_SummarizedExperiment
 )
 
-.from_SummarizedExperiment0_to_RangedSummarizedExperiment <- function(from)
+.from_SummarizedExperiment_to_RangedSummarizedExperiment <- function(from)
 {
     partitioning <- PartitioningByEnd(integer(length(from)), names=names(from))
     rowRanges <- relist(GRanges(), partitioning)
@@ -157,8 +157,8 @@ setAs("RangedSummarizedExperiment", "SummarizedExperiment0",
                                     from@metadata)
 }
 
-setAs("SummarizedExperiment0", "RangedSummarizedExperiment",
-    .from_SummarizedExperiment0_to_RangedSummarizedExperiment
+setAs("SummarizedExperiment", "RangedSummarizedExperiment",
+    .from_SummarizedExperiment_to_RangedSummarizedExperiment
 )
 
 
@@ -175,7 +175,7 @@ setMethod(rowRanges, "RangedSummarizedExperiment",
 setGeneric("rowRanges<-",
     function(x, ..., value) standardGeneric("rowRanges<-"))
 
-.SummarizedExperiment0.rowRanges.replace <-
+.SummarizedExperiment.rowRanges.replace <-
     function(x, ..., value)
 {
     if (!is(x, "RangedSummarizedExperiment"))
@@ -184,17 +184,17 @@ setGeneric("rowRanges<-",
              rowRanges=value,
              elementMetadata=new("DataFrame", nrows=length(value)),
              check=FALSE)
-    msg <- .valid.SummarizedExperiment0.assays_nrow(x)
+    msg <- .valid.SummarizedExperiment.assays_nrow(x)
     if (!is.null(msg))
         stop(msg)
     x
 }
 
-setReplaceMethod("rowRanges", c("SummarizedExperiment0", "GenomicRanges"),
-    .SummarizedExperiment0.rowRanges.replace)
+setReplaceMethod("rowRanges", c("SummarizedExperiment", "GenomicRanges"),
+    .SummarizedExperiment.rowRanges.replace)
 
-setReplaceMethod("rowRanges", c("SummarizedExperiment0", "GRangesList"),
-    .SummarizedExperiment0.rowRanges.replace)
+setReplaceMethod("rowRanges", c("SummarizedExperiment", "GRangesList"),
+    .SummarizedExperiment.rowRanges.replace)
 
 setMethod("names", "RangedSummarizedExperiment",
     function(x) names(rowRanges(x))

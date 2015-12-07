@@ -44,7 +44,7 @@
 
 \description{
   The Assays virtual class and its methods provide a formal abstraction
-  of the assays slot of \link{SummarizedExperiment0} objects.
+  of the assays slot of \link{SummarizedExperiment} objects.
 
   SimpleListAssays and ShallowSimpleListAssays are concrete subclasses of
   Assays with the latter being currently the default implementation of Assays
@@ -101,7 +101,7 @@
   of type \code{ANY}, and a derived class ShallowSimpleListAssays
   that specializes the type of \code{data} as \link{SimpleList}, and
   \code{contains=c("ShallowData", "Assays")}. The assays slot of a
-  \link{SummarizedExperiment0} object contains an instance of
+  \link{SummarizedExperiment} object contains an instance of
   ShallowSimpleListAssays.
 }
 
@@ -109,7 +109,7 @@
 
 \seealso{
   \itemize{
-    \item \link{SummarizedExperiment0} objects.
+    \item \link{SummarizedExperiment} objects.
 
     \item \link[S4Vectors]{SimpleList} objects in the \pkg{S4Vectors} package.
   }

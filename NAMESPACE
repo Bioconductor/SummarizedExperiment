@@ -14,7 +14,7 @@ import(Biobase)
 
 exportClasses(
     Assays, ShallowData, ShallowSimpleListAssays,
-    SummarizedExperiment0,
+    SummarizedExperiment, SummarizedExperiment0,
     RangedSummarizedExperiment
 )
 
@@ -70,7 +70,7 @@ exportMethods(
 
 export(
     Assays,
-    .DollarNames.SummarizedExperiment0,
+    .DollarNames.SummarizedExperiment,
     makeSummarizedExperimentFromExpressionSet,
     naiveRangeMapper, probeRangeMapper, geneRangeMapper,
     readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS

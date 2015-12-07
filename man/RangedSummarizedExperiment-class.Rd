@@ -14,15 +14,15 @@
 \alias{SummarizedExperiment,SimpleList-method}
 
 % Coercion
-\alias{coerce,RangedSummarizedExperiment,SummarizedExperiment0-method}
-\alias{coerce,SummarizedExperiment0,RangedSummarizedExperiment-method}
+\alias{coerce,RangedSummarizedExperiment,SummarizedExperiment-method}
+\alias{coerce,SummarizedExperiment,RangedSummarizedExperiment-method}
 
 % Accessors
 \alias{rowRanges}
 \alias{rowRanges,RangedSummarizedExperiment-method}
 \alias{rowRanges<-}
-\alias{rowRanges<-,SummarizedExperiment0,GenomicRanges-method}
-\alias{rowRanges<-,SummarizedExperiment0,GRangesList-method}
+\alias{rowRanges<-,SummarizedExperiment,GenomicRanges-method}
+\alias{rowRanges<-,SummarizedExperiment,GRangesList-method}
 \alias{names,RangedSummarizedExperiment-method}
 \alias{names<-,RangedSummarizedExperiment-method}
 \alias{dimnames,RangedSummarizedExperiment-method}
@@ -72,8 +72,8 @@
   \link{DataFrame}). A RangedSummarizedExperiment contains one or more
   assays, each represented by a matrix-like object of numeric or other mode.
 
-  RangedSummarizedExperiment is a subclass of \link{SummarizedExperiment0} and,
-  as such, all the methods documented in \code{?\link{SummarizedExperiment0}}
+  RangedSummarizedExperiment is a subclass of \link{SummarizedExperiment} and,
+  as such, all the methods documented in \code{?\link{SummarizedExperiment}}
   also work on a RangedSummarizedExperiment object. The methods documented
   below are additional methods that are specific to RangedSummarizedExperiment
   objects.
@@ -116,7 +116,7 @@ rowRanges(x, ...) <- value
     RangedSummarizedExperiment. The length of the \link{GRanges} or the
     \link{GRangesList} must equal the number of rows of the matrices in
     \code{assays}. If \code{rowRanges} is missing, a
-    \link{SummarizedExperiment0} instance is returned.}
+    \link{SummarizedExperiment} instance is returned.}
 
   \item{colData}{An optional \link{DataFrame} describing the
     samples. Row names, if present, become the column names of the
@@ -134,7 +134,7 @@ rowRanges(x, ...) <- value
   }
 
   \item{x}{A RangedSummarizedExperiment object. The \code{rowRanges} setter
-    will also accept a \link{SummarizedExperiment0} object and will first
+    will also accept a \link{SummarizedExperiment} object and will first
     coerce it to RangedSummarizedExperiment before it sets \code{value} on
     it.}
 
@@ -249,7 +249,7 @@ rowRanges(x, ...) <- value
 
 \seealso{
   \itemize{
-    \item \link{SummarizedExperiment0} objects.
+    \item \link{SummarizedExperiment} objects.
 
     \item \link[SummarizedExperiment]{shift},
           \link[SummarizedExperiment]{isDisjoint},
@@ -303,13 +303,13 @@ cmb2 <- rbind(rse1, rse2)
 dim(cmb2)
 dimnames(cmb2)
 
-## Coercion to/from SummarizedExperiment0:
-se0 <- as(rse, "SummarizedExperiment0")
+## Coercion to/from SummarizedExperiment:
+se0 <- as(rse, "SummarizedExperiment")
 se0
 
 as(se0, "RangedSummarizedExperiment")
 
-## Setting rowRanges on a SummarizedExperiment0 object turns it into a
+## Setting rowRanges on a SummarizedExperiment object turns it into a
 ## RangedSummarizedExperiment object:
 se <- se0
 rowRanges(se) <- rowRanges

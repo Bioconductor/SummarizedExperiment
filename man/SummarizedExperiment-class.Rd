@@ -1,76 +1,79 @@
-\name{SummarizedExperiment0-class}
+\name{SummarizedExperiment-class}
 \docType{class}
 
 % Class
+\alias{class:SummarizedExperiment}
+\alias{SummarizedExperiment-class}
+
 \alias{class:SummarizedExperiment0}
 \alias{SummarizedExperiment0-class}
 \alias{SummarizedExperiment0}
 
 % Accessors
-\alias{length,SummarizedExperiment0-method}
-\alias{names,SummarizedExperiment0-method}
-\alias{names<-,SummarizedExperiment0-method}
+\alias{length,SummarizedExperiment-method}
+\alias{names,SummarizedExperiment-method}
+\alias{names<-,SummarizedExperiment-method}
 \alias{exptData}
-\alias{exptData,SummarizedExperiment0-method}
+\alias{exptData,SummarizedExperiment-method}
 \alias{exptData<-}
-\alias{exptData<-,SummarizedExperiment0-method}
+\alias{exptData<-,SummarizedExperiment-method}
 \alias{colData}
-\alias{colData,SummarizedExperiment0-method}
+\alias{colData,SummarizedExperiment-method}
 \alias{colData<-}
-\alias{colData<-,SummarizedExperiment0,DataFrame-method}
+\alias{colData<-,SummarizedExperiment,DataFrame-method}
 \alias{assays}
-\alias{assays,SummarizedExperiment0-method}
+\alias{assays,SummarizedExperiment-method}
 \alias{assays<-}
-\alias{assays<-,SummarizedExperiment0,SimpleList-method}
-\alias{assays<-,SummarizedExperiment0,list-method}
+\alias{assays<-,SummarizedExperiment,SimpleList-method}
+\alias{assays<-,SummarizedExperiment,list-method}
 \alias{assay}
-\alias{assay,SummarizedExperiment0,missing-method}
-\alias{assay,SummarizedExperiment0,numeric-method}
-\alias{assay,SummarizedExperiment0,character-method}
+\alias{assay,SummarizedExperiment,missing-method}
+\alias{assay,SummarizedExperiment,numeric-method}
+\alias{assay,SummarizedExperiment,character-method}
 \alias{assay<-}
-\alias{assay<-,SummarizedExperiment0,missing,matrix-method}
-\alias{assay<-,SummarizedExperiment0,numeric,matrix-method}
-\alias{assay<-,SummarizedExperiment0,character,matrix-method}
+\alias{assay<-,SummarizedExperiment,missing,matrix-method}
+\alias{assay<-,SummarizedExperiment,numeric,matrix-method}
+\alias{assay<-,SummarizedExperiment,character,matrix-method}
 \alias{assayNames}
-\alias{assayNames,SummarizedExperiment0-method}
+\alias{assayNames,SummarizedExperiment-method}
 \alias{assayNames<-}
-\alias{assayNames<-,SummarizedExperiment0,character-method}
-\alias{dim,SummarizedExperiment0-method}
-\alias{dimnames,SummarizedExperiment0-method}
-\alias{dimnames<-,SummarizedExperiment0,list-method}
-\alias{dimnames<-,SummarizedExperiment0,NULL-method}
+\alias{assayNames<-,SummarizedExperiment,character-method}
+\alias{dim,SummarizedExperiment-method}
+\alias{dimnames,SummarizedExperiment-method}
+\alias{dimnames<-,SummarizedExperiment,list-method}
+\alias{dimnames<-,SummarizedExperiment,NULL-method}
 
 % Subsetting
-\alias{[,SummarizedExperiment0-method}
-\alias{[,SummarizedExperiment0,ANY-method}
-\alias{[<-,SummarizedExperiment0,ANY,ANY,SummarizedExperiment0-method}
-\alias{extractROWS,SummarizedExperiment0,ANY-method}
-\alias{replaceROWS,SummarizedExperiment0-method}
+\alias{[,SummarizedExperiment-method}
+\alias{[,SummarizedExperiment,ANY-method}
+\alias{[<-,SummarizedExperiment,ANY,ANY,SummarizedExperiment-method}
+\alias{extractROWS,SummarizedExperiment,ANY-method}
+\alias{replaceROWS,SummarizedExperiment-method}
 
 % Quick colData access
-\alias{[[,SummarizedExperiment0,ANY,missing-method}
-\alias{[[<-,SummarizedExperiment0,ANY,missing-method}
-\alias{$,SummarizedExperiment0-method}
-\alias{$<-,SummarizedExperiment0-method}
+\alias{[[,SummarizedExperiment,ANY,missing-method}
+\alias{[[<-,SummarizedExperiment,ANY,missing-method}
+\alias{$,SummarizedExperiment-method}
+\alias{$<-,SummarizedExperiment-method}
 
 % Display
-\alias{show,SummarizedExperiment0-method}
+\alias{show,SummarizedExperiment-method}
 
 % Combine 
-\alias{rbind,SummarizedExperiment0-method}
-\alias{cbind,SummarizedExperiment0-method}
+\alias{rbind,SummarizedExperiment-method}
+\alias{cbind,SummarizedExperiment-method}
 
-\title{SummarizedExperiment0 objects}
+\title{SummarizedExperiment objects}
 
 \description{
 
-  The SummarizedExperiment0 class is a matrix-like container where rows
+  The SummarizedExperiment class is a matrix-like container where rows
   represent features of interest (e.g. genes, transcripts, exons, etc...)
   and columns represent samples (with sample data summarized as a
-  \link{DataFrame}). A SummarizedExperiment0 object contains one or more
+  \link{DataFrame}). A SummarizedExperiment object contains one or more
   assays, each represented by a matrix-like object of numeric or other mode.
 
-  Note that SummarizedExperiment0 is the parent of the
+  Note that SummarizedExperiment is the parent of the
   \link{RangedSummarizedExperiment} class which means that all the methods
   documented below also work on a \link{RangedSummarizedExperiment} object.
 }
@@ -97,32 +100,32 @@ colData(x, ...) <- value
 
 ## Quick colData access
 
-\S4method{$}{SummarizedExperiment0}(x, name)
-\S4method{$}{SummarizedExperiment0}(x, name) <- value
-\S4method{[[}{SummarizedExperiment0,ANY,missing}(x, i, j, ...)
-\S4method{[[}{SummarizedExperiment0,ANY,missing}(x, i, j, ...) <- value
+\S4method{$}{SummarizedExperiment}(x, name)
+\S4method{$}{SummarizedExperiment}(x, name) <- value
+\S4method{[[}{SummarizedExperiment,ANY,missing}(x, i, j, ...)
+\S4method{[[}{SummarizedExperiment,ANY,missing}(x, i, j, ...) <- value
 
 ## Subsetting
 
-\S4method{[}{SummarizedExperiment0}(x, i, j, ..., drop=TRUE)
-\S4method{[}{SummarizedExperiment0,ANY,ANY,SummarizedExperiment0}(x, i, j) <- value
+\S4method{[}{SummarizedExperiment}(x, i, j, ..., drop=TRUE)
+\S4method{[}{SummarizedExperiment,ANY,ANY,SummarizedExperiment}(x, i, j) <- value
 
 ## Combining 
 
-\S4method{cbind}{SummarizedExperiment0}(..., deparse.level=1)
-\S4method{rbind}{SummarizedExperiment0}(..., deparse.level=1)
+\S4method{cbind}{SummarizedExperiment}(..., deparse.level=1)
+\S4method{rbind}{SummarizedExperiment}(..., deparse.level=1)
 
 }
 
 \arguments{
 
-  \item{x}{A SummarizedExperiment0 object.}
+  \item{x}{A SummarizedExperiment object.}
 
   \item{...}{
     For \code{assay}, \code{...} may contain \code{withDimnames}, which is
     forwarded to \code{assays}.
 
-    For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment0
+    For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment
     objects to be combined.
 
     For other accessors, ignored.
@@ -132,13 +135,13 @@ colData(x, ...) <- value
     For \code{assay}, \code{assay<-}, \code{i} is an integer or
     numeric scalar; see \sQuote{Details} for additional constraints.
 
-    For \code{[,SummarizedExperiment0},
-    \code{[,SummarizedExperiment0<-}, \code{i}, \code{j} are subscripts
+    For \code{[,SummarizedExperiment},
+    \code{[,SummarizedExperiment<-}, \code{i}, \code{j} are subscripts
     that can act to subset the rows and columns of \code{x}, that is the
     \code{matrix} elements of \code{assays}.
 
-    For \code{[[,SummarizedExperiment0},
-    \code{[[<-,SummarizedExperiment0}, \code{i} is a scalar index (e.g.,
+    For \code{[[,SummarizedExperiment},
+    \code{[[<-,SummarizedExperiment}, \code{i} is a scalar index (e.g.,
     \code{character(1)} or \code{integer(1)}) into a column of
     \code{colData}.
   }
@@ -167,57 +170,57 @@ colData(x, ...) <- value
 
 \details{
 
-  The SummarizedExperiment0 class is meant for numeric and other
+  The SummarizedExperiment class is meant for numeric and other
   data types derived from a sequencing experiment. The structure is
   rectangular like a \code{matrix}, but with additional annotations on
   the rows and columns, and with the possibility to manage several
   assays simultaneously.
 
-  The rows of a SummarizedExperiment0 object represent features
+  The rows of a SummarizedExperiment object represent features
   of interest. Information about these features is stored in a
   \link{DataFrame} object, accessible using the function
   \code{\link{mcols}}. The \link{DataFrame} must have as many rows
-  as there are rows in the SummarizedExperiment0 object, with each row
+  as there are rows in the SummarizedExperiment object, with each row
   of the \link{DataFrame} providing information on the feature in the
-  corresponding row of the SummarizedExperiment0 object. Columns of the
+  corresponding row of the SummarizedExperiment object. Columns of the
   \link{DataFrame} represent different attributes of the features
   of interest, e.g., gene or transcript IDs, etc.
 
-  Each column of a SummarizedExperiment0 object represents a sample.
+  Each column of a SummarizedExperiment object represents a sample.
   Information about the samples are stored in a \link{DataFrame},
   accessible using the function \code{colData}, described below.
   The \link{DataFrame} must have as many rows as there are
-  columns in the SummarizedExperiment0 object, with each row of the
+  columns in the SummarizedExperiment object, with each row of the
   \link{DataFrame} providing information on the sample in the
-  corresponding column of the SummarizedExperiment0 object.
+  corresponding column of the SummarizedExperiment object.
   Columns of the \link{DataFrame} represent different sample
   attributes, e.g., tissue of origin, etc. Columns of the
   \link{DataFrame} can themselves be annotated (via the
   \code{\link{mcols}} function). Column names typically provide a short
   identifier unique to each sample.
 
-  A SummarizedExperiment0 object can also contain information about
+  A SummarizedExperiment object can also contain information about
   the overall experiment, for instance the lab in which it was conducted,
   the publications with which it is associated, etc. This information is
   stored as a \code{list} object, accessible using the \code{metadata}
   function. The form of the data associated with the experiment is left to
   the discretion of the user.
 
-  The SummarizedExperiment0 container is appropriate for matrix-like
+  The SummarizedExperiment container is appropriate for matrix-like
   data. The data are accessed using the \code{assays} function,
   described below. This returns a \link{SimpleList} object. Each
   element of the list must itself be a matrix (of any mode) and must
   have dimensions that are the same as the dimensions of the
-  SummarizedExperiment0 in which they are stored. Row and column
+  SummarizedExperiment in which they are stored. Row and column
   names of each matrix must either be \code{NULL} or match those of the
-  SummarizedExperiment0 during construction. It is convenient for
+  SummarizedExperiment during construction. It is convenient for
   the elements of \link{SimpleList} of assays to be named.
 
 }
 
 \section{Constructor}{
 
-  SummarizedExperiment0 instances are constructed using the
+  SummarizedExperiment instances are constructed using the
   \code{SummarizedExperiment} function documented in
   \code{?\link{RangedSummarizedExperiment}}.
 
@@ -225,7 +228,7 @@ colData(x, ...) <- value
 
 \section{Accessors}{
 
-  In the following code snippets, \code{x} is a SummarizedExperiment0
+  In the following code snippets, \code{x} is a SummarizedExperiment
   object.
 
   \describe{
@@ -255,7 +258,7 @@ colData(x, ...) <- value
       content.}
 
     \item{\code{dim(x)}:}{Get the dimensions (features of interest x samples)
-      of the SummarizedExperiment0.}
+      of the SummarizedExperiment.}
 
     \item{\code{dimnames(x)}, \code{dimnames(x) <- value}:}{Get or set
       the dimension names. \code{value} is usually a list of length 2,
@@ -270,14 +273,14 @@ colData(x, ...) <- value
 
 \section{Subsetting}{
 
-  In the code snippets below, \code{x} is a SummarizedExperiment0 object.
+  In the code snippets below, \code{x} is a SummarizedExperiment object.
 
   \describe{
 
     \item{\code{x[i,j]}, \code{x[i,j] <- value}:}{Create or replace a
       subset of \code{x}. \code{i}, \code{j} can be \code{numeric},
       \code{logical}, \code{character}, or \code{missing}. \code{value}
-      must be a SummarizedExperiment0 object with dimensions,
+      must be a SummarizedExperiment object with dimensions,
       dimension names, and assay elements consistent with the subset
       \code{x[i,j]} being replaced.}
 
@@ -300,7 +303,7 @@ colData(x, ...) <- value
 
 \section{Combining}{
 
-  In the code snippets below, \code{...} are SummarizedExperiment0 objects
+  In the code snippets below, \code{...} are SummarizedExperiment objects
   to be combined.
 
   \describe{
@@ -308,9 +311,9 @@ colData(x, ...) <- value
     \item{\code{cbind(...)}:}{
       \code{cbind} combines objects with the same features of interest
       but different samples (columns in \code{assays}).
-      The colnames in \code{colData(SummarizedExperiment0)} must match or
+      The colnames in \code{colData(SummarizedExperiment)} must match or
       an error is thrown.
-      Duplicate columns of \code{mcols(SummarizedExperiment0)} must
+      Duplicate columns of \code{mcols(SummarizedExperiment)} must
       contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
@@ -324,9 +327,9 @@ colData(x, ...) <- value
     \item{\code{rbind(...)}:}{
       \code{rbind} combines objects with the same samples
       but different features of interest (rows in \code{assays}).
-      The colnames in \code{mcols(SummarizedExperiment0)} must match or
+      The colnames in \code{mcols(SummarizedExperiment)} must match or
       an error is thrown.
-      Duplicate columns of \code{colData(SummarizedExperiment0)} must
+      Duplicate columns of \code{colData(SummarizedExperiment)} must
       contain the same data. 
 
       Data in \code{assays} are combined by name matching; if all assay
@@ -345,16 +348,16 @@ colData(x, ...) <- value
 
   This section contains advanced material meant for package developers.
 
-  SummarizedExperiment0 is implemented as an S4 class, and can be extended in
-  the usual way, using \code{contains="SummarizedExperiment0"} in the new
+  SummarizedExperiment is implemented as an S4 class, and can be extended in
+  the usual way, using \code{contains="SummarizedExperiment"} in the new
   class definition.
 
   In addition, the representation of the \code{assays} slot of
-  SummarizedExperiment0 is as a virtual class Assays. This
+  SummarizedExperiment is as a virtual class Assays. This
   allows derived classes (\code{contains="Assays"}) to easily implement
   alternative requirements for the assays, e.g., backed by file-based
   storage like NetCDF or the \code{ff} package, while re-using the existing
-  SummarizedExperiment0 class without modification.
+  SummarizedExperiment class without modification.
   See \link{Assays} for more information.
 
   The current \code{assays} slot is implemented as a reference class
