@@ -41,7 +41,13 @@ test_coverage_RangedSummarizedExperiment <- function()
         current <- coverage(x)
         checkIdentical(target, current)
 
-        weight <- runif(length(unlist(rowRanges(x)))) # unlist() a no-op for GRL
+        weight <- runif(length(x))
+        ## Issues a warning (in BioC 3.3) when rowRanges(x) is a GRangesList
+        ## object, which reveals a problem with how the "coverage" method for
+        ## GRangesList objects handles the 'weight' argument. The warning is
+        ## expected and healthy, don't try to suppress it here. It will go
+        ## away when we fix the "coverage" method for GRangesList objects
+        ## (defined in the GenomicRanges package). 
         target <- coverage(rowRanges(x), weight=weight)
         current <- coverage(x, weight=weight)
         checkIdentical(target, current)
