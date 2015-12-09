@@ -91,12 +91,14 @@ new_SummarizedExperiment <- function(assays, names, rowData, colData,
         else
             nrow <- length(names)
         rowData <- new("DataFrame", nrows=nrow)
+    } else {
+        rownames(rowData) <- NULL
     }
     new("SummarizedExperiment", NAMES=names,
-                                 elementMetadata=rowData,
-                                 colData=colData,
-                                 assays=assays,
-                                 metadata=as.list(metadata))
+                                elementMetadata=rowData,
+                                colData=colData,
+                                assays=assays,
+                                metadata=as.list(metadata))
 }
 
 
