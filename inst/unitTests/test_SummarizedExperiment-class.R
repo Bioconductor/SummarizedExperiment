@@ -22,23 +22,12 @@ test_SummarizedExperiment_construction <- function()
     ## empty-ish
     m1 <- matrix(0, 0, 0)
     checkTrue(validObject(new("SummarizedExperiment")))
-    checkTrue(validObject(SummarizedExperiment()))
-    checkTrue(validObject(
-        SummarizedExperiment(assays=SimpleList(m1))))
-    checkException(
-        SummarizedExperiment(assays=SimpleList(matrix())),
-        "assays dim mismatch", TRUE)
-    checkException(
-        SummarizedExperiment(assays=SimpleList(m1, matrix())),
-        "assays dim mismatch", TRUE)
-    checkException(
-        SummarizedExperiment(assays=SimpleList(character())),
-        "assays class", TRUE)
-
-    checkException(SummarizedExperiment(
-        assays=matrix(1:6, 2, 3, dimnames=list(NULL, LETTERS[1:3])),
-        colData=DataFrame(row.names=letters[1:3])),
-        "assay colnames() differ from colData rownames()", TRUE)
+    checkTrue(validObject(SummarizedExperiment()), "empty constructor")
+    checkTrue(validObject(SummarizedExperiment(SimpleList())))
+    checkTrue(validObject(SummarizedExperiment(assays=SimpleList(m1))),
+              "0x0 constructor")
+    checkException(SummarizedExperiment(assays=SimpleList(m1, matrix())),
+                   "assays dim mismatch", TRUE)
 
     ## substance
     for (i in seq_along(se0List)) {
@@ -64,6 +53,49 @@ test_SummarizedExperiment_construction <- function()
     ## DataFrame in assay slot
     df <- DataFrame(a=1:3, b=1:3, row.names=LETTERS[1:3])
     checkTrue(validObject(SummarizedExperiment(list(df))))
+}
+
+test_SummarizedExperiment_construction_colnames <- function()
+{
+    colnames <- LETTERS[1:3]
+
+    checkException(SummarizedExperiment(
+        assays=matrix(0, 2, 3, dimnames=list(NULL, colnames)),
+        colData=DataFrame(row.names=letters[1:3])),
+        "assay colnames() differ from colData rownames()", TRUE)
+
+    checkTrue(validObject(SummarizedExperiment(matrix(0, 2, 3))),
+              "NULL dimnames on assays-only construction")
+    se <- SummarizedExperiment(matrix(0, 2, 3))
+    checkTrue(is.null(colnames(se)))
+
+    checkTrue(validObject(SummarizedExperiment(
+        matrix(0, 2, 3), colData=DataFrame(x=1:3)[,FALSE])),
+        "NULL dimnames on assays and colData")
+    se <- SummarizedExperiment(matrix(0, 2, 3),
+                               colData=DataFrame(x=1:3)[,FALSE])
+    checkTrue(is.null(colnames(se)))
+
+    ## dimnames from colData rownames
+    se <- SummarizedExperiment(matrix(0, 2, 3),
+                               colData=DataFrame(row.names=colnames))
+    checkIdentical(colnames(se), colnames)
+    checkTrue(is.null(colnames(assay(se, withDimnames=FALSE))),
+              "don't replace NULL colnames")
+
+    ## when colData rownames == NULL, take dimnames from assay colnames
+    colnames <- LETTERS[1:3]
+    se <- SummarizedExperiment(matrix(0, 2, 3, dimnames=list(NULL, colnames)),
+                               colData=DataFrame(x=colnames)[,FALSE])
+    checkIdentical(colnames(se), colnames)
+    checkIdentical(colnames(assay(se, withDimnames=FALSE)), colnames,
+                   "don't remove non-NULL colnames")
+
+    ## matching colData rownames and assay colnames
+    se <- SummarizedExperiment(matrix(0, 2, 3, dimnames=list(NULL, colnames)),
+                               colData=DataFrame(row.names=colnames))
+    checkIdentical(colnames(se), colnames)
+    checkIdentical(colnames(assay(se, withDimnames=FALSE)), colnames)
 }
 
 test_SummarizedExperiment_getters <- function()

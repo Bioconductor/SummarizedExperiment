@@ -60,6 +60,13 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
                                       metadata=as.list(metadata))
 }
 
+.get_colnames_from_assays <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(NULL)
+    colnames(assays[[1L]])
+}
+
 .get_rownames_from_assays <- function(assays)
 {
     if (length(assays) == 0L)
@@ -75,16 +82,19 @@ setMethod(SummarizedExperiment, "SimpleList",
             metadata=list())
 {
     if (missing(colData) && 0L != length(assays)) {
-        nms <- colnames(assays[[1]])
-        if (is.null(nms) && 0L != ncol(assays[[1]]))
-            stop("'SummarizedExperiment' assay colnames must not be NULL")
-        colData <- DataFrame(row.names=nms)
-    }
+        assay <- assays[[1]]
+        nms <- colnames(assay)
+        colData <- DataFrame(x=seq_len(ncol(assay)), row.names=nms)[, FALSE]
+    } else if (!missing(colData) && is.null(rownames(colData)))
+        rownames(colData) <- .get_colnames_from_assays(assays)
+    ans_colnames <- rownames(colData)
 
     if (is.null(rowData)) {
         if (missing(rowRanges)) {
             ans_rownames <- .get_rownames_from_assays(assays)
         } else {
+            if (is.null(names(rowRanges)))
+                names(rowRanges) <- .get_rownames_from_assays(assays)
             ans_rownames <- names(rowRanges)
         }
     } else {
@@ -92,30 +102,35 @@ setMethod(SummarizedExperiment, "SimpleList",
             stop("only one of 'rowData' and 'rowRanges' can be specified")
         if (is(rowData, "GenomicRangesORGRangesList")) {
             rowRanges <- rowData
+            if (is.null(names(rowRanges)))
+                names(rowRanges) <- .get_rownames_from_assays(assays)
             ans_rownames <- names(rowRanges)
         } else {
             ans_rownames <- rownames(rowData)
+            if (is.null(ans_rownames))
+                ans_rownames <- .get_rownames_from_assays(assays)
         }
     }
 
-    ans_colnames <- rownames(colData)
-    ans_dimnames <- list(ans_rownames, ans_colnames)
     ## validate
     ok <- vapply(assays, function(x) {
         colnames <- colnames(x)
         test <- is.null(colnames) || identical(colnames, ans_colnames)
         if (!test)
-            stop("assay colnames() differ from colData rownames()")
+            stop("assay colnames() must be NULL or equal colData rownames()")
+
+        rownames <- rownames(x)
+        test <- test &&
+            is.null(rownames) || identical(rownames, ans_rownames)
+        if (!test) {
+            txt <- "assay rownames() must be NULL or equal rowData rownames() /
+                    rowRanges names()"
+            stop(paste(strwrap(txt, exdent=2), collapse="\n"))
+        }
+
         test
     }, logical(1))
-    FUN <- function(x) {
-        ## dimnames(x) as NULL or list(NULL, NULL)
-        all(sapply(dimnames(x), is.null)) ||
-            ## or consistent with 'ans_dimnames'
-            identical(dimnames(x)[1:2], ans_dimnames)
-    }
-    if (!all(sapply(assays, FUN)))
-        assays <- endoapply(assays, unname)
+
     assays <- Assays(assays)
 
     if (missing(rowRanges) && !is(rowData, "GenomicRangesORGRangesList")) {
