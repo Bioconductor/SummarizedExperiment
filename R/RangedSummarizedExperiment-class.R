@@ -60,7 +60,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
                                       metadata=as.list(metadata))
 }
 
-get_rownames_from_assays <- function(assays)
+.get_rownames_from_assays <- function(assays)
 {
     if (length(assays) == 0L)
         return(NULL)
@@ -83,7 +83,7 @@ setMethod(SummarizedExperiment, "SimpleList",
 
     if (is.null(rowData)) {
         if (missing(rowRanges)) {
-            ans_rownames <- get_rownames_from_assays(assays)
+            ans_rownames <- .get_rownames_from_assays(assays)
         } else {
             ans_rownames <- names(rowRanges)
         }
@@ -111,8 +111,8 @@ setMethod(SummarizedExperiment, "SimpleList",
     assays <- Assays(assays)
 
     if (missing(rowRanges) && !is(rowData, "GenomicRangesORGRangesList")) {
-        new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
-                                 metadata)
+        .new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
+                                  metadata)
     } else {
         .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
     }
@@ -149,11 +149,11 @@ setMethod(SummarizedExperiment, "matrix",
 
 .from_RangedSummarizedExperiment_to_SummarizedExperiment <- function(from)
 {
-    new_SummarizedExperiment(from@assays,
-                             names(from@rowRanges),
-                             mcols(from@rowRanges),
-                             from@colData,
-                             from@metadata)
+    .new_SummarizedExperiment(from@assays,
+                              names(from@rowRanges),
+                              mcols(from@rowRanges),
+                              from@colData,
+                              from@metadata)
 }
 
 setAs("RangedSummarizedExperiment", "SummarizedExperiment",

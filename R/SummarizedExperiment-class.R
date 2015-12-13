@@ -80,8 +80,8 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 ### Low-level constructor (not exported).
 ###
 
-new_SummarizedExperiment <- function(assays, names, rowData, colData,
-                                     metadata)
+.new_SummarizedExperiment <- function(assays, names, rowData, colData,
+                                      metadata)
 {
     if (!is(assays, "Assays"))
         assays <- Assays(assays)
