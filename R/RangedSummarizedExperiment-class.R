@@ -100,6 +100,14 @@ setMethod(SummarizedExperiment, "SimpleList",
 
     ans_colnames <- rownames(colData)
     ans_dimnames <- list(ans_rownames, ans_colnames)
+    ## validate
+    ok <- vapply(assays, function(x) {
+        colnames <- colnames(x)
+        test <- is.null(colnames) || identical(colnames, ans_colnames)
+        if (!test)
+            stop("assay colnames() differ from colData rownames()")
+        test
+    }, logical(1))
     FUN <- function(x) {
         ## dimnames(x) as NULL or list(NULL, NULL)
         all(sapply(dimnames(x), is.null)) ||

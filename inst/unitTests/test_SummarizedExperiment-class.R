@@ -35,6 +35,11 @@ test_SummarizedExperiment_construction <- function()
         SummarizedExperiment(assays=SimpleList(character())),
         "assays class", TRUE)
 
+    checkException(SummarizedExperiment(
+        assays=matrix(1:6, 2, 3, dimnames=list(NULL, LETTERS[1:3])),
+        colData=DataFrame(row.names=letters[1:3])),
+        "assay colnames() differ from colData rownames()", TRUE)
+
     ## substance
     for (i in seq_along(se0List)) {
         se0 <- se0List[[i]] 

@@ -50,7 +50,7 @@
 
 .from_AnnotatedDataFrame_to_DataFrame <- function(from)
 {
-    df <- DataFrame(pData(from))
+    df <- DataFrame(pData(from), row.names=rownames(from))
     mcols(df) <- DataFrame(varMetadata(from))
     df
 }
