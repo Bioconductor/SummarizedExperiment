@@ -10,7 +10,8 @@
     } else if (is(from, "GRangesList")) {
         fd <- .from_GRangesList_to_FeatureData(from)
     } else {
-        stop("class: ", sQuote(class(from)), " is not a supported type for rowRanges coercion")
+        stop("class ", sQuote(class(from)),
+             " is not a supported type for rowRanges coercion")
     }
     featureNames(fd) <- names(from)
     fd
@@ -66,17 +67,20 @@
     AnnotatedDataFrame(data, metaData)
 }
 
-# If the ExpressionSet has featureData with range information make GRanges out
-# of that, otherwise make an empty GRangesList with names from the featureNames
+## If the ExpressionSet has featureData with range information make
+## GRanges out of that, otherwise make an empty GRangesList with names
+## from the featureNames
 naiveRangeMapper <- function(from)
 {
     nms <- featureNames(from)
-    res <- tryCatch(makeGRangesFromDataFrame(pData(featureData(from)), keep.extra.columns = TRUE),
-             error = function(e) {
-                 res <- relist(GRanges(), vector("list", length=length(nms)))
-                 mcols(res) <- .from_AnnotatedDataFrame_to_DataFrame(featureData(from))
-                 res
-             })
+    res <- tryCatch({
+        makeGRangesFromDataFrame(pData(featureData(from)),
+                                 keep.extra.columns = TRUE)
+    }, error = function(e) {
+        res <- relist(GRanges(), vector("list", length=length(nms)))
+        mcols(res) <- .from_AnnotatedDataFrame_to_DataFrame(featureData(from))
+        res
+    })
     names(res) <- nms
     res
 }
@@ -93,10 +97,13 @@ probeRangeMapper <- function(from)
     }
     if (requireNamespace("annotate", quietly = TRUE)) {
         annotationPackage <- annotate::annPkgName(annotation)
-        if (require(annotationPackage, character.only = TRUE, quietly = TRUE)) {
+        test <- require(annotationPackage, character.only = TRUE,
+                        quietly = TRUE)
+        if (test) {
             db <- get(annotationPackage, envir = asNamespace(annotationPackage))
             pid <- featureNames(from)
-            locs <- AnnotationDbi::select(db, pid, columns = c("CHR", "CHRLOC", "CHRLOCEND"))
+            locs <- AnnotationDbi::select(
+                db, pid, columns = c("CHR", "CHRLOC", "CHRLOCEND"))
             locs <- na.omit(locs)
             dups <- duplicated(locs$PROBEID)
             if (any(dups)) {
@@ -104,16 +111,19 @@ probeRangeMapper <- function(from)
             }
             strand <- ifelse(locs$CHRLOC > 0, "+", "-")
             res <- GRanges(seqnames = locs$CHR,
-                           ranges = IRanges(abs(locs$CHRLOC), abs(locs$CHRLOCEND)),
+                           ranges = IRanges(abs(locs$CHRLOC),
+                                            abs(locs$CHRLOCEND)),
                            strand = strand)
             names(res) <- locs$PROBEID
 
             if (NROW(res) < length(pid)) {
-                warning(length(pid) - NROW(res), " probes could not be mapped.", call. = FALSE)
+                warning(length(pid) - NROW(res),
+                        " probes could not be mapped.", call. = FALSE)
             }
             res
         } else {
-            stop("Failed to load ", sQuote(annotationPackage), " package", call. = FALSE)
+            stop("Failed to load ", sQuote(annotationPackage), " package",
+                 call. = FALSE)
         }
     } else {
         stop("Failed to load annotate package", call. = FALSE)
@@ -131,28 +141,37 @@ geneRangeMapper <- function(txDbPackage, key = "ENTREZID")
         }
         if (requireNamespace("annotate", quietly = TRUE)) {
             annotationPackage <- annotate::annPkgName(annotation)
-            if (require(annotationPackage, character.only = TRUE, quietly = TRUE)) {
-                db <- get(annotationPackage, envir = asNamespace(annotationPackage))
+            test <- require(annotationPackage, character.only = TRUE,
+                            quietly = TRUE)
+            if (test) {
+                db <- get(annotationPackage,
+                          envir = asNamespace(annotationPackage))
                 pid <- featureNames(from)
-                probeIdToGeneId <- AnnotationDbi::mapIds(db, pid, key, "PROBEID")
-                geneIdToProbeId <- setNames(names(probeIdToGeneId), probeIdToGeneId)
+                probeIdToGeneId <-
+                    AnnotationDbi::mapIds(db, pid, key, "PROBEID")
+                geneIdToProbeId <-
+                    setNames(names(probeIdToGeneId), probeIdToGeneId)
 
                 if (requireNamespace(txDbPackage, quietly = TRUE)) {
                     txDb <- get(txDbPackage, envir = asNamespace(txDbPackage))
                     genes <- GenomicFeatures::genes(txDb)
-                    probesWithAMatch <- probeIdToGeneId[probeIdToGeneId %in% names(genes)]
+                    probesWithAMatch <-
+                        probeIdToGeneId[probeIdToGeneId %in% names(genes)]
                     res <- genes[probesWithAMatch]
                     names(res) <- geneIdToProbeId[names(res)]
                     if (NROW(res) < length(pid)) {
-                        warning(length(pid) - NROW(res), " probes could not be mapped.", call. = FALSE)
+                        warning(length(pid) - NROW(res),
+                                " probes could not be mapped.", call. = FALSE)
                     }
                     res
                 } else {
-                    stop("Failed to load ", sQuote(txDbPackage), " package", call. = FALSE)
+                    stop("Failed to load ", sQuote(txDbPackage), " package",
+                         call. = FALSE)
                 }
 
             } else {
-                stop("Failed to load ", sQuote(annotationPackage), " package", call. = FALSE)
+                stop("Failed to load ", sQuote(annotationPackage), " package",
+                     call. = FALSE)
             }
         } else {
             stop("Failed to load annotate package", call. = FALSE)
@@ -160,28 +179,29 @@ geneRangeMapper <- function(txDbPackage, key = "ENTREZID")
     }
 }
 
-makeSummarizedExperimentFromExpressionSet <- function(from, mapFun = naiveRangeMapper, ...)
+makeSummarizedExperimentFromExpressionSet <-
+    function(from, mapFun = naiveRangeMapper, ...)
 {
-        mapFun <- match.fun(mapFun)
-        rowRanges <- mapFun(from, ...)
-        matches <- match(names(rowRanges),
-                         featureNames(from),
-                         nomatch = 0)
-        from <- from[matches, drop = FALSE]
-        assays <- as.list(assayData(from))
-        colData <- .from_AnnotatedDataFrame_to_DataFrame(phenoData(from))
-        metadata <- SimpleList(
-                               experimentData = experimentData(from),
-                               annotation = annotation(from),
-                               protocolData = protocolData(from)
-                               )
+    mapFun <- match.fun(mapFun)
+    rowRanges <- mapFun(from, ...)
+    matches <- match(names(rowRanges),
+                     featureNames(from),
+                     nomatch = 0)
+    from <- from[matches, drop = FALSE]
+    assays <- as.list(assayData(from))
+    colData <- .from_AnnotatedDataFrame_to_DataFrame(phenoData(from))
+    metadata <- SimpleList(
+        experimentData = experimentData(from),
+        annotation = annotation(from),
+        protocolData = protocolData(from)
+    )
 
-        SummarizedExperiment(
-                             assays = assays,
-                             rowRanges = rowRanges,
-                             colData = colData,
-                             metadata = metadata
-                             )
+    SummarizedExperiment(
+        assays = assays,
+        rowRanges = rowRanges,
+        colData = colData,
+        metadata = metadata
+    )
 }
 
 setAs("ExpressionSet", "RangedSummarizedExperiment", function(from)
@@ -189,57 +209,57 @@ setAs("ExpressionSet", "RangedSummarizedExperiment", function(from)
     makeSummarizedExperimentFromExpressionSet(from)
 })
 
-setAs("RangedSummarizedExperiment", "ExpressionSet", function(from)
+setAs("RangedSummarizedExperiment", "ExpressionSet",
+      function(from)
 {
-            assayData <- list2env(as.list(assays(from)))
+    assayData <- list2env(as.list(assays(from)))
 
-            numAssays <- length(assayData)
+    numAssays <- length(assayData)
 
-            if(numAssays == 0) {
-                assayData$exprs <- new("matrix")
-            } else if (!"exprs" %in% ls(assayData)) {
-                ## if there isn't an exprs assay we need to pick one as exprs, so
-                ## rename the first element exprs and issue a warning.
-                exprs <- ls(assayData)[[1]]
-                warning("No assay named ", sQuote("exprs"), " found, renaming ",
-                        exprs, " to ", sQuote("exprs"), ".")
-                assayData[["exprs"]] <- assayData[[exprs]]
-                rm(list=exprs, envir=assayData)
-            }
+    if (numAssays == 0) {
+        assayData$exprs <- new("matrix")
+    } else if (!"exprs" %in% ls(assayData)) {
+        ## if there isn't an exprs assay we need to pick one as exprs,
+        ## so rename the first element exprs and issue a warning.
+        exprs <- ls(assayData)[[1]]
+        warning("No assay named ", sQuote("exprs"), " found, renaming ",
+                exprs, " to ", sQuote("exprs"), ".")
+        assayData[["exprs"]] <- assayData[[exprs]]
+        rm(list=exprs, envir=assayData)
+    }
 
-            featureData <- .from_rowRanges_to_FeatureData(rowRanges(from))
-            phenoData <- .from_DataFrame_to_AnnotatedDataFrame(colData(from))
+    featureData <- .from_rowRanges_to_FeatureData(rowRanges(from))
+    phenoData <- .from_DataFrame_to_AnnotatedDataFrame(colData(from))
 
-            metadata <- metadata(from)
+    metadata <- metadata(from)
 
-            experimentData <- if (!is.null(metadata$experimentData)) {
-                metadata$experimentData
-            } else {
-                MIAME()
-            }
+    experimentData <- if (!is.null(metadata$experimentData)) {
+        metadata$experimentData
+    } else {
+        MIAME()
+    }
 
-            annotation <- if (!is.null(metadata$annotation)) {
-                metadata$annotation
-            } else {
-                character()
-            }
+    annotation <- if (!is.null(metadata$annotation)) {
+        metadata$annotation
+    } else {
+        character()
+    }
 
-            protocolData <- if (!is.null(metadata$protocolData)) {
-                metadata$protocolData
-            } else {
-                annotatedDataFrameFrom(assayData, byrow=FALSE)
-            }
+    protocolData <- if (!is.null(metadata$protocolData)) {
+        metadata$protocolData
+    } else {
+        annotatedDataFrameFrom(assayData, byrow=FALSE)
+    }
 
-            ExpressionSet(assayData,
-                                   phenoData = phenoData,
-                                   featureData = featureData,
-                                   experimentData = experimentData,
-                                   annotation = annotation,
-                                   protocolData = protocolData
-                                   )
+    ExpressionSet(assayData,
+                  phenoData = phenoData,
+                  featureData = featureData,
+                  experimentData = experimentData,
+                  annotation = annotation,
+                  protocolData = protocolData
+                  )
 })
 
 setAs("SummarizedExperiment", "ExpressionSet", function(from)
     as(as(from, "RangedSummarizedExperiment"), "ExpressionSet")
 )
-
