@@ -34,8 +34,7 @@ for (f in c("precede", "follow")) {
 ### nearest
 
 setMethod("nearest", c("RangedSummarizedExperiment", "ANY"),
-    function(x, subject, select=c("arbitrary", "all"),
-             algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    function(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
     {
         x <- rowRanges(x)
         callGeneric()
@@ -43,8 +42,7 @@ setMethod("nearest", c("RangedSummarizedExperiment", "ANY"),
 )
 
 setMethod("nearest", c("ANY", "RangedSummarizedExperiment"),
-    function(x, subject, select=c("arbitrary", "all"),
-             algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    function(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
     {
         subject <- rowRanges(subject)
         callGeneric()
@@ -53,8 +51,7 @@ setMethod("nearest", c("ANY", "RangedSummarizedExperiment"),
 
 setMethod("nearest", c("RangedSummarizedExperiment",
                        "RangedSummarizedExperiment"),
-    function(x, subject, select=c("arbitrary", "all"),
-             algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+    function(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
     {
         x <- rowRanges(x)
         subject <- rowRanges(subject)
@@ -93,8 +90,7 @@ setMethod("distance", c("RangedSummarizedExperiment",
 ### distanceToNearest
 
 setMethod("distanceToNearest", c("RangedSummarizedExperiment", "ANY"),
-    function(x, subject, algorithm=c("nclist", "intervaltree"),
-             ignore.strand=FALSE, ...)
+    function(x, subject, ignore.strand=FALSE, ...)
     {
         x <- rowRanges(x)
         callGeneric()
@@ -102,8 +98,7 @@ setMethod("distanceToNearest", c("RangedSummarizedExperiment", "ANY"),
 )
 
 setMethod("distanceToNearest", c("ANY", "RangedSummarizedExperiment"),
-    function(x, subject, algorithm=c("nclist", "intervaltree"),
-             ignore.strand=FALSE, ...)
+    function(x, subject, ignore.strand=FALSE, ...)
     {
         subject <- rowRanges(subject)
         callGeneric()
@@ -112,8 +107,7 @@ setMethod("distanceToNearest", c("ANY", "RangedSummarizedExperiment"),
 
 setMethod("distanceToNearest", c("RangedSummarizedExperiment",
                                  "RangedSummarizedExperiment"),
-    function(x, subject, algorithm=c("nclist", "intervaltree"),
-             ignore.strand=FALSE, ...)
+    function(x, subject, ignore.strand=FALSE, ...)
     {
         x <- rowRanges(x)
         subject <- rowRanges(subject)

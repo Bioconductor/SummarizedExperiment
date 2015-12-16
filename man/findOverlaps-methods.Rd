@@ -36,46 +36,38 @@
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 \S4method{findOverlaps}{Vector,RangedSummarizedExperiment}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 
 \S4method{countOverlaps}{RangedSummarizedExperiment,Vector}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 \S4method{countOverlaps}{Vector,RangedSummarizedExperiment}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 
 \S4method{overlapsAny}{RangedSummarizedExperiment,Vector}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 \S4method{overlapsAny}{Vector,RangedSummarizedExperiment}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 
 \S4method{subsetByOverlaps}{RangedSummarizedExperiment,Vector}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 \S4method{subsetByOverlaps}{Vector,RangedSummarizedExperiment}(query, subject,
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
-    algorithm=c("nclist", "intervaltree"),
     ignore.strand=FALSE)
 }
 
@@ -88,7 +80,7 @@
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges}
     package.
   }
-  \item{select, algorithm, ignore.strand}{
+  \item{select, ignore.strand}{
     See \code{?\link[GenomicRanges]{findOverlaps}} in the \pkg{GenomicRanges}
     package.
   }

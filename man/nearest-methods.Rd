@@ -47,18 +47,14 @@
 \S4method{follow}{ANY,RangedSummarizedExperiment}(x, subject, select=c("arbitrary", "all"),
         ignore.strand=FALSE)
 
-\S4method{nearest}{RangedSummarizedExperiment,ANY}(x, subject, select=c("arbitrary", "all"),
-        algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
-\S4method{nearest}{ANY,RangedSummarizedExperiment}(x, subject, select=c("arbitrary", "all"),
-        algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE)
+\S4method{nearest}{RangedSummarizedExperiment,ANY}(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
+\S4method{nearest}{ANY,RangedSummarizedExperiment}(x, subject, select=c("arbitrary", "all"), ignore.strand=FALSE)
 
 \S4method{distance}{RangedSummarizedExperiment,ANY}(x, y, ignore.strand=FALSE, ...)
 \S4method{distance}{ANY,RangedSummarizedExperiment}(x, y, ignore.strand=FALSE, ...)
 
-\S4method{distanceToNearest}{RangedSummarizedExperiment,ANY}(x, subject,
-        algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE, ...)
-\S4method{distanceToNearest}{ANY,RangedSummarizedExperiment}(x, subject,
-        algorithm=c("nclist", "intervaltree"), ignore.strand=FALSE, ...)
+\S4method{distanceToNearest}{RangedSummarizedExperiment,ANY}(x, subject, ignore.strand=FALSE, ...)
+\S4method{distanceToNearest}{ANY,RangedSummarizedExperiment}(x, subject, ignore.strand=FALSE, ...)
 }
 
 \arguments{
@@ -66,7 +62,7 @@
     One of these two arguments must be a \link{RangedSummarizedExperiment}
     object.
   }
-  \item{select, ignore.strand, algorithm}{
+  \item{select, ignore.strand}{
     See \code{?\link[GenomicRanges]{nearest}} in the \pkg{GenomicRanges}
     package.
   }

@@ -9,7 +9,6 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment", "Vector"),
     function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
-             algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE)
     {
         query <- rowRanges(query)
@@ -21,7 +20,6 @@ setMethod("findOverlaps", c("Vector", "RangedSummarizedExperiment"),
     function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
-             algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE)
     {
         subject <- rowRanges(subject)
@@ -34,7 +32,6 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment",
     function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
-             algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE)
     {
         query <- rowRanges(query)
@@ -48,7 +45,6 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment",
 setMethod("countOverlaps", c("RangedSummarizedExperiment", "Vector"),
     function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
-             algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE)
     {
         query <- rowRanges(query)
@@ -59,7 +55,6 @@ setMethod("countOverlaps", c("RangedSummarizedExperiment", "Vector"),
 setMethod("countOverlaps", c("Vector", "RangedSummarizedExperiment"),
     function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
-             algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE)
     {
         subject <- rowRanges(subject)
@@ -71,7 +66,6 @@ setMethod("countOverlaps", c("RangedSummarizedExperiment",
                              "RangedSummarizedExperiment"),
     function(query, subject, maxgap=0L, minoverlap=1L,
              type=c("any", "start", "end", "within", "equal"),
-             algorithm=c("nclist", "intervaltree"),
              ignore.strand=FALSE)
     {
         query <- rowRanges(query)
