@@ -37,6 +37,14 @@ setMethod("parallelSlotNames", "RangedSummarizedExperiment",
     if (ncol(x@elementMetadata) != 0L)
         return(wmsg("'elementMetadata' slot must contain a zero-column ",
                     "DataFrame at all time"))
+    rowRanges_len <- length(x@rowRanges)
+    x_nrow <- length(x)
+    if (rowRanges_len != x_nrow) {
+        txt <- sprintf(
+            "\n  length of 'rowRanges' (%d) must equal nb of rows in 'x' (%d)",
+            rowRanges_len, x_nrow)
+        return(txt)
+    }
     NULL
 }
 
