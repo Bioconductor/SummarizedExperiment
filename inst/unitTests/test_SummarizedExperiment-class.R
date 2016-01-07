@@ -144,17 +144,25 @@ test_SummarizedExperiment_setters <- function()
 
         ## row / col / metadata<-
         se1 <- se0
-
         rowData <- rowDataList[[i]]
+
         rowData <- rowData[rev(seq_len(nrow(rowData))),,drop=FALSE]
         rowData(se1) <- rowData
         checkIdentical(rowData, rowData(se1))
-        checkException(rowData(se1) <- rowData(se0)[1:2,,drop=FALSE],
-                       "incorrect row dimensions", TRUE)
 
         colData <- colData0[rev(seq_len(nrow(colData0))),,drop=FALSE]
         colData(se1) <- colData
         checkIdentical(colData, colData(se1))
+
+        ## The rowData (alias for mcols) setter recycles the supplied
+        ## DataFrame. This is consistent with what the mcols/elementMetadata
+        ## setter does on Vector objects in general.
+        rowData(se1) <- rowData(se0)[1:2,,drop=FALSE]
+        idx <- rep(1:2, length.out=length(se1))
+        target_se1_rowData <- rowData(se0)[idx,,drop=FALSE]
+        checkIdentical(target_se1_rowData, rowData(se1))
+
+        ## The colData setter does NOT recycle the supplied DataFrame.
         checkException(colData(se1) <- colData(se0)[1:2,,drop=FALSE],
                        "incorrect col dimensions", TRUE)
 

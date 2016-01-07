@@ -20,7 +20,7 @@
 \alias{rowData}
 \alias{rowData,SummarizedExperiment-method}
 \alias{rowData<-}
-\alias{rowData<-,SummarizedExperiment,DataFrame-method}
+\alias{rowData<-,SummarizedExperiment-method}
 \alias{colData}
 \alias{colData,SummarizedExperiment-method}
 \alias{colData<-}

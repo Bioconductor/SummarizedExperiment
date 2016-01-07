@@ -146,7 +146,7 @@ setMethod(rowData, "SummarizedExperiment",
 setGeneric("rowData<-",
     function(x, ..., value) standardGeneric("rowData<-"))
 
-setReplaceMethod("rowData", c("SummarizedExperiment", "DataFrame"),
+setReplaceMethod("rowData", "SummarizedExperiment",
     function(x, ..., value) `mcols<-`(x, ..., value=value)
 )
 
