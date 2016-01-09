@@ -85,7 +85,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 setGeneric("SummarizedExperiment",
     function(assays, ...) standardGeneric("SummarizedExperiment"))
 
-setMethod(SummarizedExperiment, "SimpleList",
+setMethod("SummarizedExperiment", "SimpleList",
    function(assays, rowData=NULL, rowRanges=GRangesList(), colData=DataFrame(),
             metadata=list())
 {
@@ -153,19 +153,19 @@ setMethod(SummarizedExperiment, "SimpleList",
     }
 })
 
-setMethod(SummarizedExperiment, "missing",
+setMethod("SummarizedExperiment", "missing",
     function(assays, ...)
 {
     SummarizedExperiment(SimpleList(), ...)
 })
 
-setMethod(SummarizedExperiment, "list",
+setMethod("SummarizedExperiment", "list",
     function(assays, ...)
 {
     SummarizedExperiment(do.call(SimpleList, assays), ...)
 })
 
-setMethod(SummarizedExperiment, "matrix",
+setMethod("SummarizedExperiment", "matrix",
     function(assays, ...)
 {
     if (is.list(assays))
@@ -216,7 +216,7 @@ setAs("SummarizedExperiment", "RangedSummarizedExperiment",
 
 setGeneric("rowRanges", function(x, ...) standardGeneric("rowRanges"))
 
-setMethod(rowRanges, "RangedSummarizedExperiment",
+setMethod("rowRanges", "RangedSummarizedExperiment",
     function(x, ...) x@rowRanges
 )
 
@@ -256,7 +256,7 @@ setReplaceMethod("names", "RangedSummarizedExperiment",
     BiocGenerics:::replaceSlots(x, rowRanges=rowRanges, check=FALSE)
 })
 
-setMethod(dimnames, "RangedSummarizedExperiment",
+setMethod("dimnames", "RangedSummarizedExperiment",
     function(x)
 {
     list(names(x), rownames(colData(x)))
@@ -303,7 +303,7 @@ setMethod("subset", "RangedSummarizedExperiment",
 ## Possile to implement, but not yet: Ops, map, window, window<-
 
 ## mcols
-setMethod(mcols, "RangedSummarizedExperiment",
+setMethod("mcols", "RangedSummarizedExperiment",
     function(x, use.names=FALSE, ...)
 {
     mcols(rowRanges(x), use.names=use.names, ...)
@@ -324,7 +324,7 @@ setReplaceMethod("mcols", "RangedSummarizedExperiment",
 ### mcols() is the recommended way for accessing the metadata columns.
 ### Use of values() or elementMetadata() is discouraged.
 
-setMethod(elementMetadata, "RangedSummarizedExperiment",
+setMethod("elementMetadata", "RangedSummarizedExperiment",
     function(x, use.names=FALSE, ...)
 {
     elementMetadata(rowRanges(x), use.names=use.names, ...)
@@ -469,7 +469,7 @@ setMethod("sort", "RangedSummarizedExperiment",
 
 ## seqinfo (also seqlevels, genome, seqlevels<-, genome<-), seqinfo<-
 
-setMethod(seqinfo, "RangedSummarizedExperiment",
+setMethod("seqinfo", "RangedSummarizedExperiment",
     function(x)
 {
     seqinfo(x@rowRanges)
@@ -495,7 +495,7 @@ setReplaceMethod("seqinfo", "RangedSummarizedExperiment",
     x
 })
 
-setMethod(split, "RangedSummarizedExperiment",
+setMethod("split", "RangedSummarizedExperiment",
     function(x, f, drop=FALSE, ...) 
 {
     splitAsList(x, f, drop=drop)

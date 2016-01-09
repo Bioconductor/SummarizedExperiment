@@ -139,7 +139,7 @@ setReplaceMethod("exptData", "SummarizedExperiment",
 
 setGeneric("rowData", function(x, ...) standardGeneric("rowData"))
 
-setMethod(rowData, "SummarizedExperiment",
+setMethod("rowData", "SummarizedExperiment",
     function(x, ...) mcols(x, ...)
 )
 
@@ -152,7 +152,7 @@ setReplaceMethod("rowData", "SummarizedExperiment",
 
 setGeneric("colData", function(x, ...) standardGeneric("colData"))
 
-setMethod(colData, "SummarizedExperiment", function(x, ...) x@colData)
+setMethod("colData", "SummarizedExperiment", function(x, ...) x@colData)
 
 setGeneric("colData<-",
     function(x, ..., value) standardGeneric("colData<-"))
@@ -169,7 +169,7 @@ setGeneric("assays",
     function(x, ..., withDimnames=TRUE) standardGeneric("assays"),
     signature="x")
 
-setMethod(assays, "SummarizedExperiment",
+setMethod("assays", "SummarizedExperiment",
     function(x, ..., withDimnames=TRUE)
 {
     assays <- as(x@assays, "SimpleList")
@@ -219,7 +219,7 @@ setReplaceMethod("assays", c("SummarizedExperiment", "list"),
 setGeneric("assay", function(x, i, ...) standardGeneric("assay"))
 
 ## convenience for common use case
-setMethod(assay, c("SummarizedExperiment", "missing"),
+setMethod("assay", c("SummarizedExperiment", "missing"),
     function(x, i, ...)
 {
     assays <- assays(x, ...)
@@ -229,7 +229,7 @@ setMethod(assay, c("SummarizedExperiment", "missing"),
     assays[[1]]
 })
 
-setMethod(assay, c("SummarizedExperiment", "numeric"),
+setMethod("assay", c("SummarizedExperiment", "numeric"),
     function(x, i, ...)
 {
     tryCatch({
@@ -240,7 +240,7 @@ setMethod(assay, c("SummarizedExperiment", "numeric"),
     })
 })
 
-setMethod(assay, c("SummarizedExperiment", "character"),
+setMethod("assay", c("SummarizedExperiment", "character"),
     function(x, i, ...)
 {
     msg <- paste0("'assay(<", class(x), ">, i=\"character\", ...)' ",
@@ -307,13 +307,13 @@ setReplaceMethod("assayNames", c("SummarizedExperiment", "character"),
 ## construction, or added from assays if row/col names are NULL in
 ## <SummarizedExperiment> but not assays. dimnames need to be added on
 ## to assays when assays() invoked
-setMethod(dim, "SummarizedExperiment",
+setMethod("dim", "SummarizedExperiment",
     function(x)
 {
     c(length(x), nrow(colData(x)))
 })
 
-setMethod(dimnames, "SummarizedExperiment",
+setMethod("dimnames", "SummarizedExperiment",
     function(x)
 {
     list(names(x), rownames(colData(x)))
