@@ -7,11 +7,6 @@
 \alias{findOverlaps,Vector,RangedSummarizedExperiment-method}
 \alias{findOverlaps,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
 
-\alias{overlapsAny}
-\alias{overlapsAny,RangedSummarizedExperiment,Vector-method}
-\alias{overlapsAny,Vector,RangedSummarizedExperiment-method}
-\alias{overlapsAny,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
-
 \alias{subsetByOverlaps}
 \alias{subsetByOverlaps,RangedSummarizedExperiment,Vector-method}
 \alias{subsetByOverlaps,Vector,RangedSummarizedExperiment-method}
@@ -36,15 +31,6 @@
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    ignore.strand=FALSE)
-
-\S4method{overlapsAny}{RangedSummarizedExperiment,Vector}(query, subject,
-    maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
-    ignore.strand=FALSE)
-\S4method{overlapsAny}{Vector,RangedSummarizedExperiment}(query, subject,
-    maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
     ignore.strand=FALSE)
 
 \S4method{subsetByOverlaps}{RangedSummarizedExperiment,Vector}(query, subject,

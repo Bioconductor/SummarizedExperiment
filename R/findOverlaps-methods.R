@@ -40,16 +40,12 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment",
     }
 )
 
-### overlapsAny & subsetByOverlaps
+### subsetByOverlaps
 
 .signatures2 <- list(
     c("RangedSummarizedExperiment", "Vector"),
     c("Vector", "RangedSummarizedExperiment"),
     c("RangedSummarizedExperiment", "RangedSummarizedExperiment")
-)
-
-setMethods("overlapsAny", .signatures2,
-    GenomicRanges:::overlapsAny.definition
 )
 
 setMethods("subsetByOverlaps", .signatures2,
