@@ -40,40 +40,6 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment",
     }
 )
 
-### countOverlaps
-
-setMethod("countOverlaps", c("RangedSummarizedExperiment", "Vector"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE)
-    {
-        query <- rowRanges(query)
-        callGeneric()
-    }
-)
-
-setMethod("countOverlaps", c("Vector", "RangedSummarizedExperiment"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE)
-    {
-        subject <- rowRanges(subject)
-        callGeneric()
-    }
-)
-
-setMethod("countOverlaps", c("RangedSummarizedExperiment",
-                             "RangedSummarizedExperiment"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
-             type=c("any", "start", "end", "within", "equal"),
-             ignore.strand=FALSE)
-    {
-        query <- rowRanges(query)
-        subject <- rowRanges(subject)
-        callGeneric()
-    }
-)
-
 ### overlapsAny & subsetByOverlaps
 
 .signatures2 <- list(

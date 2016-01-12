@@ -24,7 +24,6 @@ rseList <-
 test_interfaces <- function()
 {
     generic_functions <- c("findOverlaps",
-                           "countOverlaps",
                            "overlapsAny",
                            "subsetByOverlaps")
     signatures <- list(
