@@ -55,7 +55,7 @@ exportMethods(
     shift, narrow, resize, flank, promoters, restrict, trim,
     isDisjoint, disjointBins,
     coverage,
-    findOverlaps, subsetByOverlaps,
+    findOverlaps,
     precede, follow, nearest, distance, distanceToNearest,
 
     ## Generics defined in GenomeInfoDb:

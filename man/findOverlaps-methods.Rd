@@ -7,18 +7,18 @@
 \alias{findOverlaps,Vector,RangedSummarizedExperiment-method}
 \alias{findOverlaps,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
 
-\alias{subsetByOverlaps}
-\alias{subsetByOverlaps,RangedSummarizedExperiment,Vector-method}
-\alias{subsetByOverlaps,Vector,RangedSummarizedExperiment-method}
-\alias{subsetByOverlaps,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
-
 
 \title{Finding overlapping ranges in RangedSummarizedExperiment objects}
 
 \description{
-  This man page documents the \code{findOverlaps} methods and family
-  (i.e. \code{countOverlaps}, \code{overlapsAny}, and \code{subsetByOverlaps}
-  methods) for \link{RangedSummarizedExperiment} objects.
+  This man page documents the \code{findOverlaps} methods for
+  \link{RangedSummarizedExperiment} objects.
+
+  \link{RangedSummarizedExperiment} objects also support
+  \code{countOverlaps}, \code{overlapsAny}, and \code{subsetByOverlaps}
+  thanks to the default methods defined in the \pkg{IRanges} package and
+  to the \code{findOverlaps} methods defined in this package and documented
+  below.
 }
 
 \usage{
@@ -31,15 +31,6 @@
     maxgap=0L, minoverlap=1L,
     type=c("any", "start", "end", "within", "equal"),
     select=c("all", "first", "last", "arbitrary"),
-    ignore.strand=FALSE)
-
-\S4method{subsetByOverlaps}{RangedSummarizedExperiment,Vector}(query, subject,
-    maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
-    ignore.strand=FALSE)
-\S4method{subsetByOverlaps}{Vector,RangedSummarizedExperiment}(query, subject,
-    maxgap=0L, minoverlap=1L,
-    type=c("any", "start", "end", "within", "equal"),
     ignore.strand=FALSE)
 }
 

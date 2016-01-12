@@ -23,20 +23,17 @@ rseList <-
 
 test_interfaces <- function()
 {
-    generic_functions <- c("findOverlaps",
-                           "subsetByOverlaps")
+    fun <- "findOverlaps"
     signatures <- list(
         c("RangedSummarizedExperiment", "Vector"),
         c("Vector", "RangedSummarizedExperiment"),
         c("RangedSummarizedExperiment", "RangedSummarizedExperiment")
     )
-    for (fun in generic_functions) {
-        generic <- getGeneric(fun)
-        for (sig in signatures) {
-            method <- getMethod(fun, sig)
-            checkIdentical(c("query", "subject"), generic@signature)
-            checkIdentical(formals(generic@.Data), formals(method@.Data))
-        }
+    generic <- getGeneric(fun)
+    for (sig in signatures) {
+        method <- getMethod(fun, sig)
+        checkIdentical(c("query", "subject"), generic@signature)
+        checkIdentical(formals(generic@.Data), formals(method@.Data))
     }
 }
 
