@@ -80,6 +80,7 @@ readKallisto <-
                  paste(sQuote(KALLISTO_ASSAYS), collapse=", "),
                  call.=FALSE)
     }
+
     stopifnot(is.character(files))
     test <- file.exists(files)
     if (!all(test))
@@ -87,6 +88,8 @@ readKallisto <-
              paste(files[!test], collapse="\n  "))
     if (is.null(names(files)))
         names(files) <- basename(dirname(files))
+    if (anyDuplicated(names(files)))
+        stop("'names()' of 'files' must be unique")
 
     if (as != "matrix") {
         .require("jsonlite")
