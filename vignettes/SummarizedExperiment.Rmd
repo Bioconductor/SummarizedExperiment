@@ -219,5 +219,92 @@ subsetByOverlaps(se, roi)
 # Case study revisited -- _SummarizedExperiment_ in action
 TODO, although see airways above
 
-# Advanced: Extending _SummarizedExperiment_
-TODO
+# Advanced: Extending _RangedSummarizedExperiment_
+
+For representing and manipulating data in their own package, Bioconductor
+developers are encouraged to re-use existing classes defined in other
+packages like the `RangedSummarizedExperiment` or `GRanges` containers
+defined in the `SummarizedExperiment` or `GenomicRanges` infrastructure
+packages, respectively. Many Bioconductor packages are designed around
+these basic containers, that is, they define functions that take and/or
+return a `RangedSummarizedExperiment` or `GRanges` object.
+For example the `csaw` package defines various functions that operate
+on `RangedSummarizedExperiment` objects, which are used to represent the
+number of ChIP-seq reads from each BAM file overlapping pre-specified
+regions.
+
+However, sometimes re-using the `RangedSummarizedExperiment` class as-is
+does not satisfy the needs of the package and the developer makes the choice
+to extend the class in order to accomodate the special needs of the package
+and/or the specificities of the data that it deals with. For example the
+`DESeq2` package defines the `DESeqDataSet` class which extends
+`RangedSummarizedExperiment` to add the `design` and `dispersionFunction`
+slots to it.
+
+The following subsections describe in a nutshell how the developer should
+proceed when extending `RangedSummarizedExperiment` in his/her own package.
+The approach described here allows the developer to do it in a way that
+remains agnostic of the internals of the parent class. Keeping this
+separation between the responsibilities of the owners of the parent and child
+classes facilitate maintenance in the long run. In particular,
+the implementation of the child class won't be affected by changes in
+the internals of the parent class.
+
+## Depend on, and import, the `SummarizedExperiment` package
+
+Add `SummarizedExperiment` to the Depends field of the DESCRIPTION file
+of the package and the `import(SummarizedExperiment)` directive to its
+NAMESPACE file.
+
+## Define and export the `RangedSummarizedExperiment` subclass
+
+Define the subclass with something like:
+```{r rseSubclass}
+setClass("MyRSESubclass",
+    contains="RangedSummarizedExperiment",
+    representation=representation(
+        slot1="integer",
+        slot2="function"
+        ## ... maybe more ...
+    )
+)
+```
+
+Export it by adding the `exportClasses(MyRSESubclass)` directive to the
+NAMESPACE file.
+
+## Construct `MyRSESubclass` instances
+
+When calling `new()` for constructing a `MyRSESubclass` instance, specify
+only the MyRSESubclass-specific slots:
+`new("MyRSESubclass", rse, slot1=value1, slot2=value2)`,
+where `rse` is a `RangedSummarizedExperiment` object.
+
+Providing a `MyRSESubclass` constructor function (named as the class itself)
+is recommended.
+
+## Define a validity method
+
+The validity method for `MyRSESubclass` only needs to take care of what's
+new in `MyRSESubclass` with respect to `RangedSummarizedExperiment`, that is,
+of the aspects of `MyRSESubclass` objects that are not already covered by the
+validity method for `RangedSummarizedExperiment` objects. This is because
+calling `validObject()` on a `MyRSESubclass` object automatically validates
+it as a `RangedSummarizedExperiment` object first and then calls the validity
+method for `MyRSESubclass` objects. In other words, validation works
+incrementally starting from the root of the class hierarchy and going in the
+parent-to-child direction.
+
+## Use the `RangedSummarizedExperiment` accessors on `MyRSESubclass` objects
+
+Like any user of `RangedSummarizedExperiment` objects, the developer of
+`MyRSESubclass` should always use the `RangedSummarizedExperiment` accessors
+to access the `RangedSummarizedExperiment`-specific parts of his/her
+`MyRSESubclass` objects.
+
+## Use `callNextMethod`
+
+In case some of the methods defined for `RangedSummarizedExperiment` objects
+need to be overwritten, the new methods should call `callNextMethod`
+internally.
+
