@@ -255,10 +255,10 @@ setMethod("assay", c("SummarizedExperiment", "character"),
     res
 })
 
-setGeneric("assay<-",
+setGeneric("assay<-", signature=c("x", "i"),
     function(x, i, ..., value) standardGeneric("assay<-"))
 
-setReplaceMethod("assay", c("SummarizedExperiment", "missing", "matrix"),
+setReplaceMethod("assay", c("SummarizedExperiment", "missing"),
     function(x, i, ..., value)
 {
     if (0L == length(assays(x)))
@@ -268,16 +268,14 @@ setReplaceMethod("assay", c("SummarizedExperiment", "missing", "matrix"),
     x
 })
 
-setReplaceMethod("assay",
-    c("SummarizedExperiment", "numeric", "matrix"),
+setReplaceMethod("assay", c("SummarizedExperiment", "numeric"),
     function(x, i = 1, ..., value)
 {
     assays(x, ...)[[i]] <- value
     x
 })
 
-setReplaceMethod("assay",
-    c("SummarizedExperiment", "character", "matrix"),
+setReplaceMethod("assay", c("SummarizedExperiment", "character"),
     function(x, i, ..., value)
 {
     assays(x, ...)[[i]] <- value

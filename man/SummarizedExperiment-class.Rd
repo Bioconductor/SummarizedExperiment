@@ -35,9 +35,9 @@
 \alias{assay,SummarizedExperiment,numeric-method}
 \alias{assay,SummarizedExperiment,character-method}
 \alias{assay<-}
-\alias{assay<-,SummarizedExperiment,missing,matrix-method}
-\alias{assay<-,SummarizedExperiment,numeric,matrix-method}
-\alias{assay<-,SummarizedExperiment,character,matrix-method}
+\alias{assay<-,SummarizedExperiment,missing-method}
+\alias{assay<-,SummarizedExperiment,numeric-method}
+\alias{assay<-,SummarizedExperiment,character-method}
 \alias{assayNames}
 \alias{assayNames,SummarizedExperiment-method}
 \alias{assayNames<-}

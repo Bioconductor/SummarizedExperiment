@@ -8,10 +8,10 @@
 
 % Constructor
 \alias{SummarizedExperiment}
-\alias{SummarizedExperiment,missing-method}
-\alias{SummarizedExperiment,matrix-method}
-\alias{SummarizedExperiment,list-method}
 \alias{SummarizedExperiment,SimpleList-method}
+\alias{SummarizedExperiment,ANY-method}
+\alias{SummarizedExperiment,list-method}
+\alias{SummarizedExperiment,missing-method}
 
 % Coercion
 \alias{coerce,RangedSummarizedExperiment,SummarizedExperiment-method}
@@ -86,9 +86,9 @@
 SummarizedExperiment(assays, ...)
 \S4method{SummarizedExperiment}{SimpleList}(assays, rowData=NULL, rowRanges=GRangesList(),
     colData=DataFrame(), metadata=list())
-\S4method{SummarizedExperiment}{missing}(assays, ...)
+\S4method{SummarizedExperiment}{ANY}(assays, ...)
 \S4method{SummarizedExperiment}{list}(assays, ...)
-\S4method{SummarizedExperiment}{matrix}(assays, ...)
+\S4method{SummarizedExperiment}{missing}(assays, ...)
 
 ## Accessors
 
@@ -105,8 +105,8 @@ rowRanges(x, ...) <- value
 
 \arguments{
 
-  \item{assays}{A \code{list} or \code{SimpleList} of matrix elements,
-    or a \code{matrix}. All elements of the list must have the same
+  \item{assays}{A \code{list} or \code{SimpleList} of matrix-like elements,
+    or a matrix-like object. All elements of the list must have the same
     dimensions, and dimension names (if present) must be consistent
     across elements and with the row names of \code{rowRanges} and
     \code{colData}.}

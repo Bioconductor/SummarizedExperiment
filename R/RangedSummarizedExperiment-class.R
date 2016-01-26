@@ -153,10 +153,13 @@ setMethod("SummarizedExperiment", "SimpleList",
     }
 })
 
-setMethod("SummarizedExperiment", "missing",
+setMethod("SummarizedExperiment", "ANY",
     function(assays, ...)
 {
-    SummarizedExperiment(SimpleList(), ...)
+    if (is.matrix(assays) && is.list(assays))
+        ## special case -- matrix of lists
+        assays <- list(assays)
+    SummarizedExperiment(SimpleList(assays), ...)
 })
 
 setMethod("SummarizedExperiment", "list",
@@ -165,13 +168,10 @@ setMethod("SummarizedExperiment", "list",
     SummarizedExperiment(do.call(SimpleList, assays), ...)
 })
 
-setMethod("SummarizedExperiment", "matrix",
+setMethod("SummarizedExperiment", "missing",
     function(assays, ...)
 {
-    if (is.list(assays))
-        ## special case -- matrix of lists
-        assays <- list(assays)
-    SummarizedExperiment(SimpleList(assays), ...)
+    SummarizedExperiment(SimpleList(), ...)
 })
 
 
