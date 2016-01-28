@@ -673,7 +673,7 @@ setMethod("rbind", "SummarizedExperiment",
             noname_idx <- which(has_no_names)
             if (length(noname_idx) != 0L)
                 NAMES_slots[noname_idx] <-
-                    lapply(elementLengths(args[noname_idx]), character)
+                    lapply(elementNROWS(args[noname_idx]), character)
             NAMES <- unlist(NAMES_slots, use.names=FALSE)
         }
     }
@@ -754,7 +754,7 @@ setMethod("cbind", "SummarizedExperiment",
     if (!.compare(lst)) {
         nms <- lapply(lst, names)
         nmsv <- unlist(nms, use.names=FALSE)
-        names(nmsv) <- rep(seq_along(nms), elementLengths(nms))
+        names(nmsv) <- rep(seq_along(nms), elementNROWS(nms))
         dups <- duplicated(nmsv)
         ## no duplicates
         if (!any(dups))
