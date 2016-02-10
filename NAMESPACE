@@ -48,7 +48,7 @@ exportMethods(
     values, "values<-",
     extractROWS, replaceROWS,
     subset,
-    compare,
+    pcompare,
 
     ## Generics defined in IRanges:
     ranges, "ranges<-",

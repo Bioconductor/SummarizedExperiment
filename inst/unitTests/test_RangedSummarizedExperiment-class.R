@@ -5,7 +5,7 @@ library(digest)
       "seqinfo", "seqinfo<-", "seqnames", "start", "start<-",
       "strand", "width", "width<-")
 
-.twoDispatch <- c("compare", "Compare")
+.twoDispatch <- c("pcompare", "Compare")
 
 .otherFuns <- c("is.unsorted", "order", "rank", "sort")
 
@@ -330,7 +330,7 @@ test_RangedSummarizedExperiment_GRanges_API <- function()
         checkIdentical(formals(generic@.Data), formals(method@.Data))
     }
 
-    ## FIXME: compare, Compare
+    ## FIXME: pcompare, Compare
 
     .sig <- "RangedSummarizedExperiment"
     for (.fun in .otherFuns) {

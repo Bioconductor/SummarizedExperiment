@@ -32,9 +32,9 @@
 \alias{Compare,ANY,RangedSummarizedExperiment-method}
 \alias{Compare,RangedSummarizedExperiment,ANY-method}
 \alias{Compare,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
-\alias{compare,ANY,RangedSummarizedExperiment-method}
-\alias{compare,RangedSummarizedExperiment,ANY-method}
-\alias{compare,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
+\alias{pcompare,ANY,RangedSummarizedExperiment-method}
+\alias{pcompare,RangedSummarizedExperiment,ANY-method}
+\alias{pcompare,RangedSummarizedExperiment,RangedSummarizedExperiment-method}
 \alias{duplicated,RangedSummarizedExperiment-method}
 \alias{elementMetadata,RangedSummarizedExperiment-method}
 \alias{elementMetadata<-,RangedSummarizedExperiment-method}
@@ -201,7 +201,7 @@ rowRanges(x, ...) <- value
   Many \link{GRanges} and \link{GRangesList} operations are supported on
   RangedSummarizedExperiment objects, using \code{rowRanges}.
 
-  Supported operations include: \code{\link{compare}},
+  Supported operations include: \code{\link{pcompare}},
   \code{\link{duplicated}}, \code{\link{end}}, \code{\link{end<-}}, 
   \code{\link{granges}}, \code{\link{is.unsorted}}, \code{\link{match}},
   \code{\link{mcols}}, \code{\link{mcols<-}}, \code{\link{order}},

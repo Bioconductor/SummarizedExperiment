@@ -376,16 +376,16 @@ setMethod("granges", "RangedSummarizedExperiment",
 })
 
 ## 2-argument dispatch:
-## compare / Compare 
+## pcompare / Compare 
 ## 
-.RangedSummarizedExperiment.compare <-
+.RangedSummarizedExperiment.pcompare <-
     function(x, y)
 {
     if (is(x, "RangedSummarizedExperiment"))
         x <- rowRanges(x)
     if (is(y, "RangedSummarizedExperiment"))
         y <- rowRanges(y)
-    compare(x, y)
+    pcompare(x, y)
 }
 
 .RangedSummarizedExperiment.Compare <-
@@ -405,7 +405,7 @@ local({
         c("RangedSummarizedExperiment", "RangedSummarizedExperiment"))
 
     for (.sig in .signatures) {
-        setMethod("compare", .sig, .RangedSummarizedExperiment.compare)
+        setMethod("pcompare", .sig, .RangedSummarizedExperiment.pcompare)
         setMethod("Compare", .sig, .RangedSummarizedExperiment.Compare)
     }
 })
