@@ -58,7 +58,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 .new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
                                             metadata)
 {
-    elementMetadata <- new("DataFrame", nrows=length(rowRanges))
+    elementMetadata <- S4Vectors:::make_zero_col_DataFrame(length(rowRanges))
     if (!is(assays, "Assays"))
         assays <- Assays(assays)
     new("RangedSummarizedExperiment", rowRanges=rowRanges,
@@ -230,7 +230,7 @@ setGeneric("rowRanges<-",
         x <- as(x, "RangedSummarizedExperiment")
     x <- BiocGenerics:::replaceSlots(x, ...,
              rowRanges=value,
-             elementMetadata=new("DataFrame", nrows=length(value)),
+             elementMetadata=S4Vectors:::make_zero_col_DataFrame(length(value)),
              check=FALSE)
     msg <- .valid.SummarizedExperiment.assays_nrow(x)
     if (!is.null(msg))

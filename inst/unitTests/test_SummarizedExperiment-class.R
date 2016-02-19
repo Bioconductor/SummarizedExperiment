@@ -3,7 +3,7 @@ M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
 mList <- list(M1, M2)
 assaysList <- list(M1=SimpleList(m=M1), M2=SimpleList(m=M2))
 rowData1 <- DataFrame(id1=LETTERS[1:5])
-rowData2 <- new("DataFrame", nrows=3L)
+rowData2 <- S4Vectors:::make_zero_col_DataFrame(3L)
 rowDataList <- list(rowData1, rowData2)
 colData0 <- DataFrame(x=letters[1:3])
 

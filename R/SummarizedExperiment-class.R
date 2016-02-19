@@ -90,7 +90,7 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
             nrow <- nrow(assays)
         else
             nrow <- length(names)
-        rowData <- new("DataFrame", nrows=nrow)
+        rowData <- S4Vectors:::make_zero_col_DataFrame(nrow)
     } else {
         rownames(rowData) <- NULL
     }

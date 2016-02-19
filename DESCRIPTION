@@ -4,14 +4,14 @@ Description: The SummarizedExperiment container contains one or more assays,
 	each represented by a matrix-like object of numeric or other mode.
 	The rows typically represent genomic ranges of interest and the columns
 	represent samples.
-Version: 1.1.19
+Version: 1.1.20
 Encoding: UTF-8
 Author: Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès 
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
 Depends: R (>= 3.2), methods, GenomicRanges (>= 1.23.15), Biobase
-Imports: BiocGenerics (>= 0.15.3), S4Vectors (>= 0.9.29), IRanges (>= 2.5.26),
+Imports: BiocGenerics (>= 0.15.3), S4Vectors (>= 0.9.36), IRanges (>= 2.5.26),
 	GenomeInfoDb
 Suggests: annotate, AnnotationDbi, GenomicFeatures, BiocStyle, knitr, rmarkdown,
 	jsonlite, rhdf5, airway
