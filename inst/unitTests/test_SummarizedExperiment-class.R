@@ -290,16 +290,44 @@ test_SummarizedExperiment_subsetassign <- function()
 
 test_SummarizedExperiment_assays_4d <- function()
 {
+    ## construction/validation
+    A <- array(0, c(3, 2, 5, 4), list(c("a1", "a2", "a3"),
+                                      c("b1", "b2"),
+                                      NULL,
+                                      c("d1", "d2", "d3", "d4")))
+    B <- array(0, c(3, 2, 6), list(c("a1", "a2", "a3"),
+                                   c("b1", "oops"),
+                                   NULL))
+    assays0 <- SimpleList(A=A, B=B)
+    checkException(SummarizedExperiment(assays0))
+
+    dimnames(B)[1:2] <- dimnames(A)[1:2]
+    C <- array(0, c(3, 2, 4), list(NULL,
+                                   c("b1", "b2"),
+                                   c("z1", "z2", "z3", "z4")))
+
+    assays0 <- SimpleList(A=A, B=B, C=C)
+    se <- SummarizedExperiment(assays0)
+    checkTrue(validObject(se, complete=TRUE))
+
+    ## dimnames
+    checkIdentical(dimnames(A)[1:2], dimnames(se))
+    checkIdentical(dimnames(B)[1:2], dimnames(se))
+    for (i in seq_along(assays(se))) {
+        checkIdentical(assays0[[i]], assay(se, i, withDimnames=FALSE))
+        checkIdentical(dimnames(se), dimnames(assay(se, i))[1:2])
+    }
+
     ## [
-    a <- array(0, c(3, 3, 3, 3), list(LETTERS[1:3], letters[1:3], NULL, NULL))
-    assays <- SimpleList(a=a)
-    se <- SummarizedExperiment(assays)
-    checkIdentical(assays(se[1,])[[1]], a[1,,,,drop=FALSE])
+    se2 <- se[3:2, ]
+    checkIdentical(A[3:2, , , , drop=FALSE], assay(se2, 1, withDimnames=FALSE))
+    checkIdentical(B[3:2, , , drop=FALSE], assay(se2, 2, withDimnames=FALSE))
+    checkIdentical(C[3:2, , , drop=FALSE], assay(se2, 3, withDimnames=FALSE))
 
     ## [<-
-    a1 <- a; a1[1,,,] <- a[1,,,,drop=FALSE] + 1
-    assays(se[1,])[[1]] <- 1 + assays(se[1,])[[1]]
-    checkIdentical(assays(se)[[1]], a1)
+    A1 <- A; A1[1, , , ] <- A[1, , , , drop=FALSE] + 1
+    assays(se[1, ])[[1]] <- 1 + assays(se[1, ])[[1]]
+    checkIdentical(assays(se)[[1]], A1)
 
     ## [, [<- don't support more than 4 dimensions
     a <- array(0, c(3, 3, 3, 3, 3),

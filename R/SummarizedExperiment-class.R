@@ -173,10 +173,15 @@ setMethod("assays", "SummarizedExperiment",
     function(x, ..., withDimnames=TRUE)
 {
     assays <- as(x@assays, "SimpleList")
-    if (withDimnames)
-        endoapply(assays, "dimnames<-", dimnames(x))
-    else
-        assays
+    if (withDimnames) {
+        assays <- endoapply(assays,
+            function(assay) {
+                dimnames(assay)[1:2] <- dimnames(x)
+                assay
+            }
+        )
+    }
+    assays
 })
 
 setGeneric("assays<-",
