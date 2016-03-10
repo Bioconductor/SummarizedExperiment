@@ -7,7 +7,8 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Bind arbitrary arrays along the 1st or 2nd dimension
+### Bind arrays with an arbitrary number of dimensions along the 1st or 2nd
+### dimension
 ###
 
 ### Return a matrix with one row per dim and one column per object.
