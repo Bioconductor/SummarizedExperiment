@@ -68,7 +68,7 @@
               \code{[[}, \code{`[[<-`},
               \code{dim}, \code{[}, \code{`[<-`}, \code{rbind}, \code{cbind}.
   }
-  An Assays croncrete subclass needs to implement (b) (required) plus,
+  An Assays concrete subclass needs to implement (b) (required) plus,
   optionally any of the methods in (c).
 
   IMPORTANT: Methods that return a modified Assays object (a.k.a.

@@ -9,7 +9,7 @@
 ###       returned object.
 ###   (c) length, names, names<-, [[, [[<-, dim, [, [<-, rbind, cbind
 ###
-### An Assays croncrete subclass needs to implement (b) (required) plus
+### An Assays concrete subclass needs to implement (b) (required) plus
 ### optionally any of the methods in (c).
 ###
 ### IMPORTANT: Methods that return a modified Assays object (a.k.a.
@@ -227,29 +227,11 @@ setReplaceMethod("[", "Assays",
 
 ### rbind/cbind
 
-.get_assay_dimension <- function(lst, bind)
-{
-    dim <- lapply(lst, dim)
-    if (length(unique(sapply(dim, "[", 3))) != 1L)
-        stop("elements in assays must have the same dimension")
-    if (identical(bind, cbind))
-        c(dim[[1]][1], do.call(sum, lapply(dim, "[", 2)), dim[[1]][3])
-    else
-        c(do.call(sum, lapply(dim, "[", 1)), dim[[1]][2], dim[[1]][3])
-}
+setGeneric("arbind", function(...) standardGeneric("arbind"))
+setGeneric("acbind", function(...) standardGeneric("acbind"))
 
-.bind_assay_elements <- function(index, lst, bind) {
-    e1 <- lapply(lst, "[[", index)
-    dim <- .get_assay_dimension(e1, bind)
-    if (is.na(dim[3])) {
-        do.call(bind, e1)
-    } else {
-        e2 <- lapply(1:dim[3], function(i) {
-            do.call(bind, lapply(e1, "[", ,,i))
-        })
-        array(do.call(c, e2), dim=dim)
-    }
-}
+setMethod("arbind", "array", arbind.default)
+setMethod("acbind", "array", acbind.default)
 
 .bind_Assays <- function(lst, bind)
 {
@@ -265,26 +247,31 @@ setReplaceMethod("[", "Assays",
     uvar <- unique(unlist(var))
     if (is.null(uvar)) {
         ## no names, match by position
-        res <- lapply(seq_len(len1),
-                      .bind_assay_elements, lst=lst, bind=bind)
+        res <- lapply(seq_len(len1), function(index) {
+            e1 <- lapply(lst, "[[", index)
+            do.call(bind, e1)
+        })
     } else {
         ## match by name
         ok <- all(vapply(var, function(x, y) identical(sort(x), y),
                          logical(1), sort(uvar)))
         if (!ok)
             stop("assays must have the same names()")
-        res <- lapply(uvar, .bind_assay_elements, lst=lst, bind=bind)
+        res <- lapply(uvar, function(index) {
+            e1 <- lapply(lst, "[[", index)
+            do.call(bind, e1)
+        })
         names(res) <- uvar
     }
     as(SimpleList(res), class(lst[[1L]]))
 }
 
 setMethod("rbind", "Assays",
-    function(..., deparse.level=1) .bind_Assays(unname(list(...)), rbind)
+    function(..., deparse.level=1) .bind_Assays(unname(list(...)), arbind)
 )
 
 setMethod("cbind", "Assays",
-    function(..., deparse.level=1) .bind_Assays(unname(list(...)), cbind)
+    function(..., deparse.level=1) .bind_Assays(unname(list(...)), acbind)
 )
 
 
