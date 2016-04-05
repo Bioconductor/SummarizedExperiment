@@ -1,4 +1,5 @@
 import(methods)
+importFrom(utils, read.delim)
 importFrom(stats, setNames)
 import(BiocGenerics)
 import(S4Vectors)

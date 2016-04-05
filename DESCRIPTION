@@ -11,8 +11,8 @@ Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
 Depends: R (>= 3.2), methods, GenomicRanges (>= 1.23.15), Biobase
-Imports: BiocGenerics (>= 0.15.3), S4Vectors (>= 0.9.36), IRanges (>= 2.5.26),
-	GenomeInfoDb
+Imports: utils, stats, BiocGenerics (>= 0.15.3), S4Vectors (>= 0.9.36),
+	IRanges (>= 2.5.26), GenomeInfoDb
 Suggests: annotate, AnnotationDbi, hgu95av2.db, GenomicFeatures,
 	TxDb.Hsapiens.UCSC.hg19.knownGene, BiocStyle, knitr, rmarkdown,
 	digest, jsonlite, rhdf5, airway

@@ -117,6 +117,6 @@
     ans
 }
 
-arbind.default <- function(...) .simple_abind(..., along=1L)
-acbind.default <- function(...) .simple_abind(..., along=2L)
+arbind_default <- function(...) .simple_abind(..., along=1L)
+acbind_default <- function(...) .simple_abind(..., along=2L)
 

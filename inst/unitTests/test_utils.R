@@ -17,31 +17,31 @@
 )
 
 
-test_arbind.default <- function()
+test_arbind_default <- function()
 {
-    arbind.default <- SummarizedExperiment:::arbind.default
+    arbind_default <- SummarizedExperiment:::arbind_default
 
     ## on matrices
     target <- do.call(rbind, .TEST_matrices)
-    current <- do.call(arbind.default, .TEST_matrices)
+    current <- do.call(arbind_default, .TEST_matrices)
     checkIdentical(target, current)
 
     ## on arrays
-    current <- do.call(arbind.default, .TEST_arrays)
+    current <- do.call(arbind_default, .TEST_arrays)
     for (k in 1:4) {
         target <- do.call(rbind, lapply(.TEST_arrays, `[`, , , k))
         checkIdentical(target, current[ , , k])
     }
 }
 
-test_acbind.default <- function()
+test_acbind_default <- function()
 {
-    acbind.default <- SummarizedExperiment:::acbind.default
+    acbind_default <- SummarizedExperiment:::acbind_default
 
     ## on matrices
     matrices <- lapply(.TEST_matrices, t)
     target <- do.call(cbind, matrices)
-    current <- do.call(acbind.default, matrices)
+    current <- do.call(acbind_default, matrices)
     checkIdentical(target, current)
 
     ## on arrays
@@ -55,7 +55,7 @@ test_acbind.default <- function()
             dimnames(a) <- a_dimnames
             a
     })
-    current <- do.call(acbind.default, arrays)
+    current <- do.call(acbind_default, arrays)
     for (k in 1:4) {
         target <- do.call(cbind, lapply(arrays, `[`, , , k))
         checkIdentical(target, current[ , , k])
