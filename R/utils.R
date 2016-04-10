@@ -36,11 +36,17 @@
 ### all the objects).
 .intertwine_blocks <- function(objects, block_lens)
 {
-    nobject <- length(objects)
+    data <- unlist(objects, recursive=FALSE, use.names=FALSE)
     objects_lens <- lengths(objects)
+    if (all(objects_lens == 0L))
+        return(data)
+
+    k <- objects_lens %/% block_lens
+    k <- unique(k[!is.na(k)])
+    stopifnot(length(k) == 1L)  # sanity check
+
+    nobject <- length(objects)
     objects_cumlens <- cumsum(objects_lens)
-    k <- objects_lens[[1L]] %/% block_lens[[1L]]
-    x <- unlist(objects, recursive=FALSE, use.names=FALSE)
     ranges <- lapply(seq_len(nobject),
         function(i) {
             width <- block_lens[[i]]
@@ -49,7 +55,7 @@
         })
     ranges <- do.call(c, ranges)
     i <- as.vector(matrix(seq_len(nobject * k), nrow=nobject, byrow=TRUE))
-    extractROWS(x, ranges[i])
+    extractROWS(data, ranges[i])
 }
 
 .combine_dimnames <- function(objects, dims, along)

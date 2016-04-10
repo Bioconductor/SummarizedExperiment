@@ -26,6 +26,22 @@ test_arbind_default <- function()
     current <- do.call(arbind_default, .TEST_matrices)
     checkIdentical(target, current)
 
+    ## on empty matrices
+    m1 <- matrix(nrow=0, ncol=3, dimnames=list(NULL, letters[1:3]))
+    m2 <- matrix(1:15, ncol=3, dimnames=list(NULL, LETTERS[1:3]))
+
+    target <- do.call(rbind, list(m1, m2))
+    current <- do.call(arbind_default, list(m1, m2))
+    checkIdentical(target, current)
+
+    target <- do.call(rbind, list(m2, m1))
+    current <- do.call(arbind_default, list(m2, m1))
+    checkIdentical(target, current)
+
+    target <- do.call(rbind, list(m1, m1))
+    current <- do.call(arbind_default, list(m1, m1))
+    checkIdentical(target, current)
+
     ## on arrays
     current <- do.call(arbind_default, .TEST_arrays)
     for (k in 1:4) {
@@ -42,6 +58,22 @@ test_acbind_default <- function()
     matrices <- lapply(.TEST_matrices, t)
     target <- do.call(cbind, matrices)
     current <- do.call(acbind_default, matrices)
+    checkIdentical(target, current)
+
+    ## on empty matrices
+    m1 <- matrix(nrow=3, ncol=0, dimnames=list(letters[1:3], NULL))
+    m2 <- matrix(1:15, nrow=3, dimnames=list(LETTERS[1:3], NULL))
+
+    target <- do.call(cbind, list(m1, m2))
+    current <- do.call(acbind_default, list(m1, m2))
+    checkIdentical(target, current)
+
+    target <- do.call(cbind, list(m2, m1))
+    current <- do.call(acbind_default, list(m2, m1))
+    checkIdentical(target, current)
+
+    target <- do.call(cbind, list(m1, m1))
+    current <- do.call(acbind_default, list(m1, m1))
     checkIdentical(target, current)
 
     ## on arrays
