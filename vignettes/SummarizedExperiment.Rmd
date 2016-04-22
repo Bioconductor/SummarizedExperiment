@@ -1,7 +1,7 @@
 ---
 title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
-author: "Martin Morgan"
-date: "Revised: 21 April, 2016"
+author: "Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès"
+date: "Revised: 22 April, 2016"
 output:
   BiocStyle::html_document:
     toc: true
@@ -179,7 +179,7 @@ rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),
 colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
 
-SummarizedExperiment(assays=SimpleList(counts=counts),
+SummarizedExperiment(assays=list(counts=counts),
                      rowRanges=rowRanges, colData=colData)
 ```
 
@@ -187,7 +187,7 @@ A `SummarizedExperiment` can be constructed with or without supplying
 a `DataFrame` for the _rowData_ argument:
 
 ```{r constructSE}
-SummarizedExperiment(assays=SimpleList(counts=counts), colData=colData)
+SummarizedExperiment(assays=list(counts=counts), colData=colData)
 ```
 
 # Common operations on `SummarizedExperiment`
