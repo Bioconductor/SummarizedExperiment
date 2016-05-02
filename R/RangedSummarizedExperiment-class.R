@@ -146,8 +146,8 @@ setMethod("SummarizedExperiment", "SimpleList",
     assays <- Assays(assays)
 
     if (missing(rowRanges) && !is(rowData, "GenomicRangesORGRangesList")) {
-        .new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
-                                  metadata)
+        new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
+                                 metadata)
     } else {
         .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
     }
@@ -184,11 +184,11 @@ setMethod("SummarizedExperiment", "missing",
 
 .from_RangedSummarizedExperiment_to_SummarizedExperiment <- function(from)
 {
-    .new_SummarizedExperiment(from@assays,
-                              names(from@rowRanges),
-                              mcols(from@rowRanges),
-                              from@colData,
-                              from@metadata)
+    new_SummarizedExperiment(from@assays,
+                             names(from@rowRanges),
+                             mcols(from@rowRanges),
+                             from@colData,
+                             from@metadata)
 }
 
 setAs("RangedSummarizedExperiment", "SummarizedExperiment",
