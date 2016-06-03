@@ -227,12 +227,6 @@ setReplaceMethod("[", "Assays",
 
 ### rbind/cbind
 
-setGeneric("arbind", function(...) standardGeneric("arbind"))
-setGeneric("acbind", function(...) standardGeneric("acbind"))
-
-setMethod("arbind", "array", arbind_default)
-setMethod("acbind", "array", acbind_default)
-
 .bind_Assays <- function(lst, bind)
 {
     if (length(lst) == 0L)

@@ -84,7 +84,6 @@ export(
 ###
 
 export(
-    arbind, acbind,
     SummarizedExperiment,
     exptData, "exptData<-",
     rowRanges, "rowRanges<-",
@@ -97,7 +96,6 @@ export(
 
 ### Exactly the same list as above.
 exportMethods(
-    arbind, acbind,
     SummarizedExperiment,
     exptData, "exptData<-",
     rowRanges, "rowRanges<-",

@@ -12,10 +12,6 @@
 \alias{dim,Assays-method}
 \alias{[,Assays,ANY-method}
 \alias{[<-,Assays,ANY,ANY,ANY-method}
-\alias{arbind}
-\alias{acbind}
-\alias{arbind,array-method}
-\alias{acbind,array-method}
 \alias{rbind,Assays-method}
 \alias{cbind,Assays-method}
 
