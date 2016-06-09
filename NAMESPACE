@@ -41,6 +41,7 @@ exportMethods(
     is.unsorted, order, rank, sort,
     start, "start<-", end, "end<-", width, "width<-",
     strand, "strand<-",
+    updateObject,
 
     ## Generics defined in S4Vectors:
     "metadata<-",

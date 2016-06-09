@@ -501,3 +501,65 @@ setMethod("split", "RangedSummarizedExperiment",
 {
     splitAsList(x, f, drop=drop)
 })
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### updateObject()
+###
+
+.old_SummarizedExperiment_slots <- c(
+    "assays",
+    "rowData",
+    "colData",
+    "exptData"
+)
+
+.has_old_SummarizedExperiment_internal_structure <- function(object)
+    all(sapply(.old_SummarizedExperiment_slots, .hasSlot, object=object))
+
+.from_old_SummarizedExperiment_to_RangedSummarizedExperiment <- function(from)
+    .new_RangedSummarizedExperiment(from@assays,
+                                    from@rowData,
+                                    from@colData,
+                                    from@exptData)
+
+.update_old_SummarizedExperiment <- function(object, ..., verbose=FALSE)
+{
+    if (.has_old_SummarizedExperiment_internal_structure(object)) {
+        rse <- .from_old_SummarizedExperiment_to_RangedSummarizedExperiment(object)
+    } else if (!(.hasSlot(object, "NAMES") &&
+                 .hasSlot(object, "elementMetadata"))) {
+        rse <- .new_RangedSummarizedExperiment(object@assays,
+                                               object@rowRanges,
+                                               object@colData,
+                                               object@metadata)
+    } else {
+        return(object)
+    }
+
+    if (!(extends(class(object), "RangedSummarizedExperiment") &&
+          class(object) != "RangedSummarizedExperiment"))
+        return(rse)
+
+    xslotnames <- setdiff(slotNames(class(object)), slotNames(class(rse)))
+    xslots <- attributes(object)[xslotnames]
+    #do.call("new", c(list(Class=class(object), rse), xslots))
+
+    ## The line above doesn't work because of a bug in R (see
+    ## https://stat.ethz.ch/pipermail/r-devel/2015-May/071130.html),
+    ## so we use the workaround below.
+    rse_slots <- attributes(rse)[slotNames(class(rse))]
+
+    ## Because of another bug in R, rse_slots$NAMES is broken when the NAMES
+    ## slot is NULL so we repair it (see
+    ## https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16428).
+    if (is.name(rse_slots$NAMES))
+        rse_slots$NAMES <- NULL
+
+    do.call("new", c(list(Class=class(object)), rse_slots, xslots))
+}
+
+setMethod("updateObject", "SummarizedExperiment",
+    .update_old_SummarizedExperiment
+)
+
