@@ -86,7 +86,6 @@ export(
 
 export(
     SummarizedExperiment,
-    exptData, "exptData<-",
     rowRanges, "rowRanges<-",
     rowData, "rowData<-",
     colData, "colData<-",
@@ -98,7 +97,6 @@ export(
 ### Exactly the same list as above.
 exportMethods(
     SummarizedExperiment,
-    exptData, "exptData<-",
     rowRanges, "rowRanges<-",
     rowData, "rowData<-",
     colData, "colData<-",

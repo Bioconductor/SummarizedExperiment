@@ -120,19 +120,6 @@ setReplaceMethod("names", "SummarizedExperiment",
     }
 )
 
-setGeneric("exptData", function(x, ...) standardGeneric("exptData"))
-
-setMethod("exptData", "SummarizedExperiment",
-    function(x, ...) .Defunct("metadata")
-)
-
-setGeneric("exptData<-",
-    function(x, ..., value) standardGeneric("exptData<-"))
-
-setReplaceMethod("exptData", "SummarizedExperiment",
-    function(x, ..., value) .Defunct("metadata<-")
-)
-
 ## rowData, colData seem too vague, but from eSet derived classes wanted to
 ## call the rows / cols something different from 'features' or 'samples', so
 ## might as well avoid the issue

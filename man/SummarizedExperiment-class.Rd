@@ -13,10 +13,6 @@
 \alias{length,SummarizedExperiment-method}
 \alias{names,SummarizedExperiment-method}
 \alias{names<-,SummarizedExperiment-method}
-\alias{exptData}
-\alias{exptData,SummarizedExperiment-method}
-\alias{exptData<-}
-\alias{exptData<-,SummarizedExperiment-method}
 \alias{rowData}
 \alias{rowData,SummarizedExperiment-method}
 \alias{rowData<-}
