@@ -1,7 +1,7 @@
 ---
 title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
 author: "Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès"
-date: "Revised: 22 April, 2016"
+date: "Revised: 22 June, 2016"
 output:
   BiocStyle::html_document:
     toc: true
@@ -272,14 +272,19 @@ and/or the specificities of the data that it deals with. For example the
 `RangedSummarizedExperiment` to add the `design` and `dispersionFunction`
 slots to it.
 
-The following subsections describe in a nutshell how the developer should
-proceed when extending `RangedSummarizedExperiment` in his/her own package.
-The approach described here allows the developer to do it in a way that
-remains agnostic of the internals of the parent class. Keeping this
-separation between the responsibilities of the owners of the parent and child
-classes facilitate maintenance in the long run. In particular,
-the implementation of the child class won't be affected by changes in
-the internals of the parent class.
+The following subsections describe in a nutshell how the developer would
+typically proceed for extending `RangedSummarizedExperiment` in his/her
+own package. Some familiarity with the S4 class system is required. Readers
+not familiar with the S4 class system are encouraged to consult the vignette
+`A quick overview of the S4 class system` located in the `S4Vectors` package
+for the basics of implementing and extending S4 classes.
+
+The approach described below allows the developer to extend
+`RangedSummarizedExperiment` it in a way that remains agnostic of its
+internals. Keeping this separation between the responsibilities of the owners
+of the parent and child classes facilitate maintenance in the long run.
+In particular, the implementation of the child class won't be affected by
+changes in the internals of the parent class.
 
 ## Depend on, and import, the `SummarizedExperiment` package
 
