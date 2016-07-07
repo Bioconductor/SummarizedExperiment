@@ -268,6 +268,14 @@ setMethod("cbind", "Assays",
     function(..., deparse.level=1) .bind_Assays(unname(list(...)), acbind)
 )
 
+### Having "arbind" and "acbind" methods for Matrix objects will make rbind()
+### and cbind() work on Assays objects with Matrix list elements.
+### Maybe these methods should be defined next to the arbind() and acbind()
+### generics (which are defined in the IRanges package) but that would require
+### to make IRanges depend on the Matrix package.
+setMethod("arbind", "Matrix", function(...) rbind(...))
+setMethod("acbind", "Matrix", function(...) cbind(...))
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### SimpleListAssays class

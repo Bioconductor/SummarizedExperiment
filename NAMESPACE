@@ -1,6 +1,7 @@
 import(methods)
 importFrom(utils, read.delim)
 importFrom(stats, setNames)
+importClassFrom(Matrix, Matrix)  # for the "acbind" and "arbind" methods
 import(BiocGenerics)
 import(S4Vectors)
 import(IRanges)
@@ -59,6 +60,7 @@ exportMethods(
     coverage,
     findOverlaps,
     precede, follow, nearest, distance, distanceToNearest,
+    acbind, arbind,
 
     ## Generics defined in GenomeInfoDb:
     seqinfo, "seqinfo<-",
