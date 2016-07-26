@@ -11,6 +11,7 @@
 \alias{[[<-,Assays,ANY,ANY-method}
 \alias{dim,Assays-method}
 \alias{[,Assays,ANY-method}
+\alias{[,Assays,ANY,ANY,ANY-method}
 \alias{[<-,Assays,ANY,ANY,ANY-method}
 \alias{rbind,Assays-method}
 \alias{cbind,Assays-method}

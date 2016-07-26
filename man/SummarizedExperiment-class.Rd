@@ -46,6 +46,7 @@
 % Subsetting
 \alias{[,SummarizedExperiment-method}
 \alias{[,SummarizedExperiment,ANY-method}
+\alias{[,SummarizedExperiment,ANY,ANY,ANY-method}
 \alias{[<-,SummarizedExperiment,ANY,ANY,SummarizedExperiment-method}
 \alias{extractROWS,SummarizedExperiment,ANY-method}
 \alias{replaceROWS,SummarizedExperiment-method}
