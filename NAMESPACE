@@ -1,5 +1,5 @@
 import(methods)
-importFrom(utils, read.delim)
+importFrom(utils, read.delim, .DollarNames)
 importFrom(stats, setNames)
 importClassFrom(Matrix, Matrix)  # for the "acbind" and "arbind" methods
 import(BiocGenerics)
@@ -107,3 +107,7 @@ exportMethods(
     assay, "assay<-"
 )
 
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Register S3 methods
+###
+S3method(.DollarNames, SummarizedExperiment)
