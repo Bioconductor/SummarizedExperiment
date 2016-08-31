@@ -727,10 +727,7 @@ setMethod("cbind", "SummarizedExperiment",
             x1 <- x[[1]]
         }
         for (i in seq_along(x)[-1]) {
-            if (length(x1) != length(x[[i]]))
-                return(FALSE)
-            ok <- x1 == x[[i]]
-            if (!all(ok))
+            if (!identicalVals(x1, x[[i]]))
                 return(FALSE)
         }
         return(TRUE)
@@ -763,4 +760,62 @@ setMethod("cbind", "SummarizedExperiment",
         lst[[1]]
     }
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### identicalVals()
+###
+### Internal generic and methods (i.e. not exported).
+### Provides a fast implementation of 'length(x) == length(y) && all(x == y)'
+### for various kinds of vector-like objects.
+### TODO: Move this to S4Vectors (for the generic and methods for factor and
+### Rle objects) and IRanges (for the method for Ranges objects).
+###
+
+setGeneric("identicalVals", function(x, y) standardGeneric("identicalVals"))
+
+### Semantically equivalent to identical(as.character(x), as.character(y))
+### but avoids turning the 2 factor objects into character vectors so is more
+### efficient.
+setMethod("identicalVals", c("factor", "factor"),
+    function(x, y)
+    {
+        m <- match(levels(y), levels(x), nomatch=0L)
+        identical(as.integer(x), m[y])
+    }
+)
+
+### Only support factor-Rle objects at the moment!
+### Semantically equivalent to identical(as.character(x), as.character(y))
+### but avoids turning the 2 factor-Rle objects into character vectors so is
+### more efficient.
+setMethod("identicalVals", c("Rle", "Rle"),
+    function(x, y) identical(runLength(x), runLength(y)) &&
+                   identicalVals(runValue(x), runValue(y))
+)
+
+setMethod("identicalVals", c("Ranges", "Ranges"),
+    function(x, y) identical(start(x), start(y)) &&
+                   identical(width(x), width(y))
+)
+
+### Like 'x == y' this method ignores circularity of the underlying sequences
+### e.g. ranges [1, 10] and [101, 110] represent the same position on a
+### circular sequence of length 100 so should be considered equal. However
+### for 'x == y' and the method below, they are not.
+### TODO: Take circularity of the underlying sequences into account.
+setMethod("identicalVals", c("GenomicRanges", "GenomicRanges"),
+    function(x, y)
+    {
+        ## Trying to merge 'seqinfo(x)' and 'seqinfo(y)' will raise an error
+        ## if 'x' and 'y' are not based on the same reference genome. This is
+        ## the standard way to check that 'x' and 'y' are based on the same
+        ## reference genome.
+        merge(seqinfo(x), seqinfo(y))  # we ignore the returned value
+
+        identicalVals(seqnames(x), seqnames(y)) &&
+            identicalVals(ranges(x), ranges(y)) &&
+            identicalVals(strand(x), strand(y))
+    }
+)
 
