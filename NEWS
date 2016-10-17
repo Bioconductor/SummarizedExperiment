@@ -1,3 +1,24 @@
+CHANGES IN VERSION 1.4.0
+------------------------
+
+NEW FEATURES
+
+    o Add makeSummarizedExperimentFromDataFrame() function.
+
+    o Add "acbind" and "arbind" methods for Matrix objects.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Speed up "cbind" method for SummarizedExperiment objects based on a
+      suggestion by Peter Hickey.
+
+DEPRECATED AND DEFUNCT
+
+    o Remove exptData() getter and setter (were defunct in BioC 3.3).
+
+BUG FIXES
+
+
 CHANGES IN VERSION 1.2.0
 ------------------------
 
