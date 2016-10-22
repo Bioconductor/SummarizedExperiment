@@ -439,7 +439,8 @@ setMethod("is.unsorted", "RangedSummarizedExperiment",
 })
 
 setMethod("order", "RangedSummarizedExperiment",
-    function(..., na.last=TRUE, decreasing=FALSE, method=c("shell", "radix"))
+    function(..., na.last=TRUE, decreasing=FALSE,
+             method=c("auto", "shell", "radix"))
 {
     args <- lapply(list(...), rowRanges)
     do.call("order", c(args, list(na.last=na.last,
