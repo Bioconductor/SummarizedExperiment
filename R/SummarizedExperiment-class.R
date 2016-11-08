@@ -17,10 +17,6 @@ setClass("SummarizedExperiment",
     )
 )
 
-### Temporary, for backward compatibility only.
-### TODO: Remove in BioC 3.4.
-setClass("SummarizedExperiment0", contains="SummarizedExperiment")
-
 ### Combine the new parallel slots with those of the parent class. Make sure
 ### to put the new parallel slots *first*.
 setMethod("parallelSlotNames", "SummarizedExperiment",

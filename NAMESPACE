@@ -16,7 +16,7 @@ import(Biobase)
 
 exportClasses(
     Assays, ShallowData, ShallowSimpleListAssays,
-    SummarizedExperiment, SummarizedExperiment0,
+    SummarizedExperiment,
     RangedSummarizedExperiment
 )
 

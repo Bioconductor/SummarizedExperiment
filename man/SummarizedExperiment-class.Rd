@@ -5,10 +5,6 @@
 \alias{class:SummarizedExperiment}
 \alias{SummarizedExperiment-class}
 
-\alias{class:SummarizedExperiment0}
-\alias{SummarizedExperiment0-class}
-\alias{SummarizedExperiment0}
-
 % Accessors
 \alias{length,SummarizedExperiment-method}
 \alias{names,SummarizedExperiment-method}
