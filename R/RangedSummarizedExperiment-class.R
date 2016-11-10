@@ -478,13 +478,17 @@ setMethod("seqinfo", "RangedSummarizedExperiment",
 })
 
 setReplaceMethod("seqinfo", "RangedSummarizedExperiment",
-    function (x, new2old = NULL, force = FALSE, value)
+    function (x, new2old= NULL, force=FALSE,
+              pruning.mode=c("error", "coarse", "fine", "tidy"),
+              value)
 {
     if (!is(value, "Seqinfo")) 
         stop("the supplied 'seqinfo' must be a Seqinfo object")
     dangling_seqlevels <-
-        GenomeInfoDb:::getDanglingSeqlevels(x@rowRanges, new2old = new2old,
-                                            force = force, seqlevels(value))
+        GenomeInfoDb:::getDanglingSeqlevels(x@rowRanges, new2old=new2old,
+                                            force=force,
+                                            pruning.mode=pruning.mode,
+                                            seqlevels(value))
     if (length(dangling_seqlevels) != 0L) 
         x <- x[!(seqnames(x) %in% dangling_seqlevels)]
     x@rowRanges <-
