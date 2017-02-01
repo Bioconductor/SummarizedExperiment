@@ -9,7 +9,7 @@ setClass("SummarizedExperiment",
     representation(
         colData="DataFrame",              # columns and their annotations
         assays="Assays",                  # Data -- e.g., list of matricies
-        NAMES="characterORNULL",
+        NAMES="character_OR_NULL",
         elementMetadata="DataFrame"
     ),
     prototype(
