@@ -1,0 +1,66 @@
+We need a mechanism to save an HDF5Array-based (or more generally
+DelayedArray-based) SummarizedExperiment object to disk.
+
+- The object can have more than 1 assay. Even though most of the time these
+  assays are either all in memory (e.g. ordinary arrays or data frames) or all
+  on disk and using the same backend (i.e. all HDF5-based DelayedArray
+  objects), they can be a mix of in-memory and on-disk assays. Even a given
+  assay can use more than 1 kind of on-disk backend. For example it could be
+  the result of adding an HDF5-based DelayedArray object with a DelayedArray
+  object based on another backend. Since the addition of DelayedArray objects
+  is delayed, the result of this addition is a DelayedArray object with mixed
+  backends.
+
+- Standard mechanisms save() and saveRDS() cannot handle this complexity.
+
+- We need a mechanism that produces several files: one .rda (or .rds)
+  file containing the result of calling save() (or saveRDS()) on the
+  object + all the files (e.g. HDF5) containing the on-disk assay data.
+  The files containing the on-disk assay data can be a mix of HDF5 files
+  and other formats.
+  How should these files be bundled together? By putting them together in a
+  destination folder? By creating a tarball of this folder? Should the creation
+  of the tarball be left to the user or should the save function create it?
+
+- Should the on-disk assays with delayed operations on them be "realized"
+  before the SummarizedExperiment object is saved to disk? Doing this has
+  some significant advantages:
+    (1) It "simplifies" the object: it reduces the number of files needed to
+        store the on-disk assay data (only 1 file per on-disk assay).
+    (2) It relocates and reduces the size of the on-disk data needed to
+        represent the object.
+
+- Should the in-memory assays be converted into on-disk assays before saving?
+  Should this be controlled by the user?
+
+Here are functions for saving/loading a SummarizedExperiment object in HDF5
+format:
+
+  ## All the assays are saved in HDF5 format, including in-memory assays.
+  ## Assays that are DelayedArray objects are realized first.
+  saveHDF5SummarizedExperiment <- function(x, dir="myse")
+  {
+     rdsfile <- file.path(dir, "se.rds")
+     setRealizeBackend("HDF5Array")
+     old_dump_file <- getHDF5DumpFile()
+     old_dump_name <- getHDF5DumpName()
+     h5file <- file.path(dir, "se.h5")
+     setHDF5DumpFile(file)
+     on.exit({
+         setHDF5DumpFile(old_dump_file)
+         setHDF5DumpName(old_dump_name)
+     })
+     for (i in seq_along(assays(x))) {
+         a <- assay(x, i)
+         a <- realize(DelayedArray(a))
+         assay(x, i) <- a
+     }
+     saveRDS(x, file=rdsfile)
+     x
+  }
+
+  loadHDF5SummarizedExperiment <- function(dir="myse")
+  {
+
+  }
+

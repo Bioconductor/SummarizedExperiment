@@ -8,6 +8,7 @@ import(IRanges)
 import(GenomeInfoDb)
 import(GenomicRanges)
 import(Biobase)
+import(DelayedArray)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -64,7 +65,10 @@ exportMethods(
 
     ## Generics defined in GenomeInfoDb:
     seqinfo, "seqinfo<-",
-    seqnames, "seqnames<-"
+    seqnames, "seqnames<-",
+
+    ## Generics defined in DelayedArray:
+    realize
 )
 
 

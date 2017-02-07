@@ -60,6 +60,9 @@
 \alias{rbind,SummarizedExperiment-method}
 \alias{cbind,SummarizedExperiment-method}
 
+% On-disk realization
+\alias{realize,SummarizedExperiment-method}
+
 \title{SummarizedExperiment objects}
 
 \description{
@@ -114,6 +117,8 @@ colData(x, ...) <- value
 \S4method{cbind}{SummarizedExperiment}(..., deparse.level=1)
 \S4method{rbind}{SummarizedExperiment}(..., deparse.level=1)
 
+## On-disk realization
+\S4method{realize}{SummarizedExperiment}(x)
 }
 
 \arguments{
@@ -391,6 +396,9 @@ colData(x, ...) <- value
     \item The \code{\link[S4Vectors]{metadata}} and
           \code{\link[S4Vectors]{mcols}} accessors in the \pkg{S4Vectors}
           package.
+
+    \item The \code{\link{realize}} generic function in the \pkg{DelayedArray}
+          package for more information about on-disk realization.
   }
 }
 
@@ -431,4 +439,11 @@ rownames(se2) <- letters[1:nrow(se2)]
 cmb2 <- rbind(se1, se2)
 dim(cmb2)
 dimnames(cmb2)
+
+## ---------------------------------------------------------------------
+## ON-DISK REALIZATION
+## ---------------------------------------------------------------------
+setRealizeBackend("HDF5Array")
+cmb3 <- realize(cmb2)
+assay(cmb3, withDimnames=FALSE)  # an HDF5Matrix object
 }
