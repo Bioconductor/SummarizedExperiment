@@ -3,7 +3,24 @@
 ### -------------------------------------------------------------------------
 
 
-.write_h5_assays <- function(assays, h5_file, verbose)
+.create_dir <- function(dir, replace)
+{
+    if (dir.exists(dir)) {
+        if (!replace)
+            stop(wmsg("Directory \"", dir, "\" already exists. ",
+                      "Use 'replace=TRUE' to replace it. ",
+                      "Its content will be lost!"))
+        if (unlink(dir, recursive=TRUE) != 0L)
+            stop("failed to delete directory \"", dir, "\"")
+    } else if (file.exists(dir)) {
+        stop(wmsg("\"", dir, "\" already exists and is a file, ",
+                  "not a directory"))
+    }
+    if (!suppressWarnings(dir.create(dir)))
+        stop("cannot create directory \"", dir, "\"")
+}
+
+.write_h5_assays <- function(assays, h5_path, verbose)
 {
     nassay <- length(assays)
     for (i in seq_len(nassay)) {
@@ -11,17 +28,17 @@
         h5_name <- sprintf("assay%03d", i)
         if (verbose)
             message("Start writing assay ", i, "/", nassay, " to '",
-                    h5_file, "':")
-        a <- HDF5Array::writeHDF5Array(a, h5_file, h5_name, verbose=verbose)
+                    h5_path, "':")
+        a <- HDF5Array::writeHDF5Array(a, h5_path, h5_name, verbose=verbose)
         if (verbose)
             message("Finished writing assay ", i, "/", nassay, " to '",
-                    h5_file, "'.")
+                    h5_path, "'.")
         assays[[i]] <- a
     }
     assays
 }
 
-.shorten_assay_h5_paths <- function(assays)
+.shorten_h5_paths <- function(assays)
 {
     nassay <- length(assays)
     for (i in seq_len(nassay)) {
@@ -35,31 +52,33 @@
 ### Save all the assays in HDF5 format, including in-memory assays.
 ### Delayed assays with delayed operations on them are realized while they
 ### are written to disk..
-saveHDF5SummarizedExperiment <- function(x, dir="my_h5_se", verbose=FALSE)
+saveHDF5SummarizedExperiment <- function(x, dir="my_h5_se", replace=FALSE,
+                                         verbose=FALSE)
 {
     if (!is(x, "SummarizedExperiment"))
         stop("'x' must be a SummarizedExperiment object")
-    if (!isTRUEorFALSE(verbose))
-        stop("'verbose' must be TRUE or FALSE")
     if (!isSingleString(dir))
         stop(wmsg("'dir' must be a single string specifying the path ",
                   "to the directory where to save the ", class(x),
                   " object (the directory will be created)"))
+    if (!isTRUEorFALSE(replace))
+        stop("'replace' must be TRUE or FALSE")
+    if (!isTRUEorFALSE(verbose))
+        stop("'verbose' must be TRUE or FALSE")
 
-    ## Try library(HDF5Array) before creating directory 'dir'. That way if
-    ## HDF5Array is not installed then saveHDF5SummarizedExperiment() will
-    ## stop without having created an empty directory.
+    ## We try library(HDF5Array) before deleting or creating directory 'dir'.
+    ## That way if HDF5Array is not installed then we will stop without having
+    ## made changes to the file system.
     library(HDF5Array)  # for writeHDF5Array()
-    if (!suppressWarnings(dir.create(dir)))
-        stop("cannot create dir \"", dir, "\"")
+    .create_dir(dir, replace)
 
-    h5_file <- file.path(dir, "assays.h5")
-    x@assays <- .write_h5_assays(x@assays, h5_file, verbose)
+    h5_path <- file.path(dir, "assays.h5")
+    x@assays <- .write_h5_assays(x@assays, h5_path, verbose)
 
-    rds_file <- file.path(dir, "se.rds")
+    rds_path <- file.path(dir, "se.rds")
     ans <- x
-    x@assays <- .shorten_assay_h5_paths(x@assays)
-    saveRDS(x, file=rds_file)
+    x@assays <- .shorten_h5_paths(x@assays)
+    saveRDS(x, file=rds_path)
 
     invisible(ans)
 }
@@ -70,7 +89,7 @@ saveHDF5SummarizedExperiment <- function(x, dir="my_h5_se", verbose=FALSE)
 )
 
 .stop_if_bad_dir <- function(dir)
-    stop(wmsg("'", dir, "' dir does not seem to contain ",
+    stop(wmsg("directory \"", dir, "\" does not seem to contain ",
               .THE_EXPECTED_STUFF))
 
 ### Does a lot of checking and tries to fail graciously if the content
@@ -82,15 +101,15 @@ loadHDF5SummarizedExperiment <- function(dir="my_h5_se")
     if (!isSingleString(dir))
         stop(wmsg("'dir' must be a single string specifying the path ",
                   "to the directory containing ", .THE_EXPECTED_STUFF))
-    h5_file <- file.path(dir, "assays.h5")
-    rds_file <- file.path(dir, "se.rds")
-    if (!file.exists(h5_file) || !file.exists(rds_file))
+    h5_path <- file.path(dir, "assays.h5")
+    rds_path <- file.path(dir, "se.rds")
+    if (!file.exists(h5_path) || !file.exists(rds_path))
         .stop_if_bad_dir(dir)
-    h5_content <- try(rhdf5::h5ls(h5_file), silent=TRUE)
+    h5_content <- try(rhdf5::h5ls(h5_path), silent=TRUE)
     if (inherits(h5_content, "try-error"))
         .stop_if_bad_dir(dir)
     h5_datasets <- h5_content[ , "name"]
-    ans <- readRDS(rds_file)
+    ans <- readRDS(rds_path)
     if (!is(ans, "SummarizedExperiment"))
         .stop_if_bad_dir(dir)
     for (i in seq_along(assays(ans))) {

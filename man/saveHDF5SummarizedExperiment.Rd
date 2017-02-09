@@ -12,7 +12,7 @@
 }
 
 \usage{
-saveHDF5SummarizedExperiment(x, dir="my_h5_se", verbose=FALSE)
+saveHDF5SummarizedExperiment(x, dir="my_h5_se", replace=FALSE, verbose=FALSE)
 loadHDF5SummarizedExperiment(dir="my_h5_se")
 }
 
@@ -21,9 +21,14 @@ loadHDF5SummarizedExperiment(dir="my_h5_se")
     A \link{SummarizedExperiment} object.
   }
   \item{dir}{
-    The path (as a single string) to the directory where to save/load the
-    HDF5-based \link{SummarizedExperiment} object.
-    The directory should not exist yet and will be created when saving.
+    The path (as a single string) to the directory where to save the
+    HDF5-based \link{SummarizedExperiment} object or to load it from.
+    When saving, the directory will be created so should not already exist,
+    unless \code{replace} is set to \code{TRUE}.
+  }
+  \item{replace}{
+    If directory \code{dir} already exists, should it be replaced with a
+    new one? The content of the existing directory will be lost!
   }
   \item{verbose}{
     Set to \code{TRUE} to make the function display progress.
