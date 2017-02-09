@@ -36,7 +36,7 @@ loadHDF5SummarizedExperiment(dir="myse")
 
   Please note that, depending on the size of the data to write to disk
   and the performance of the disk, \code{saveHDF5SummarizedExperiment}
-  can take a long time to complete. Use \code{verbose=FALSE} to see its
+  can take a long time to complete. Use \code{verbose=TRUE} to see its
   progress.
 }
 
