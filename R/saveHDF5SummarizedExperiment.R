@@ -6,10 +6,12 @@
 ### Save all the assays in HDF5 format, including in-memory assays.
 ### Delayed assays with delayed operations on them are realized while they
 ### are written to disk..
-saveHDF5SummarizedExperiment <- function(x, dir="myse")
+saveHDF5SummarizedExperiment <- function(x, dir="myse", verbose=FALSE)
 {
     if (!is(x, "SummarizedExperiment"))
         stop("'x' must be a SummarizedExperiment object")
+    if (!isTRUEorFALSE(verbose))
+        stop("'verbose' must be TRUE or FALSE")
     library(HDF5Array)  # for writeHDF5Array()
     if (!isSingleString(dir))
         stop(wmsg("'dir' must be a single string specifying the path ",
@@ -18,10 +20,17 @@ saveHDF5SummarizedExperiment <- function(x, dir="myse")
     if (!suppressWarnings(dir.create(dir)))
         stop("cannot create dir \"", dir, "\"")
     h5_file <- file.path(dir, "se.h5")
-    for (i in seq_along(assays(x))) {
+    nassay <- length(assays(x))
+    for (i in seq_len(nassay)) {
         a <- assay(x, i, withDimnames=FALSE)
         h5_name <- sprintf("assay%03d", i)
-        a <- HDF5Array::writeHDF5Array(a, h5_file, h5_name)
+        if (verbose)
+            message("Start writing assay ", i, "/", nassay, " to '",
+                    h5_file, "':")
+        a <- HDF5Array::writeHDF5Array(a, h5_file, h5_name, verbose=verbose)
+        if (verbose)
+            message("Finished writing assay ", i, "/", nassay, " to '",
+                    h5_file, "'.")
         a@seed@file <- basename(a@seed@file)
         assay(x, i) <- a
     }

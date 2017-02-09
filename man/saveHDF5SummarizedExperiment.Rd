@@ -12,7 +12,7 @@
 }
 
 \usage{
-saveHDF5SummarizedExperiment(x, dir="myse")
+saveHDF5SummarizedExperiment(x, dir="myse", verbose=FALSE)
 loadHDF5SummarizedExperiment(dir="myse")
 }
 
@@ -25,11 +25,19 @@ loadHDF5SummarizedExperiment(dir="myse")
     HDF5-based \link{SummarizedExperiment} object.
     The directory should not exist yet and will be created when saving.
   }
+  \item{verbose}{
+    Set to \code{TRUE} to make the function display progress.
+  }
 }
 
 \details{
   These functions use functionalities from the \pkg{rhdf5} and \pkg{HDF5Array}
-  packages internally so they will fail if these packages are not installed.
+  packages internally so require that these packages be installed.
+
+  Please note that, depending on the size of the data to write to disk
+  and the performance of the disk, \code{saveHDF5SummarizedExperiment}
+  can take a long time to complete. Use \code{verbose=FALSE} to see its
+  progress.
 }
 
 \author{Hervé Pagès}
