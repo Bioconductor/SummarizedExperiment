@@ -397,8 +397,13 @@ colData(x, ...) <- value
           \code{\link[S4Vectors]{mcols}} accessors in the \pkg{S4Vectors}
           package.
 
-    \item The \code{\link{realize}} generic function in the \pkg{DelayedArray}
-          package for more information about on-disk realization.
+    \item \code{\link{saveHDF5SummarizedExperiment}} and
+          \code{\link{loadHDF5SummarizedExperiment}} for saving/loading a
+          HDF5-based SummarizedExperiment object to/from disk.
+
+    \item The \code{\link[DelayedArray]{realize}} generic function in the
+          \pkg{DelayedArray} package for more information about on-disk
+          realization of objects carrying delayed operations.
   }
 }
 

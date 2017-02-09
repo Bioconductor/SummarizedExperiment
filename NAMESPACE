@@ -82,7 +82,8 @@ export(
     makeSummarizedExperimentFromExpressionSet,
     makeSummarizedExperimentFromDataFrame,
     naiveRangeMapper, probeRangeMapper, geneRangeMapper,
-    readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS
+    readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS,
+    saveHDF5SummarizedExperiment, loadHDF5SummarizedExperiment
 )
 
 

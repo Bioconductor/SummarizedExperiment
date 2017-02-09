@@ -4,7 +4,7 @@ Description: The SummarizedExperiment container contains one or more assays,
 	each represented by a matrix-like object of numeric or other mode.
 	The rows typically represent genomic ranges of interest and the columns
 	represent samples.
-Version: 1.5.5
+Version: 1.5.6
 Encoding: UTF-8
 Author: Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
@@ -30,4 +30,5 @@ Collate: Assays-class.R
 	makeSummarizedExperimentFromExpressionSet.R
 	makeSummarizedExperimentFromDataFrame.R
 	readKallisto.R
+	saveHDF5SummarizedExperiment.R
 	zzz.R

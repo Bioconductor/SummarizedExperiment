@@ -826,10 +826,11 @@ setMethod("realize", "SummarizedExperiment",
         for (i in seq_along(assays(x))) {
             ## We drop the dimnames of the individual assays for 2 reasons:
             ##   1) These dimnames are kind of irrelevant. The dimnames that
-            ##      really matter are 'dimnames(x)' and they are stored somewhere
-            ##      else in 'x'. So we don't loose them by not realizing the
-            ##      assay dimnames on disk. As a little extra bonus, this
-            ##      actually saves a little bit of time and disk space.
+            ##      really matter are 'dimnames(x)' and they are stored
+            ##      somewhere else in 'x'. So we don't loose them by not
+            ##      realizing the assay dimnames on disk. As a little extra
+            ##      bonus, this actually saves a little bit of time and disk
+            ##      space.
             ##   2) Using the HDF5Array backend to realize an array-like object
             ##      on disk doesn't store the dimnames in the HDF5 file at the
             ##      moment.
