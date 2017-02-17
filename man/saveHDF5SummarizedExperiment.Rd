@@ -12,7 +12,8 @@
 }
 
 \usage{
-saveHDF5SummarizedExperiment(x, dir="my_h5_se", replace=FALSE, verbose=FALSE)
+saveHDF5SummarizedExperiment(x, dir="my_h5_se", replace=FALSE,
+                             verbose=FALSE)
 loadHDF5SummarizedExperiment(dir="my_h5_se")
 }
 
