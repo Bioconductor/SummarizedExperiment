@@ -463,9 +463,9 @@ setMethod("sort", "RangedSummarizedExperiment",
     if (!is(x_rowRanges, "GenomicRanges"))
         stop("sort() is not yet supported when 'rowRanges(x)' is a ",
              class(x_rowRanges), " object")
-    oo <- GenomicRanges:::.order_GenomicRanges(x_rowRanges,
-                                               decreasing = decreasing,
-                                               ignore.strand = ignore.strand)
+    oo <- GenomicRanges:::order_GenomicRanges(x_rowRanges,
+                                              decreasing = decreasing,
+                                              ignore.strand = ignore.strand)
     x[oo]
 })
 
