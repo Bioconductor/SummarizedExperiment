@@ -68,7 +68,7 @@ exportMethods(
     seqnames, "seqnames<-",
 
     ## Generics defined in DelayedArray:
-    realize
+    rowRanges, realize
 )
 
 
@@ -94,7 +94,7 @@ export(
 
 export(
     SummarizedExperiment,
-    rowRanges, "rowRanges<-",
+    "rowRanges<-",
     rowData, "rowData<-",
     colData, "colData<-",
     assayNames, "assayNames<-",
@@ -105,7 +105,7 @@ export(
 ### Exactly the same list as above.
 exportMethods(
     SummarizedExperiment,
-    rowRanges, "rowRanges<-",
+    "rowRanges<-",
     rowData, "rowData<-",
     colData, "colData<-",
     assayNames, "assayNames<-",

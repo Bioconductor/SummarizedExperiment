@@ -214,8 +214,7 @@ setAs("SummarizedExperiment", "RangedSummarizedExperiment",
 ### Getters and setters.
 ###
 
-setGeneric("rowRanges", function(x, ...) standardGeneric("rowRanges"))
-
+### The rowRanges() generic is defined in the DelayedArray package.
 setMethod("rowRanges", "RangedSummarizedExperiment",
     function(x, ...) x@rowRanges
 )
