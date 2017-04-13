@@ -448,7 +448,7 @@ dimnames(cmb2)
 ## ---------------------------------------------------------------------
 ## ON-DISK REALIZATION
 ## ---------------------------------------------------------------------
-setRealizeBackend("HDF5Array")
+setRealizationBackend("HDF5Array")
 cmb3 <- realize(cmb2)
 assay(cmb3, withDimnames=FALSE)  # an HDF5Matrix object
 }
