@@ -1,6 +1,7 @@
 import(methods)
 importFrom(utils, read.delim, .DollarNames)
 importFrom(stats, setNames)
+importFrom(tools, file_path_as_absolute)
 importClassFrom(Matrix, Matrix)  # for the "acbind" and "arbind" methods
 import(BiocGenerics)
 import(S4Vectors)

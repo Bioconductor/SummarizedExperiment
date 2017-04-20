@@ -117,8 +117,8 @@ loadHDF5SummarizedExperiment <- function(dir="my_h5_se")
         if (!is(a, "HDF5Array") || !identical(a@seed@file, "assays.h5") ||
             !(a@seed@name %in% h5_datasets))
             .stop_if_bad_dir(dir)
-        a@seed@file <- file.path(dir, a@seed@file)
-        assay(ans, i) <- a
+        a@seed@file <- file_path_as_absolute(file.path(dir, a@seed@file))
+        assay(ans, i, withDimnames=FALSE) <- a
     }
     ans
 }
