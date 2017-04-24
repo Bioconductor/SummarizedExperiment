@@ -1,3 +1,18 @@
+CHANGES IN VERSION 1.6.0
+------------------------
+
+NEW FEATURES
+
+    o Add saveHDF5SummarizedExperiment() and loadHDF5SummarizedExperiment() for
+      saving/loading HDF5-based SummarizedExperiment objects to/from disk.
+
+DEPRECATED AND DEFUNCT
+
+    o Remove SummarizedExperiment0 class (was introduced to ease transition
+      from old SummarizedExperiment class defined in GenomicRanges to new
+      RangedSummarizedExperiment class defined in SummarizedExperiment package).
+
+
 CHANGES IN VERSION 1.4.0
 ------------------------
 
