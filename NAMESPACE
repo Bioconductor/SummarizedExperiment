@@ -80,6 +80,7 @@ exportMethods(
 export(
     Assays,
     .DollarNames.SummarizedExperiment,
+    .DollarNames.RangedSummarizedExperiment,
     makeSummarizedExperimentFromExpressionSet,
     makeSummarizedExperimentFromDataFrame,
     naiveRangeMapper, probeRangeMapper, geneRangeMapper,
@@ -117,4 +118,6 @@ exportMethods(
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Register S3 methods
 ###
+
 S3method(.DollarNames, SummarizedExperiment)
+S3method(.DollarNames, RangedSummarizedExperiment)

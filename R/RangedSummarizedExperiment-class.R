@@ -279,6 +279,9 @@ setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
 ### Subsetting.
 ###
 
+.DollarNames.RangedSummarizedExperiment <-
+    .DollarNames.SummarizedExperiment
+
 setMethod("subset", "RangedSummarizedExperiment",
     function(x, subset, select, ...)
 {

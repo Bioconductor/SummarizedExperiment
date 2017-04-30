@@ -560,7 +560,7 @@ setReplaceMethod("[[", c("SummarizedExperiment", "ANY", "missing"),
     x
 })
 
-.DollarNames.SummarizedExperiment <- function(x, pattern)
+.DollarNames.SummarizedExperiment <- function(x, pattern = "")
     grep(pattern, names(colData(x)), value=TRUE)
 
 setMethod("$", "SummarizedExperiment",
