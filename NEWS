@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.6.1
+------------------------
+
+BUG FIXES
+
+    o '$' completion on SummarizedExperiment works in RStudio and on
+      RangedSummarizedExperiment.
+
 CHANGES IN VERSION 1.6.0
 ------------------------
 
