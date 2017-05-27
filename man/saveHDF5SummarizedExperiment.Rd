@@ -13,7 +13,7 @@
 
 \usage{
 saveHDF5SummarizedExperiment(x, dir="my_h5_se", replace=FALSE,
-                             verbose=FALSE)
+                                chunk_dim=NULL, verbose=FALSE)
 loadHDF5SummarizedExperiment(dir="my_h5_se")
 }
 
@@ -30,6 +30,12 @@ loadHDF5SummarizedExperiment(dir="my_h5_se")
   \item{replace}{
     If directory \code{dir} already exists, should it be replaced with a
     new one? The content of the existing directory will be lost!
+  }
+  \item{chunk_dim}{
+    The dimensions of the chunks to use for writting the data to disk.
+    Passed to the internal calls to \code{HDF5Array::writeHDF5Array}.
+    See \code{?HDF5Array::\link[HDF5Array]{writeHDF5Array}} for more
+    information.
   }
   \item{verbose}{
     Set to \code{TRUE} to make the function display progress.
