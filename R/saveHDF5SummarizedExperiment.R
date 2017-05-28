@@ -20,7 +20,7 @@
         stop("cannot create directory \"", dir, "\"")
 }
 
-.write_h5_assays <- function(assays, h5_path, chunk_dim, verbose)
+.write_h5_assays <- function(assays, h5_path, chunk_dim, level, verbose)
 {
     nassay <- length(assays)
     for (i in seq_len(nassay)) {
@@ -29,7 +29,7 @@
         if (verbose)
             message("Start writing assay ", i, "/", nassay, " to '",
                     h5_path, "':")
-        a <- HDF5Array::writeHDF5Array(a, h5_path, h5_name, chunk_dim,
+        a <- HDF5Array::writeHDF5Array(a, h5_path, h5_name, chunk_dim, level,
                                        verbose=verbose)
         if (verbose)
             message("Finished writing assay ", i, "/", nassay, " to '",
@@ -54,7 +54,8 @@
 ### Delayed assays with delayed operations on them are realized while they
 ### are written to disk..
 saveHDF5SummarizedExperiment <- function(x, dir="my_h5_se", replace=FALSE,
-                                         chunk_dim=NULL, verbose=FALSE)
+                                         chunk_dim=NULL, level=NULL,
+                                         verbose=FALSE)
 {
     if (!is(x, "SummarizedExperiment"))
         stop("'x' must be a SummarizedExperiment object")
@@ -74,7 +75,7 @@ saveHDF5SummarizedExperiment <- function(x, dir="my_h5_se", replace=FALSE,
     .create_dir(dir, replace)
 
     h5_path <- file.path(dir, "assays.h5")
-    x@assays <- .write_h5_assays(x@assays, h5_path, chunk_dim, verbose)
+    x@assays <- .write_h5_assays(x@assays, h5_path, chunk_dim, level, verbose)
 
     rds_path <- file.path(dir, "se.rds")
     ans <- x
