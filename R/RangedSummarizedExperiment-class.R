@@ -10,7 +10,7 @@
 setClass("RangedSummarizedExperiment",
     contains="SummarizedExperiment",
     representation(
-        rowRanges="GenomicRangesORGRangesList"
+        rowRanges="GenomicRanges_OR_GRangesList"
     ),
     prototype(
         rowRanges=GRanges()
@@ -111,7 +111,7 @@ setMethod("SummarizedExperiment", "SimpleList",
     } else {
         if (!missing(rowRanges))
             stop("only one of 'rowData' and 'rowRanges' can be specified")
-        if (is(rowData, "GenomicRangesORGRangesList")) {
+        if (is(rowData, "GenomicRanges_OR_GRangesList")) {
             rowRanges <- rowData
             if (is.null(names(rowRanges)))
                 names(rowRanges) <- .get_rownames_from_assays(assays)
@@ -145,7 +145,7 @@ setMethod("SummarizedExperiment", "SimpleList",
 
     assays <- Assays(assays)
 
-    if (missing(rowRanges) && !is(rowData, "GenomicRangesORGRangesList")) {
+    if (missing(rowRanges) && !is(rowData, "GenomicRanges_OR_GRangesList")) {
         new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
                                  metadata)
     } else {
