@@ -5,6 +5,7 @@
 \alias{probeRangeMapper}
 \alias{geneRangeMapper}
 \alias{coerce,ExpressionSet,RangedSummarizedExperiment-method}
+\alias{coerce,ExpressionSet,SummarizedExperiment-method}
 \alias{coerce,RangedSummarizedExperiment,ExpressionSet-method}
 \alias{coerce,SummarizedExperiment,ExpressionSet-method}
 
@@ -84,14 +85,15 @@ geneRangeMapper(txDbPackage, key = "ENTREZID")
 
 \examples{
 ## ---------------------------------------------------------------------
-## GOING FROM ExpressionSet TO RangedSummarizedExperiment
+## GOING FROM ExpressionSet TO SummarizedExperiment
 ## ---------------------------------------------------------------------
 
 data(sample.ExpressionSet, package="Biobase")
 
-# 2 equivalent ways of doing the naive coercion
+# naive coercion
 makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet)
 as(sample.ExpressionSet, "RangedSummarizedExperiment")
+as(sample.ExpressionSet, "SummarizedExperiment")
 
 # using probe range mapper
 makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet, probeRangeMapper)
@@ -101,7 +103,7 @@ makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet,
                                           geneRangeMapper("TxDb.Hsapiens.UCSC.hg19.knownGene"))
 
 ## ---------------------------------------------------------------------
-## GOING FROM RangedSummarizedExperiment TO ExpressionSet
+## GOING FROM SummarizedExperiment TO ExpressionSet
 ## ---------------------------------------------------------------------
 
 example(RangedSummarizedExperiment)  # to create 'rse'
