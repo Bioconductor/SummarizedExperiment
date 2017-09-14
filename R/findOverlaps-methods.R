@@ -6,7 +6,7 @@
 ### findOverlaps
 
 setMethod("findOverlaps", c("RangedSummarizedExperiment", "Vector"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
+    function(query, subject, maxgap=-1L, minoverlap=0L,
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE)
@@ -17,7 +17,7 @@ setMethod("findOverlaps", c("RangedSummarizedExperiment", "Vector"),
 )
 
 setMethod("findOverlaps", c("Vector", "RangedSummarizedExperiment"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
+    function(query, subject, maxgap=-1L, minoverlap=0L,
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE)
@@ -29,7 +29,7 @@ setMethod("findOverlaps", c("Vector", "RangedSummarizedExperiment"),
 
 setMethod("findOverlaps", c("RangedSummarizedExperiment",
                             "RangedSummarizedExperiment"),
-    function(query, subject, maxgap=0L, minoverlap=1L,
+    function(query, subject, maxgap=-1L, minoverlap=0L,
              type=c("any", "start", "end", "within", "equal"),
              select=c("all", "first", "last", "arbitrary"),
              ignore.strand=FALSE)
