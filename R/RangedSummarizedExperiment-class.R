@@ -199,6 +199,7 @@ setAs("RangedSummarizedExperiment", "SummarizedExperiment",
 {
     partitioning <- PartitioningByEnd(integer(length(from)), names=names(from))
     rowRanges <- relist(GRanges(), partitioning)
+    mcols(rowRanges) <- mcols(from)
     .new_RangedSummarizedExperiment(from@assays,
                                     rowRanges,
                                     from@colData,
