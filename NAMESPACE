@@ -62,13 +62,13 @@ exportMethods(
     coverage,
     findOverlaps,
     precede, follow, nearest, distance, distanceToNearest,
-    acbind, arbind,
 
     ## Generics defined in GenomeInfoDb:
     seqinfo, "seqinfo<-",
     seqnames, "seqnames<-",
 
     ## Generics defined in DelayedArray:
+    acbind, arbind,
     rowRanges, realize
 )
 
