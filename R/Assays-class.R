@@ -227,23 +227,24 @@ setReplaceMethod("[", "Assays",
 
 ### rbind/cbind
 
-.bind_Assays <- function(lst, bind)
+.bind_Assays_objects <- function(objects, BINDING_FUN)
 {
-    if (length(lst) == 0L)
+    BINDING_FUN <- match.fun(BINDING_FUN)
+    if (length(objects) == 0L)
         return(Assays())
-    lens <- sapply(lst, length)
+    lens <- sapply(objects, length)
     if (length(unique(lens)) != 1)
         stop("assays must have the same length")
     len1 <- lens[1L]
     if (len1 == 0L)
         return(Assays())
-    var <- lapply(lst, names)
+    var <- lapply(objects, names)
     uvar <- unique(unlist(var))
     if (is.null(uvar)) {
         ## no names, match by position
         res <- lapply(seq_len(len1), function(index) {
-            e1 <- lapply(lst, "[[", index)
-            do.call(bind, e1)
+            e1 <- lapply(objects, "[[", index)
+            do.call(BINDING_FUN, e1)
         })
     } else {
         ## match by name
@@ -252,20 +253,40 @@ setReplaceMethod("[", "Assays",
         if (!ok)
             stop("assays must have the same names()")
         res <- lapply(uvar, function(index) {
-            e1 <- lapply(lst, "[[", index)
-            do.call(bind, e1)
+            e1 <- lapply(objects, "[[", index)
+            do.call(BINDING_FUN, e1)
         })
         names(res) <- uvar
     }
-    as(SimpleList(res), class(lst[[1L]]))
+    as(SimpleList(res), class(objects[[1L]]))
 }
 
 setMethod("rbind", "Assays",
-    function(..., deparse.level=1) .bind_Assays(unname(list(...)), arbind)
+    function(..., deparse.level=1)
+    {
+        objects <- unname(list(...))
+        if (length(objects) == 0L)
+            return(Assays())
+        if (length(dim(objects[[1L]])) == 2L)
+            BINDING_FUN <- "rbind"
+        else
+            BINDING_FUN <- "arbind"
+        .bind_Assays_objects(objects, BINDING_FUN)
+    }
 )
 
 setMethod("cbind", "Assays",
-    function(..., deparse.level=1) .bind_Assays(unname(list(...)), acbind)
+    function(..., deparse.level=1)
+    {
+        objects <- unname(list(...))
+        if (length(objects) == 0L)
+            return(Assays())
+        if (length(dim(objects[[1L]])) == 2L)
+            BINDING_FUN <- "cbind"
+        else
+            BINDING_FUN <- "acbind"
+        .bind_Assays_objects(objects, BINDING_FUN)
+    }
 )
 
 ### Having "arbind" and "acbind" methods for Matrix objects will make rbind()
