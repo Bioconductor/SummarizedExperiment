@@ -227,14 +227,24 @@ setReplaceMethod("[", "Assays",
 
 ### rbind/cbind
 
-.bind_Assays_objects <- function(objects, BINDING_FUN)
+### 'assays' is assumed to be an unnamed list of length >= 1
+.bind_assays <- function(assays, along.cols=FALSE)
 {
-    BINDING_FUN <- match.fun(BINDING_FUN)
+    if (length(dim(assays[[1L]])) == 2L) {
+        BINDING_FUN <- if (along.cols) "cbind" else "rbind"
+    } else {
+        BINDING_FUN <- if (along.cols) "acbind" else "arbind"
+    }
+    do.call(BINDING_FUN, assays)
+}
+
+.bind_Assays_objects <- function(objects, along.cols=FALSE)
+{
     if (length(objects) == 0L)
         return(Assays())
     lens <- sapply(objects, length)
     if (length(unique(lens)) != 1)
-        stop("assays must have the same length")
+        stop("the objects to bind must have the same number of assays")
     len1 <- lens[1L]
     if (len1 == 0L)
         return(Assays())
@@ -243,8 +253,8 @@ setReplaceMethod("[", "Assays",
     if (is.null(uvar)) {
         ## no names, match by position
         res <- lapply(seq_len(len1), function(index) {
-            e1 <- lapply(objects, "[[", index)
-            do.call(BINDING_FUN, e1)
+            assays <- lapply(objects, "[[", index)
+            .bind_assays(assays, along.cols=along.cols)
         })
     } else {
         ## match by name
@@ -253,8 +263,8 @@ setReplaceMethod("[", "Assays",
         if (!ok)
             stop("assays must have the same names()")
         res <- lapply(uvar, function(index) {
-            e1 <- lapply(objects, "[[", index)
-            do.call(BINDING_FUN, e1)
+            assays <- lapply(objects, "[[", index)
+            .bind_assays(assays, along.cols=along.cols)
         })
         names(res) <- uvar
     }
@@ -265,13 +275,7 @@ setMethod("rbind", "Assays",
     function(..., deparse.level=1)
     {
         objects <- unname(list(...))
-        if (length(objects) == 0L)
-            return(Assays())
-        if (length(dim(objects[[1L]])) == 2L)
-            BINDING_FUN <- "rbind"
-        else
-            BINDING_FUN <- "arbind"
-        .bind_Assays_objects(objects, BINDING_FUN)
+        .bind_Assays_objects(objects, along.cols=FALSE)
     }
 )
 
@@ -279,13 +283,7 @@ setMethod("cbind", "Assays",
     function(..., deparse.level=1)
     {
         objects <- unname(list(...))
-        if (length(objects) == 0L)
-            return(Assays())
-        if (length(dim(objects[[1L]])) == 2L)
-            BINDING_FUN <- "cbind"
-        else
-            BINDING_FUN <- "acbind"
-        .bind_Assays_objects(objects, BINDING_FUN)
+        .bind_Assays_objects(objects, along.cols=TRUE)
     }
 )
 
