@@ -1,10 +1,31 @@
 CHANGES IN VERSION 1.8.0
 ------------------------
 
+NEW FEATURES
+
+    o Add 'chunk_dim' and 'level' arguments to saveHDF5SummarizedExperiment().
+
+    o Add coercion from ExpressionSet to SummarizedExperiment.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+DEPRECATED AND DEFUNCT
+
+    o Remove 'force' argument from seqinfo() and seqlevels() setters (the
+      argument got deprecated in BioC 3.5 in favor of new and more flexible
+      'pruning.mode' argument).
+
 BUG FIXES
+
+    o Coercion from SummarizedExperiment to RangedSummarizedExperiment was
+      losing the metadata columns. Fixed now.
+
+    o Fix cbind() and rbind() of SummarizedExperiment objects when some of the
+      assays are DataFrame or data.frame objects.
 
     o '$' completion on SummarizedExperiment works in RStudio and on
       RangedSummarizedExperiment.
+
 
 CHANGES IN VERSION 1.6.0
 ------------------------
