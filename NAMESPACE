@@ -83,6 +83,7 @@ export(
     .DollarNames.RangedSummarizedExperiment,
     makeSummarizedExperimentFromExpressionSet,
     makeSummarizedExperimentFromDataFrame,
+    makeSummarizedExperimentFromLoom,
     naiveRangeMapper, probeRangeMapper, geneRangeMapper,
     readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS,
     saveHDF5SummarizedExperiment, loadHDF5SummarizedExperiment
