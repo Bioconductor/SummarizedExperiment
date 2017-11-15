@@ -239,7 +239,7 @@ setMethod("assay", c("SummarizedExperiment", "character"),
         stop(msg, "\n", conditionMessage(err))
     })
     if (is.null(res))
-        stop(msg, "\n'i' not in names(assays(<", class(x), ">))")
+        stop(msg, "\n'", i, "' not in names(assays(<", class(x), ">))")
     res
 })
 
