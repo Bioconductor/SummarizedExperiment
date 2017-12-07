@@ -373,3 +373,13 @@ test_RangedSummarizedExperiment_split <- function()
     checkEquals(obs, exp)
 }
 
+test_RangedSummarizedExperiment_NULL_rowRanges <- function()
+{
+    se <- SummarizedExperiment(M1, colData=colData)
+    rse <- rseList[[1L]]
+    rowRanges(rse) <- NULL
+    checkTrue(identical(rowRanges(rse), NULL))
+    checkTrue(is(rse, "SummarizedExperiment") &&
+        !is(rse, "RangedSummarizedExperiment"))
+    checkTrue(identical(rowRanges(se), NULL))
+}

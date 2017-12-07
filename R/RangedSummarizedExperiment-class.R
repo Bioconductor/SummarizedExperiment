@@ -220,6 +220,10 @@ setMethod("rowRanges", "RangedSummarizedExperiment",
     function(x, ...) x@rowRanges
 )
 
+setMethod("rowRanges", "SummarizedExperiment",
+    function(x, ...) NULL
+)
+
 setGeneric("rowRanges<-",
     function(x, ..., value) standardGeneric("rowRanges<-"))
 
@@ -243,6 +247,17 @@ setReplaceMethod("rowRanges", c("SummarizedExperiment", "GenomicRanges"),
 
 setReplaceMethod("rowRanges", c("SummarizedExperiment", "GRangesList"),
     .SummarizedExperiment.rowRanges.replace)
+
+setReplaceMethod("rowRanges", c("SummarizedExperiment", "NULL"),
+    function(x, ..., value) {
+        if (is(x, "RangedSummarizedExperiment"))
+            x <- as(x, "SummarizedExperiment")
+        msg <- .valid.SummarizedExperiment.assays_nrow(x)
+        if (!is.null(msg))
+            stop(msg)
+        x
+    }
+)
 
 setMethod("names", "RangedSummarizedExperiment",
     function(x) names(rowRanges(x))
