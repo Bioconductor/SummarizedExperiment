@@ -19,12 +19,13 @@
 
 % Accessors
 \alias{rowRanges}
-\alias{rowRanges,RangedSummarizedExperiment-method}
 \alias{rowRanges,SummarizedExperiment-method}
+\alias{rowRanges,RangedSummarizedExperiment-method}
 \alias{rowRanges<-}
+\alias{rowRanges<-,SummarizedExperiment,NULL-method}
+\alias{rowRanges<-,RangedSummarizedExperiment,NULL-method}
 \alias{rowRanges<-,SummarizedExperiment,GenomicRanges-method}
 \alias{rowRanges<-,SummarizedExperiment,GRangesList-method}
-\alias{rowRanges<-,SummarizedExperiment,NULL-method}
 \alias{names,RangedSummarizedExperiment-method}
 \alias{names<-,RangedSummarizedExperiment-method}
 \alias{dimnames,RangedSummarizedExperiment-method}
