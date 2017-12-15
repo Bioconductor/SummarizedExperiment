@@ -418,7 +418,7 @@ setReplaceMethod("[",
     if (missing(i) && missing(j))
         return(value)
 
-    ans_metadata <- c(metadata(x), metadata(value))
+    ans_metadata <- metadata(x)
 
     if (!missing(i)) {
         if (is.character(i)) {
