@@ -765,7 +765,7 @@ setMethod("cbind", "SummarizedExperiment",
 ### Provides a fast implementation of 'length(x) == length(y) && all(x == y)'
 ### for various kinds of vector-like objects.
 ### TODO: Move this to S4Vectors (for the generic and methods for factor and
-### Rle objects) and IRanges (for the method for Ranges objects).
+### Rle objects) and IRanges (for the method for IntegerRanges objects).
 ###
 
 setGeneric("identicalVals", function(x, y) standardGeneric("identicalVals"))
@@ -790,7 +790,7 @@ setMethod("identicalVals", c("Rle", "Rle"),
                    identicalVals(runValue(x), runValue(y))
 )
 
-setMethod("identicalVals", c("Ranges", "Ranges"),
+setMethod("identicalVals", c("IntegerRanges", "IntegerRanges"),
     function(x, y) identical(start(x), start(y)) &&
                    identical(width(x), width(y))
 )
