@@ -315,7 +315,7 @@ setMethod("subset", "RangedSummarizedExperiment",
 ## Not consistent SummarizedExperiment structure: length, names,
 ##   as.data.frame, c.
 ## Length-changing endomorphisms: disjoin, gaps, reduce, unique.
-## 'legacy' data types / functions: as "RangedData", as "RangesList",
+## 'legacy' data types / functions: as "RangedData", as "IntegerRangesList",
 ##   renameSeqlevels, keepSeqlevels.
 ## Possile to implement, but not yet: Ops, map, window, window<-
 
