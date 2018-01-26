@@ -262,7 +262,7 @@ rowRanges(x, ...) <- value
 
 \seealso{
   \itemize{
-    \item \link{SummarizedExperiment} objects.
+    \item \link{SummarizedExperiment-class}
 
     \item \link[SummarizedExperiment]{shift},
           \link[SummarizedExperiment]{isDisjoint},
