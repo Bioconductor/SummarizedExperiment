@@ -542,6 +542,13 @@ setMethod("replaceROWS", "SummarizedExperiment",
     }
 )
 
+setMethod("subset", "SummarizedExperiment",
+    function(x, subset, select, ...)
+{
+    i <- S4Vectors:::evalqForSubset(subset, rowData(x), ...)
+    j <- S4Vectors:::evalqForSubset(select, colData(x), ...)
+    x[i, j]
+})
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Quick colData access.

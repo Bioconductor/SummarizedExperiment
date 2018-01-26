@@ -46,6 +46,7 @@
 \alias{[<-,SummarizedExperiment,ANY,ANY,SummarizedExperiment-method}
 \alias{extractROWS,SummarizedExperiment,ANY-method}
 \alias{replaceROWS,SummarizedExperiment-method}
+\alias{subset,SummarizedExperiment-method}
 
 % Quick colData access
 \alias{[[,SummarizedExperiment,ANY,missing-method}
@@ -111,6 +112,7 @@ colData(x, ...) <- value
 
 \S4method{[}{SummarizedExperiment}(x, i, j, ..., drop=TRUE)
 \S4method{[}{SummarizedExperiment,ANY,ANY,SummarizedExperiment}(x, i, j) <- value
+\S4method{subset}{SummarizedExperiment}(x, subset, select, ...)
 
 ## Combining 
 
@@ -172,6 +174,14 @@ colData(x, ...) <- value
 
   \item{deparse.level}{See \code{?base::\link[base]{cbind}} for a description of
     this argument.}
+
+  \item{subset}{An expression which, when evaluated in the
+    context of \code{rowData(x)}, is a logical vector indicating
+    elements or rows to keep: missing values are taken as false.}
+
+  \item{select}{An expression which, when evaluated in the
+    context of \code{colData(x)}, is a logical vector indicating
+    elements or rows to keep: missing values are taken as false.}
 
 }
 
@@ -295,6 +305,11 @@ colData(x, ...) <- value
       must be a SummarizedExperiment object with dimensions,
       dimension names, and assay elements consistent with the subset
       \code{x[i,j]} being replaced.}
+
+    \item{\code{subset(x, subset, select)}:}{Create a subset of \code{x}
+      using an expression \code{subset} referring to columns of
+      \code{rowData(x)} and / or \code{select} referring to column names
+      of \code{colData(x)}.}
 
   }
 
@@ -427,6 +442,7 @@ rowData(se0)
 colData(se0)
 
 se0[, se0$Treatment == "ChIP"]
+subset(se0, select = Treatment == "ChIP")
 
 ## cbind() combines objects with the same features of interest
 ## but different samples:
