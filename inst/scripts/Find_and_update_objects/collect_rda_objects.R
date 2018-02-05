@@ -1,5 +1,5 @@
 ### =========================================================================
-### scan_rda_files.R
+### collect_rda_objects.R
 ### -------------------------------------------------------------------------
 ###
 ### This script performs STEP 2 of the "Find and update objects" procedure
@@ -10,7 +10,7 @@
 ### something like:
 ###
 ###   cd <dir/you/want/to/search>
-###   find . -type d -name '.svn' -prune -o -type f -print | \
+###   find . -type d -name '.git' -prune -o -type f -print | \
 ###       grep -Ei '\.(rda|RData)$' >RDA_FILES
 ###
 ### See README file for more information.
@@ -18,7 +18,7 @@
 ### Then to run STEP 2 in "batch" mode:
 ###
 ###   cd <dir/you/want/to/search>  # RDA_FILES file should be here
-###   R CMD BATCH scan_rda_files.R >scan_rda_files.log 2>&1 &
+###   R CMD BATCH collect_rda_objects.R >collect_rda_objects.log 2>&1 &
 ###
 ### This can take a couple of hours to complete...
 ###
@@ -34,7 +34,7 @@
 INFILE <- "RDA_FILES"
 OUTFILE <- "RDA_OBJECTS"
 
-scanRdaFiles <- function(rda_files, outfile="")
+collect_rda_objects <- function(rda_files, outfile="")
 {
     cat("", file=outfile)  # create (or overwrite) empty output file
     for (i in seq_along(rda_files)) {
@@ -64,5 +64,5 @@ scanRdaFiles <- function(rda_files, outfile="")
 }
 
 rda_files <- read.table(INFILE, stringsAsFactors=FALSE)[[1L]]
-scanRdaFiles(rda_files, outfile=OUTFILE)
+collect_rda_objects(rda_files, outfile=OUTFILE)
 
