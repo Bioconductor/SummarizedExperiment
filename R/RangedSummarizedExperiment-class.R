@@ -94,7 +94,8 @@ setMethod("SummarizedExperiment", "SimpleList",
         nms <- colnames(assay)
         colData <- DataFrame(x=seq_len(ncol(assay)), row.names=nms)[, FALSE]
     } else if (!missing(colData)) {
-        colData <- as(colData, "DataFrame")
+        if (!is(colData, "DataFrame"))
+            colData <- as(colData, "DataFrame")
         if (is.null(rownames(colData)))
             rownames(colData) <- .get_colnames_from_assays(assays)
     }
@@ -117,7 +118,8 @@ setMethod("SummarizedExperiment", "SimpleList",
                 names(rowRanges) <- .get_rownames_from_assays(assays)
             ans_rownames <- names(rowRanges)
         } else {
-            rowData <- as(rowData, "DataFrame")
+            if (!is(rowData, "DataFrame"))
+                rowData <- as(rowData, "DataFrame")
             ans_rownames <- rownames(rowData)
             if (is.null(ans_rownames))
                 ans_rownames <- .get_rownames_from_assays(assays)
