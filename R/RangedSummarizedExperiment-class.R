@@ -224,7 +224,7 @@ setMethod("rowRanges", "SummarizedExperiment",
 
 ### Fix old GRanges instances on-the-fly.
 setMethod("rowRanges", "RangedSummarizedExperiment",
-    function(x, ...) updateObject(x@rowRanges)
+    function(x, ...) updateObject(x@rowRanges, check=FALSE)
 )
 
 setGeneric("rowRanges<-",
