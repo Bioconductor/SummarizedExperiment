@@ -453,7 +453,7 @@ subset(se0, select = Treatment == "ChIP")
 ## but different samples:
 se1 <- se0
 se2 <- se1[,1:3]
-colnames(se2) <- letters[1:ncol(se2)]
+colnames(se2) <- letters[seq_len(ncol(se2))]
 cmb1 <- cbind(se1, se2)
 dim(cmb1)
 dimnames(cmb1)
@@ -462,7 +462,7 @@ dimnames(cmb1)
 ## features of interest:
 se1 <- se0
 se2 <- se1[1:50,]
-rownames(se2) <- letters[1:nrow(se2)]
+rownames(se2) <- letters[seq_len(nrow(se2))]
 cmb2 <- rbind(se1, se2)
 dim(cmb2)
 dimnames(cmb2)
