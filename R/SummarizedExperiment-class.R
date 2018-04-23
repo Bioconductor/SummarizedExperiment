@@ -193,7 +193,7 @@ setGeneric("assays<-",
     ## actually takes advantage of the incomplete validation below to
     ## purposedly return invalid FourC objects!
     msg <- .valid.SummarizedExperiment(x)
-    if (!is.null(msg)) 
+    if (!is.null(msg))
         stop(msg)
     x
 }
@@ -828,7 +828,7 @@ setMethod("identicalVals", c("GenomicRanges", "GenomicRanges"),
 ###
 
 setMethod("realize", "SummarizedExperiment",
-    function(x)
+    function(x, BACKEND=getRealizationBackend())
     {
         for (i in seq_along(assays(x))) {
             ## We drop the dimnames of the individual assays for 2 reasons:
@@ -843,7 +843,7 @@ setMethod("realize", "SummarizedExperiment",
             ##      moment.
             a <- assay(x, i, withDimnames=FALSE)
             dimnames(a) <- NULL
-            assay(x, i) <- realize(a)
+            assay(x, i) <- realize(a, BACKEND=BACKEND)
         }
         x
     }

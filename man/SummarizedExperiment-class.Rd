@@ -57,7 +57,7 @@
 % Display
 \alias{show,SummarizedExperiment-method}
 
-% Combine 
+% Combine
 \alias{rbind,SummarizedExperiment-method}
 \alias{cbind,SummarizedExperiment-method}
 
@@ -114,13 +114,13 @@ colData(x, ...) <- value
 \S4method{[}{SummarizedExperiment,ANY,ANY,SummarizedExperiment}(x, i, j) <- value
 \S4method{subset}{SummarizedExperiment}(x, subset, select, ...)
 
-## Combining 
+## Combining
 
 \S4method{cbind}{SummarizedExperiment}(..., deparse.level=1)
 \S4method{rbind}{SummarizedExperiment}(..., deparse.level=1)
 
 ## On-disk realization
-\S4method{realize}{SummarizedExperiment}(x)
+\S4method{realize}{SummarizedExperiment}(x, BACKEND=getRealizationBackend())
 }
 
 \arguments{
@@ -182,6 +182,11 @@ colData(x, ...) <- value
   \item{select}{An expression which, when evaluated in the
     context of \code{colData(x)}, is a logical vector indicating
     elements or rows to keep: missing values are taken as false.}
+
+  \item{BACKEND}{\code{NULL} (the default), or a single string specifying the
+    name of the backend. When the backend is set to \code{NULL},
+    each element of \code{assays(x)} is realized in memory as an ordinary array
+    by just calling \code{as.array} on it.}
 
 }
 
@@ -357,7 +362,7 @@ colData(x, ...) <- value
       The colnames in \code{rowData(SummarizedExperiment)} must match or
       an error is thrown.
       Duplicate columns of \code{colData(SummarizedExperiment)} must
-      contain the same data. 
+      contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
       names are NULL matching is by position. A mixture of names and NULL
@@ -448,7 +453,7 @@ subset(se0, select = Treatment == "ChIP")
 ## but different samples:
 se1 <- se0
 se2 <- se1[,1:3]
-colnames(se2) <- letters[1:ncol(se2)] 
+colnames(se2) <- letters[seq_len(ncol(se2))]
 cmb1 <- cbind(se1, se2)
 dim(cmb1)
 dimnames(cmb1)
@@ -457,7 +462,7 @@ dimnames(cmb1)
 ## features of interest:
 se1 <- se0
 se2 <- se1[1:50,]
-rownames(se2) <- letters[1:nrow(se2)] 
+rownames(se2) <- letters[seq_len(nrow(se2))]
 cmb2 <- rbind(se1, se2)
 dim(cmb2)
 dimnames(cmb2)
