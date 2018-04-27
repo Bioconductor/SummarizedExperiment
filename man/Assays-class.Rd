@@ -17,6 +17,7 @@
 \alias{cbind,Assays-method}
 \alias{arbind,Matrix-method}
 \alias{acbind,Matrix-method}
+\alias{updateObject,Assays-method}
 
 \alias{class:SimpleListAssays}
 \alias{SimpleListAssays-class}

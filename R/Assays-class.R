@@ -295,6 +295,18 @@ setMethod("cbind", "Assays",
 setMethod("arbind", "Matrix", function(...) rbind(...))
 setMethod("acbind", "Matrix", function(...) cbind(...))
 
+### updateObject
+
+.updateObject_Assays <- function(object, ..., verbose=FALSE)
+{
+    assays <- as(object, "SimpleList", strict=FALSE)
+    as(endoapply(assays,
+           function(assay) updateObject(assay, ..., verbose=verbose)),
+       class(object))
+}
+
+setMethod("updateObject", "Assays", .updateObject_Assays)
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### SimpleListAssays class

@@ -64,6 +64,8 @@
 % On-disk realization
 \alias{realize,SummarizedExperiment-method}
 
+\alias{updateObject,SummarizedExperiment-method}
+
 \title{SummarizedExperiment objects}
 
 \description{

@@ -849,3 +849,18 @@ setMethod("realize", "SummarizedExperiment",
     }
 )
 
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### updateObject()
+###
+
+.updateObject_SummarizedExperiment <- function(object, ..., verbose=FALSE)
+{
+    object@assays <- updateObject(object@assays, ..., verbose=verbose)
+    object
+}
+
+setMethod("updateObject", "SummarizedExperiment",
+    .updateObject_SummarizedExperiment
+)
+
