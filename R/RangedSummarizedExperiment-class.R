@@ -526,3 +526,19 @@ setMethod("split", "RangedSummarizedExperiment",
     splitAsList(x, f, drop=drop)
 })
 
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### updateObject()
+###
+
+.updateObject_RangedSummarizedExperiment <- function(object, ..., verbose=FALSE)
+{
+    object <- callNextMethod()  # call method for SummarizedExperiment objects
+    object@rowRanges <- updateObject(object@rowRanges, ..., verbose=verbose)
+    object
+}
+
+setMethod("updateObject", "RangedSummarizedExperiment",
+    .updateObject_RangedSummarizedExperiment
+)
+

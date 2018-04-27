@@ -65,6 +65,9 @@
 \alias{width,RangedSummarizedExperiment-method}
 \alias{width<-,RangedSummarizedExperiment-method}
 
+% updateObject
+\alias{updateObject,RangedSummarizedExperiment-method}
+
 \title{RangedSummarizedExperiment objects}
 
 \description{
