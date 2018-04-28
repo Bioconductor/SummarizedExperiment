@@ -390,8 +390,114 @@ row.vec(modified)
 col.vec(modified)
 ```
 
-# Synchronising the objects
+# Enabling subsetting operations
 
+## Getting a subset
+
+A key strength of the `SummarizedExperiment` class is that subsetting is synchronized across the various (meta)data fields.
+This avoids book-keeping errors and guarantees consistency throughout an interactive analysis session.
+We need to ensure that the values in our custom slots are also subsetted.
+
+```{r}
+setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
+    rv <- row.vec(x, withDimnames=FALSE)
+    cv <- col.vec(x, withDimnames=FALSE)
+    rrm <- row2row.mat(x, withDimnames=FALSE)
+    ccm <- col2col.mat(x, withDimnames=FALSE)
+    rcm <- row2col.mat(x, withDimnames=FALSE)
+    crm <- col2row.mat(x, withDimnames=FALSE)
+
+    if (!missing(i)) {
+        if (is.character(i)) {
+            fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
+            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(i, rownames(x), fmt)
+        }
+        i <- as.vector(i)
+        rv <- rv[i]
+        rrm <- rrm[i,,drop=FALSE]
+        crm <- crm[,i,drop=FALSE]
+    }
+
+    if (!missing(j)) {
+        if (is.character(j)) {
+            fmt <- paste0("<", class(x), ">[,j] index out of bounds: %s")
+            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(j, colnames(x), fmt)
+        }
+        j <- as.vector(j)
+        cv <- cv[j]
+        ccm <- ccm[,j,drop=FALSE]
+        rcm <- rcm[j,,drop=FALSE]
+    }
+
+    out <- callNextMethod()
+    BiocGenerics:::replaceSlots(out, row.vec=rv, col.vec=cv,
+        row2row.mat=rrm, col2col.mat=ccm, 
+        row2col.mat=rcm, col2row.mat=crm, check=FALSE)
+})
+```
+
+Note the special code for handling character indices, and the use of `callNextMethod` to subset the base `SummarizedExperiment` slots.
+
+We can check that this is working properly:
+
+```{r}
+thing[1:5,]
+thing[,1:2]
+```
+
+## Assigning a subset
+
+Subset assignment can be similarly performed, though the signature needs to be specified so that the replacement value is of the same class.
+This is generally necessary for sensible replacement of the custom slots.
+
+```{r}
+setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
+        function(x, i, j, ..., value) {
+    rv <- row.vec(x, withDimnames=FALSE)
+    cv <- col.vec(x, withDimnames=FALSE)
+    rrm <- row2row.mat(x, withDimnames=FALSE)
+    ccm <- col2col.mat(x, withDimnames=FALSE)
+    rcm <- row2col.mat(x, withDimnames=FALSE)
+    crm <- col2row.mat(x, withDimnames=FALSE)
+
+    if (!missing(i)) {
+        if (is.character(i)) {
+            fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
+            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(i, rownames(x), fmt)
+        }
+        i <- as.vector(i)
+        rv[i] <- row.vec(value, withDimnames=FALSE)
+        rrm[i,] <- row2row.mat(value, withDimnames=FALSE)
+        crm[,i] <- col2row.mat(value, withDimnames=FALSE)
+    }
+
+    if (!missing(j)) {
+        if (is.character(j)) {
+            fmt <- paste0("<", class(x), ">[,j] index out of bounds: %s")
+            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(j, colnames(x), fmt)
+        }
+        j <- as.vector(j)
+        cv[j] <- col.vec(value, withDimnames=FALSE)
+        ccm[,j] <- col2col.mat(value, withDimnames=FALSE)
+        rcm[j,] <- row2col.mat(value, withDimnames=FALSE)
+    }
+
+    out <- callNextMethod()
+    BiocGenerics:::replaceSlots(out, row.vec=rv, col.vec=cv,
+        row2row.mat=rrm, col2col.mat=ccm, 
+        row2col.mat=rcm, col2row.mat=crm, check=FALSE)
+})
+```
+
+We can check that this is working properly:
+
+```{r}
+modified <- thing
+modified[1:5,] <- thing[5:1,]
+modified[,1:2] <- thing[,2:1]
+row.vec(modified)
+col.vec(modified)
+````
 
 # Session information
 
