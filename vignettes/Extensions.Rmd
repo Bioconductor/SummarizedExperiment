@@ -1,0 +1,400 @@
+---
+title: "Extending the SummarizedExperiment class"
+author: Aaron Lun
+date: "Revised: 28 April, 2018"
+output:
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Extensions}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE)
+library(SummarizedExperiment)
+```
+
+# Motivation
+
+A large number of Bioconductor packages contain extensions of the standard `SummarizedExperiment` class from the `r Biocpkg("SummarizedExperiment")` package.
+This allows developers to take advantage of the power of the `SummarizedExperiment` representation for synchronising data and metadata, 
+while still accommodating specialized data structures for particular scientific applications.
+This document is intended to provide a developer-level "best practices" reference for the creation of these derived classes.
+
+# Creating a derived class
+
+To demonstrate, we will consider the derivation of an example class that requires some specialized slots.
+First, we consider 1D data structures:
+
+- `row.vec`: 1:1 mapping from each value to a row of the `SummarizedExperiment`.
+- `col.vec`: 1:1 mapping from each value to a column of the `SummarizedExperiment`.
+
+Any 1D structure can be used if it supports `length`, `c`, `[` and `[<-`.
+For simplicity, we will use integer vectors for the `*.vec` slots.
+
+We also consider some 2D data structures: 
+
+- `row2row.mat`: 1:1 mapping from each row to a row of the `SummarizedExperiment`.
+- `col2col.mat`: 1:1 mapping from each column to a column of the `SummarizedExperiment`.
+- `row2col.mat`: 1:1 mapping from each row to a column of the `SummarizedExperiment`.
+- `col2row.mat`: 1:1 mapping from each column to a row of the `SummarizedExperiment`.
+
+Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, `[` and `[<-`.
+For simplicity, we will use (numeric) matrices for the `*.mat` slots.
+
+Definition of the class is achieved using the `setClass` function from the `r CRANpkg("methods")` package, as conventionally done for all S4 classes.
+
+```{r}
+setClass("ExampleClass",
+    slots= representation(
+        row.vec="integer",
+        col.vec="integer",
+        row2row.mat="matrix",
+        col2col.mat="matrix",
+        row2col.mat="matrix",
+        col2row.mat="matrix"
+    ),
+    contains="SummarizedExperiment")
+```
+
+# Defining the constructor
+
+The constructor should provide some methods for setting the new slots in the derived class definition.
+We use `...` to pass further arguments to the `SummarizedExperiment` constructor, which allows us to avoid re-specifying all its arguments.
+Of course, it is straightforward to specify individual arguments to be passed to the `SummarizedExperiment` constructor if necessary.
+
+```{r}
+ExampleClass <- function(row.vec, col.vec, row2row.mat, col2col.mat, 
+        row2col.mat, col2row.mat, ...) {
+    se <- SummarizedExperiment(...)
+    new("ExampleClass", se, row.vec=row.vec, col.vec=col.vec,
+        row2row.mat=row2row.mat, col2col.mat=col2col.mat, 
+        row2col.mat=row2col.mat, col2row.mat=col2row.mat)
+}
+```
+
+Let's test out this constructor with an instance of `ExampleClass` that has 10 rows and 7 columns:
+
+```{r}
+thing <- ExampleClass(row.vec=1:10, col.vec=sample(50, 7),
+    row2row.mat=matrix(runif(30), nrow=10),
+    col2col.mat=matrix(runif(14), ncol=7),
+    row2col.mat=matrix(runif(21), nrow=7),
+    col2row.mat=matrix(runif(20), ncol=10),
+    assays=list(counts=matrix(rnorm(70), nrow=10)),
+    colData=DataFrame(whee=LETTERS[1:7]),
+    rowData=DataFrame(yay=letters[1:10]))
+```
+
+# Creating getter methods
+
+## For 1D data structures
+
+We define some getter methods for the custom slots containing the 1D structures.
+This usually requires the creation of new generics if they are not already available, e.g., in `r Biocpkg("BiocGenerics")` or `r Biocpkg("S4Vectors")`^[If you have an idea for a generally applicable generic that is not yet available, please contact the Bioconductor core team.].
+The `...` in the generic function definition means that custom arguments can be provided for specific methods.
+
+```{r}
+setGeneric("row.vec", function(x, ...) standardGeneric("row.vec"))
+setGeneric("col.vec", function(x, ...) standardGeneric("col.vec"))
+```
+
+We then define the class-specific methods for these generics.
+Note the `withDimnames=TRUE` argument, which enforces consistency between the names of the extracted object and the original `SummarizedExperiment`.
+It is possible to turn this off for greater efficiency, e.g., for internal usage where names are not necessary.
+
+```{r}
+setMethod("row.vec", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@row.vec
+    if (withDimnames) names(out) <- rownames(x)
+    return(out)
+})
+setMethod("col.vec", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@col.vec
+    if (withDimnames) names(out) <- colnames(x)
+    return(out)
+})
+```
+
+We test these methods out:
+
+```{r}
+row.vec(thing)
+col.vec(thing)
+```
+
+## For 2D data structures
+
+We repeat this process for the 2D structures.
+
+```{r}
+setGeneric("row2row.mat", function(x, ...) standardGeneric("row2row.mat"))
+setGeneric("col2col.mat", function(x, ...) standardGeneric("col2col.mat"))
+setGeneric("row2col.mat", function(x, ...) standardGeneric("row2col.mat"))
+setGeneric("col2row.mat", function(x, ...) standardGeneric("col2row.mat"))
+```
+
+Again, we define class-specific methods for these generics.
+
+```{r}
+setMethod("row2row.mat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@row2row.mat
+    if (withDimnames) rownames(out) <- rownames(x)
+    return(out)
+})
+setMethod("col2col.mat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@col2col.mat
+    if (withDimnames) colnames(out) <- colnames(x)
+    return(out)
+})
+setMethod("row2col.mat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@row2col.mat
+    if (withDimnames) rownames(out) <- colnames(x)
+    return(out)
+})
+setMethod("col2row.mat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@col2row.mat
+    if (withDimnames) colnames(out) <- rownames(x)
+    return(out)
+})
+```
+
+Testing them out:
+
+```{r}
+dim(row2row.mat(thing))
+dim(col2col.mat(thing))
+dim(row2col.mat(thing))
+dim(col2row.mat(thing))
+```
+
+## For `SummarizedExperiment` slots
+
+Obviously, we can use the getter methods defined in `r Biocpkg("SummarizedExperiment")` to retrieve data from slots in the base class:
+
+```{r}
+assayNames(thing)
+colData(thing)
+rowData(thing)
+```
+
+These should generally not require any re-defining for a derived class.
+However, if it is necessary, the methods should use `callNextMethod` internally.
+This will call the method for the base `SummarizedExperiment` class, the output of which can be modified as required.
+
+```{r}
+setMethod("rowData", "ExampleClass", function(x, ...) {
+    out <- callNextMethod()
+    # Do something extra here.
+    return(out)
+})
+```
+
+# Defining the validity method
+
+We want to be notified (and an error to be thrown) if the new slots are filled with inappropriate values.
+This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function].
+Returning a string indicates that there is a problem with the validity of the `ExampleClass` instance.
+
+
+```{r}
+setValidity2("ExampleClass", function(object) {
+    NR <- NROW(object)
+    NC <- NCOL(object)
+    msg <- NULL
+
+    # 1D
+    if (length(row.vec(thing, withDimnames=FALSE))!=NR) {
+        msg <- c(msg, "'row.vec' should have length equal to the number of rows")
+    }
+    if (length(col.vec(thing, withDimnames=FALSE))!=NC) {
+        msg <- c(msg, "'col.vec' should have length equal to the number of columns")
+    }
+
+    # 2D
+    if (NROW(row2row.mat(thing, withDimnames=FALSE))!=NR) {
+        msg <- c(msg, "'nrow(row2row.mat)' should be equal to the number of rows")
+    }
+    if (NCOL(col2col.mat(thing, withDimnames=FALSE))!=NC) {
+        msg <- c(msg, "'ncol(col2col.mat)' should be equal to the number of columns")
+    }
+    if (NROW(row2col.mat(thing, withDimnames=FALSE))!=NC) {
+        msg <- c(msg, "'nrow(row2col.mat)' should be equal to the number of columns")
+    }
+    if (NCOL(col2row.mat(thing, withDimnames=FALSE))!=NR) {
+        msg <- c(msg, "'ncol(col2row.mat)' should be equal to the number of rows")
+    }
+
+    if (length(msg)) {
+        return(msg)
+    }
+    return(TRUE)
+})
+```
+
+Some notes about this function:
+
+- We use the `NCOL` and `NROW` methods from `r Biocpkg("BiocGenerics")` as these provide support for various Bioconductor objects.
+- We use the getter functions to retreive the slot values rather than using `@`.
+There were good reasons for this, but I have forgotten them.
+- We also set `withDimnames=FALSE` in our getter calls, as consistent naming is not necessary for internal functions.
+
+# Creating a `show` method
+
+The default `show` method will only display the `SummarizedExperiment` slots.
+We can augment it to display some relevant aspects of the custom slots.
+This is done by calling the base `show` method before printing additional fields as necessary.
+
+```{r}
+setMethod("show", "ExampleClass", function(object) {
+    callNextMethod()
+    cat("row2row.mat has", ncol(row2row.mat(object)), "columns\n")
+    cat("col2col.mat has", nrow(col2col.mat(object)), "rows\n")
+    cat("row2col.mat has", ncol(row2row.mat(object)), "columns\n")
+    cat("col2row.mat has", ncol(row2row.mat(object)), "rows\n")
+})
+```
+
+Printing the object will now add the extra information about the custom slots.
+
+```{r}
+thing
+```
+
+# Creating setter methods
+
+## For 1D data structures
+
+We define some setter methods for the custom slots containing the 1D structures.
+Again, this usually requires the creation of new generics.
+
+```{r}
+setGeneric("row.vec<-", function(x, ..., value) standardGeneric("row.vec<-"))
+setGeneric("col.vec<-", function(x, ..., value) standardGeneric("col.vec<-"))
+```
+
+We define the class-specific methods for these generics.
+Note that use of `validObject` to ensure that the assigned input is still valid.
+
+```{r}
+setReplaceMethod("row.vec", "ExampleClass", function(x, value) {
+    x@row.vec <- value
+    validObject(x)
+    return(x)
+})
+setReplaceMethod("col.vec", "ExampleClass", function(x, value) {
+    x@col.vec <- value
+    validObject(x)
+    return(x)
+})
+```
+
+We test these methods out:
+
+```{r}
+row.vec(thing) <- 0:9
+row.vec(thing)
+col.vec(thing) <- 7:1
+col.vec(thing)
+```
+
+## For 2D data structures
+
+We repeat this process for the 2D structures.
+
+```{r}
+setGeneric("row2row.mat<-", function(x, ..., value) standardGeneric("row2row.mat<-"))
+setGeneric("col2col.mat<-", function(x, ..., value) standardGeneric("col2col.mat<-"))
+setGeneric("row2col.mat<-", function(x, ..., value) standardGeneric("row2col.mat<-"))
+setGeneric("col2row.mat<-", function(x, ..., value) standardGeneric("col2row.mat<-"))
+```
+
+Again, we define class-specific methods for these generics.
+
+```{r}
+setReplaceMethod("row2row.mat", "ExampleClass", function(x, value) {
+    x@row2row.mat <- value
+    validObject(x)
+    return(x)
+})
+setReplaceMethod("col2col.mat", "ExampleClass", function(x, value) {
+    x@col2col.mat <- value
+    validObject(x)
+    return(x)
+})
+setReplaceMethod("row2col.mat", "ExampleClass", function(x, value) {
+    x@row2col.mat <- value
+    validObject(x)
+    return(x)
+})
+setReplaceMethod("col2row.mat", "ExampleClass", function(x, value) {
+    x@col2row.mat <- value
+    validObject(x)
+    return(x)
+})
+```
+
+Testing them out:
+
+```{r}
+row2row.mat(thing) <- -row2row.mat(thing)
+col2col.mat(thing) <- -col2col.mat(thing)
+row2col.mat(thing) <- -row2col.mat(thing)
+col2row.mat(thing) <- -col2row.mat(thing)
+```
+
+## For `SummarizedExperiment` slots
+
+Again, we can use the setter methods defined in `r Biocpkg("SummarizedExperiment")` to modify slots in the base class:
+
+```{r}
+colData(thing)$stuff <- sample(100, ncol(thing))
+rowData(thing)$blah <- sample(100, nrow(thing))
+```
+
+These should generally not require any re-defining.
+However, if it is necessary, the methods should use `callNextMethod` internally:
+
+```{r}
+setReplaceMethod("rowData", "ExampleClass", function(x, ..., value) {
+    y <- callNextMethod() # returns a modified ExampleClass
+    # Do something extra here.
+    return(y)
+})
+```
+
+## Other types of modifying functions 
+
+Imagine that we want to write a function that returns a modified `ExampleClass`, e.g., where the signs of the `*.vec` fields are reversed.
+For example, we will pretend that we want to write a `normalize` function, using the generic from `r Biocpkg("BiocGenerics")`.
+
+```{r}
+setMethod("normalize", "ExampleClass", function(object) {
+    # do something exciting, i.e., flip the signs
+    new.row <- -row.vec(object, withDimnames=FALSE) 
+    new.col <- -col.vec(object, withDimnames=FALSE)
+    BiocGenerics:::replaceSlots(object, row.vec=new.row, 
+        col.vec=new.col, check=FALSE)
+})
+```
+
+We use `BiocGenerics:::replaceSlots` instead of the setter methods that we defined above.
+This is because our setters perform validity checks that are unnecessary if we know that the modification cannot alter the validity of the object.
+The `replaceSlots` function allows us to skip these validity checks for greater efficiency.
+
+```{r}
+modified <- normalize(thing)
+row.vec(modified)
+col.vec(modified)
+```
+
+# Synchronising the objects
+
+
+# Session information
+
+```{r}
+sessionInfo()
+```
