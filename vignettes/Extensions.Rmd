@@ -567,8 +567,8 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
     all.rcm <- lapply(args, row2col.mat, withDimnames=FALSE)
 
     all.cv <- do.call(c, all.cv)
-    all.ccm <- do.call(rbind, all.ccm)
-    all.rcm <- do.call(cbind, all.rcm)
+    all.ccm <- do.call(cbind, all.ccm)
+    all.rcm <- do.call(rbind, all.rcm)
 
     # Checks for identical column state.
     ref <- args[[1]]
@@ -589,7 +589,7 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
 
     out <- callNextMethod()
     BiocGenerics:::replaceSlots(out, col.vec=all.cv,
-        row2row.mat=all.ccm, col2row.mat=all.rcm, 
+        col2col.mat=all.ccm, row2col.mat=all.rcm, 
         check=FALSE)
 })
 ```
