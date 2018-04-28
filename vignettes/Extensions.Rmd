@@ -499,6 +499,107 @@ row.vec(modified)
 col.vec(modified)
 ````
 
+# Defining combining methods
+
+## By row
+
+We need to define a `rbind` method for our custom class.
+This is done by combining the custom per-row slots across class instances.
+
+```{r}
+setMethod("rbind", "ExampleClass", function(..., deparse.level=1) {
+    args <- list(...)
+    all.rv <- lapply(args, row.vec, withDimnames=FALSE)
+    all.rrm <- lapply(args, row2row.mat, withDimnames=FALSE)
+    all.crm <- lapply(args, col2row.mat, withDimnames=FALSE)
+
+    all.rv <- do.call(c, all.rv)
+    all.rrm <- do.call(rbind, all.rrm)
+    all.crm <- do.call(cbind, all.crm)
+
+    # Checks for identical column state.
+    ref <- args[[1]]
+    ref.cv <- col.vec(ref, withDimnames=FALSE)
+    ref.ccm <- col2col.mat(ref, withDimnames=FALSE)
+    ref.rcm <- row2col.mat(ref, withDimnames=FALSE)
+    for (x in args[-1]) {
+        if (!identical(ref.cv, col.vec(x, withDimnames=FALSE)) 
+            || !identical(ref.ccm, col2col.mat(x, withDimnames=FALSE))
+            || !identical(ref.rcm, row2col.mat(x, withDimnames=FALSE))) {
+            stop("per-column values are not compatible")
+        }
+    }
+ 
+    old.validity <- S4Vectors:::disableValidity()
+    S4Vectors:::disableValidity(TRUE)
+    on.exit(S4Vectors:::disableValidity(old.validity))
+
+    out <- callNextMethod()
+    BiocGenerics:::replaceSlots(out, row.vec=all.rv,
+        row2row.mat=all.rrm, col2row.mat=all.crm, 
+        check=FALSE)
+})
+```
+
+We check the other per-column slots across all elements to ensure that they are the same.
+This protects the user against combining incompatible objects.
+However, depending on the application, this may not be necessary (or too costly) for all slots, in which case it can be limited to critical slots.
+
+We also use the `disableValidity` method to avoid the validity check in the base `cbind` method.
+This is because the object is technically invalid when the base slots are combined but before it is updated with the new combined values for the custom slots.
+The `on.exit` call ensuress that the original validity setting is restored upon exit of the function.
+
+Testing yields something sensible:
+
+```{r}
+rbind(thing, thing)
+```
+
+## By column
+
+We similarly define a `cbind` method to handle the custom slots.
+
+```{r}
+setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
+    args <- list(...)
+    all.cv <- lapply(args, col.vec, withDimnames=FALSE)
+    all.ccm <- lapply(args, col2col.mat, withDimnames=FALSE)
+    all.rcm <- lapply(args, row2col.mat, withDimnames=FALSE)
+
+    all.cv <- do.call(c, all.cv)
+    all.ccm <- do.call(rbind, all.ccm)
+    all.rcm <- do.call(cbind, all.rcm)
+
+    # Checks for identical column state.
+    ref <- args[[1]]
+    ref.rv <- row.vec(ref, withDimnames=FALSE)
+    ref.rrm <- row2row.mat(ref, withDimnames=FALSE)
+    ref.crm <- col2row.mat(ref, withDimnames=FALSE)
+    for (x in args[-1]) {
+        if (!identical(ref.rv, row.vec(x, withDimnames=FALSE)) 
+            || !identical(ref.rrm, row2row.mat(x, withDimnames=FALSE))
+            || !identical(ref.crm, col2row.mat(x, withDimnames=FALSE))) {
+            stop("per-row values are not compatible")
+        }
+    }
+
+    old.validity <- S4Vectors:::disableValidity()
+    S4Vectors:::disableValidity(TRUE)
+    on.exit(S4Vectors:::disableValidity(old.validity))
+
+    out <- callNextMethod()
+    BiocGenerics:::replaceSlots(out, col.vec=all.cv,
+        row2row.mat=all.ccm, col2row.mat=all.rcm, 
+        check=FALSE)
+})
+```
+
+And testing seems to yield a sensible outcome:
+
+```{r}
+cbind(thing, thing)
+```
+
 # Session information
 
 ```{r}
