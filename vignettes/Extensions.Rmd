@@ -47,11 +47,12 @@ We also consider some 2D data structures:
 Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, `[` and `[<-`.
 For simplicity, we will use (numeric) matrices for the `*.mat` slots.
 
-Definition of the class is achieved using the `setClass` function from the `r CRANpkg("methods")` package, as conventionally done for all S4 classes.
+Definition of the class is achieved using the `setClass` function from the _methods_ package, as conventionally done for all S4 classes.
 We will use Roxygen's `#'` tags to trigger the generation of import/export statements in the `NAMESPACE`.
 
 ```{r}
 #' @export
+#' @import methods
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 .ExampleClass <- setClass("ExampleClass",
     slots= representation(
