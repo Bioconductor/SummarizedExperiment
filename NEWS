@@ -1,3 +1,48 @@
+CHANGES IN VERSION 1.10.0
+-------------------------
+
+NEW FEATURES
+
+    o Add "subset" method for SummarizedExperiment objects. See
+      https://github.com/Bioconductor/SummarizedExperiment/pull/6
+
+    o rowRanges() now is supported on a SummarizedExperiment object that is
+      not a RangedSummarizedExperiment, and returns NULL. Also doing
+      'rowRanges(x) <- NULL' on a RangedSummarizedExperiment object now is
+      supported and degrades it to a SummarizedExperiment instance.
+
+    o Add 'BACKEND' argument to "realize" method for SummarizedExperiment
+      objects.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o saveHDF5SummarizedExperiment() and loadHDF5SummarizedExperiment() are
+      now in the HDF5Array package.
+
+    o Replace old "updateObject" method for SummarizedExperiment objects with
+      a new one.
+
+      The new method calls updateObject() on all the assays of the object.
+      This will update SummarizedExperiment objects (and their derivatives
+      like BSseq objects) that have "old" DelayedArray objects in their assays.
+
+      The old method has been around since BioC 3.2 (released 2.5 years ago)
+      and was used to update objects made prior to the change of internals
+      that happened between BioC 3.1 and BioC 3.2. All these "old" objects
+      should have been updated by now so we don't need this anymore.
+
+BUG FIXES
+
+    o Modify the "[<-" method for SummarizedExperiment to leave 'metadata(x)'
+      intact instead of trying to combine it with 'metadata(value)'. With this
+      change 'x[i , j] <- x[i , j]' behaves like a no-op (as expected) instead
+      of duplicating metadata(x).
+
+    o The SummarizedExperiment() constructor does not try to downgrade the
+      supplied rowData and/or colData to DataFrame anymore if they derive
+      from DataFrame.
+
+
 CHANGES IN VERSION 1.8.0
 ------------------------
 
@@ -6,8 +51,6 @@ NEW FEATURES
     o Add 'chunk_dim' and 'level' arguments to saveHDF5SummarizedExperiment().
 
     o Add coercion from ExpressionSet to SummarizedExperiment.
-
-SIGNIFICANT USER-VISIBLE CHANGES
 
 DEPRECATED AND DEFUNCT
 
