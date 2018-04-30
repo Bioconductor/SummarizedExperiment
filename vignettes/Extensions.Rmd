@@ -13,6 +13,9 @@ vignette: >
 
 ```{r, echo=FALSE, results="hide"}
 knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r, echo=FALSE}
 library(SummarizedExperiment)
 ```
 
@@ -28,18 +31,18 @@ This document is intended to provide a developer-level "best practices" referenc
 To demonstrate, we will consider the derivation of an example class that requires some specialized slots.
 First, we consider 1D data structures:
 
-- `row.vec`: 1:1 mapping from each value to a row of the `SummarizedExperiment`.
-- `col.vec`: 1:1 mapping from each value to a column of the `SummarizedExperiment`.
+- `rowVec`: 1:1 mapping from each value to a row of the `SummarizedExperiment`.
+- `colVec`: 1:1 mapping from each value to a column of the `SummarizedExperiment`.
 
 Any 1D structure can be used if it supports `length`, `c`, `[` and `[<-`.
 For simplicity, we will use integer vectors for the `*.vec` slots.
 
 We also consider some 2D data structures: 
 
-- `row2row.mat`: 1:1 mapping from each row to a row of the `SummarizedExperiment`.
-- `col2col.mat`: 1:1 mapping from each column to a column of the `SummarizedExperiment`.
-- `row2col.mat`: 1:1 mapping from each row to a column of the `SummarizedExperiment`.
-- `col2row.mat`: 1:1 mapping from each column to a row of the `SummarizedExperiment`.
+- `rowToRowMat`: 1:1 mapping from each row to a row of the `SummarizedExperiment`.
+- `colToColMat`: 1:1 mapping from each column to a column of the `SummarizedExperiment`.
+- `rowToColMat`: 1:1 mapping from each row to a column of the `SummarizedExperiment`.
+- `colToRowMat`: 1:1 mapping from each column to a row of the `SummarizedExperiment`.
 
 Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, `[` and `[<-`.
 For simplicity, we will use (numeric) matrices for the `*.mat` slots.
@@ -47,14 +50,14 @@ For simplicity, we will use (numeric) matrices for the `*.mat` slots.
 Definition of the class is achieved using the `setClass` function from the `r CRANpkg("methods")` package, as conventionally done for all S4 classes.
 
 ```{r}
-setClass("ExampleClass",
+.ExampleClass <- setClass("ExampleClass",
     slots= representation(
-        row.vec="integer",
-        col.vec="integer",
-        row2row.mat="matrix",
-        col2col.mat="matrix",
-        row2col.mat="matrix",
-        col2row.mat="matrix"
+        rowVec="integer",
+        colVec="integer",
+        rowToRowMat="matrix",
+        colToColMat="matrix",
+        rowToColMat="matrix",
+        colToRowMat="matrix"
     ),
     contains="SummarizedExperiment")
 ```
@@ -66,23 +69,23 @@ We use `...` to pass further arguments to the `SummarizedExperiment` constructor
 Of course, it is straightforward to specify individual arguments to be passed to the `SummarizedExperiment` constructor if necessary.
 
 ```{r}
-ExampleClass <- function(row.vec, col.vec, row2row.mat, col2col.mat, 
-        row2col.mat, col2row.mat, ...) {
+ExampleClass <- function(rowVec, colVec, rowToRowMat, colToColMat, 
+        rowToColMat, colToRowMat, ...) {
     se <- SummarizedExperiment(...)
-    new("ExampleClass", se, row.vec=row.vec, col.vec=col.vec,
-        row2row.mat=row2row.mat, col2col.mat=col2col.mat, 
-        row2col.mat=row2col.mat, col2row.mat=col2row.mat)
+    .ExampleClass(se, rowVec=rowVec, colVec=colVec,
+        rowToRowMat=rowToRowMat, colToColMat=colToColMat, 
+        rowToColMat=rowToColMat, colToRowMat=colToRowMat)
 }
 ```
 
 Let's test out this constructor with an instance of `ExampleClass` that has 10 rows and 7 columns:
 
 ```{r}
-thing <- ExampleClass(row.vec=1:10, col.vec=sample(50, 7),
-    row2row.mat=matrix(runif(30), nrow=10),
-    col2col.mat=matrix(runif(14), ncol=7),
-    row2col.mat=matrix(runif(21), nrow=7),
-    col2row.mat=matrix(runif(20), ncol=10),
+thing <- ExampleClass(rowVec=1:10, colVec=sample(50, 7),
+    rowToRowMat=matrix(runif(30), nrow=10),
+    colToColMat=matrix(runif(14), ncol=7),
+    rowToColMat=matrix(runif(21), nrow=7),
+    colToRowMat=matrix(runif(20), ncol=10),
     assays=list(counts=matrix(rnorm(70), nrow=10)),
     colData=DataFrame(whee=LETTERS[1:7]),
     rowData=DataFrame(yay=letters[1:10]))
@@ -97,8 +100,8 @@ This usually requires the creation of new generics if they are not already avail
 The `...` in the generic function definition means that custom arguments can be provided for specific methods.
 
 ```{r}
-setGeneric("row.vec", function(x, ...) standardGeneric("row.vec"))
-setGeneric("col.vec", function(x, ...) standardGeneric("col.vec"))
+setGeneric("rowVec", function(x, ...) standardGeneric("rowVec"))
+setGeneric("colVec", function(x, ...) standardGeneric("colVec"))
 ```
 
 We then define the class-specific methods for these generics.
@@ -106,23 +109,25 @@ Note the `withDimnames=TRUE` argument, which enforces consistency between the na
 It is possible to turn this off for greater efficiency, e.g., for internal usage where names are not necessary.
 
 ```{r}
-setMethod("row.vec", "ExampleClass", function(x, withDimnames=TRUE) {
-    out <- x@row.vec
-    if (withDimnames) names(out) <- rownames(x)
-    return(out)
+setMethod("rowVec", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@rowVec
+    if (withDimnames) 
+        names(out) <- rownames(x)
+    out
 })
-setMethod("col.vec", "ExampleClass", function(x, withDimnames=TRUE) {
-    out <- x@col.vec
-    if (withDimnames) names(out) <- colnames(x)
-    return(out)
+setMethod("colVec", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@colVec
+    if (withDimnames) 
+        names(out) <- colnames(x)
+    out
 })
 ```
 
 We test these methods out:
 
 ```{r}
-row.vec(thing)
-col.vec(thing)
+rowVec(thing)
+colVec(thing)
 ```
 
 ## For 2D data structures
@@ -130,44 +135,48 @@ col.vec(thing)
 We repeat this process for the 2D structures.
 
 ```{r}
-setGeneric("row2row.mat", function(x, ...) standardGeneric("row2row.mat"))
-setGeneric("col2col.mat", function(x, ...) standardGeneric("col2col.mat"))
-setGeneric("row2col.mat", function(x, ...) standardGeneric("row2col.mat"))
-setGeneric("col2row.mat", function(x, ...) standardGeneric("col2row.mat"))
+setGeneric("rowToRowMat", function(x, ...) standardGeneric("rowToRowMat"))
+setGeneric("colToColMat", function(x, ...) standardGeneric("colToColMat"))
+setGeneric("rowToColMat", function(x, ...) standardGeneric("rowToColMat"))
+setGeneric("colToRowMat", function(x, ...) standardGeneric("colToRowMat"))
 ```
 
 Again, we define class-specific methods for these generics.
 
 ```{r}
-setMethod("row2row.mat", "ExampleClass", function(x, withDimnames=TRUE) {
-    out <- x@row2row.mat
-    if (withDimnames) rownames(out) <- rownames(x)
-    return(out)
+setMethod("rowToRowMat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@rowToRowMat
+    if (withDimnames) 
+        rownames(out) <- rownames(x)
+    out
 })
-setMethod("col2col.mat", "ExampleClass", function(x, withDimnames=TRUE) {
-    out <- x@col2col.mat
-    if (withDimnames) colnames(out) <- colnames(x)
-    return(out)
+setMethod("colToColMat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@colToColMat
+    if (withDimnames) 
+        colnames(out) <- colnames(x)
+    out
 })
-setMethod("row2col.mat", "ExampleClass", function(x, withDimnames=TRUE) {
-    out <- x@row2col.mat
-    if (withDimnames) rownames(out) <- colnames(x)
-    return(out)
+setMethod("rowToColMat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@rowToColMat
+    if (withDimnames) 
+        rownames(out) <- colnames(x)
+    out
 })
-setMethod("col2row.mat", "ExampleClass", function(x, withDimnames=TRUE) {
-    out <- x@col2row.mat
-    if (withDimnames) colnames(out) <- rownames(x)
-    return(out)
+setMethod("colToRowMat", "ExampleClass", function(x, withDimnames=TRUE) {
+    out <- x@colToRowMat
+    if (withDimnames) 
+        colnames(out) <- rownames(x)
+    out
 })
 ```
 
 Testing them out:
 
 ```{r}
-dim(row2row.mat(thing))
-dim(col2col.mat(thing))
-dim(row2col.mat(thing))
-dim(col2row.mat(thing))
+dim(rowToRowMat(thing))
+dim(colToColMat(thing))
+dim(rowToColMat(thing))
+dim(colToRowMat(thing))
 ```
 
 ## For `SummarizedExperiment` slots
@@ -188,16 +197,15 @@ This will call the method for the base `SummarizedExperiment` class, the output 
 setMethod("rowData", "ExampleClass", function(x, ...) {
     out <- callNextMethod()
     # Do something extra here.
-    return(out)
+    out
 })
 ```
 
 # Defining the validity method
 
 We want to be notified (and an error to be thrown) if the new slots are filled with inappropriate values.
-This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function].
+This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function.].
 Returning a string indicates that there is a problem with the validity of the `ExampleClass` instance.
-
 
 ```{r}
 setValidity2("ExampleClass", function(object) {
@@ -206,25 +214,26 @@ setValidity2("ExampleClass", function(object) {
     msg <- NULL
 
     # 1D
-    if (length(row.vec(thing, withDimnames=FALSE))!=NR) {
-        msg <- c(msg, "'row.vec' should have length equal to the number of rows")
+    print(c(NR, NC))
+    if (length(rowVec(object, withDimnames=FALSE)) != NR) {
+        msg <- c(msg, "'rowVec' should have length equal to the number of rows")
     }
-    if (length(col.vec(thing, withDimnames=FALSE))!=NC) {
-        msg <- c(msg, "'col.vec' should have length equal to the number of columns")
+    if (length(colVec(object, withDimnames=FALSE)) != NC) {
+        msg <- c(msg, "'colVec' should have length equal to the number of columns")
     }
 
     # 2D
-    if (NROW(row2row.mat(thing, withDimnames=FALSE))!=NR) {
-        msg <- c(msg, "'nrow(row2row.mat)' should be equal to the number of rows")
+    if (NROW(rowToRowMat(object, withDimnames=FALSE)) != NR) {
+        msg <- c(msg, "'nrow(rowToRowMat)' should be equal to the number of rows")
     }
-    if (NCOL(col2col.mat(thing, withDimnames=FALSE))!=NC) {
-        msg <- c(msg, "'ncol(col2col.mat)' should be equal to the number of columns")
+    if (NCOL(colToColMat(object, withDimnames=FALSE)) != NC) {
+        msg <- c(msg, "'ncol(colToColMat)' should be equal to the number of columns")
     }
-    if (NROW(row2col.mat(thing, withDimnames=FALSE))!=NC) {
-        msg <- c(msg, "'nrow(row2col.mat)' should be equal to the number of columns")
+    if (NROW(rowToColMat(object, withDimnames=FALSE)) != NC) {
+        msg <- c(msg, "'nrow(rowToColMat)' should be equal to the number of columns")
     }
-    if (NCOL(col2row.mat(thing, withDimnames=FALSE))!=NR) {
-        msg <- c(msg, "'ncol(col2row.mat)' should be equal to the number of rows")
+    if (NCOL(colToRowMat(object, withDimnames=FALSE)) != NR) {
+        msg <- c(msg, "'ncol(colToRowMat)' should be equal to the number of rows")
     }
 
     if (length(msg)) {
@@ -250,10 +259,13 @@ This is done by calling the base `show` method before printing additional fields
 ```{r}
 setMethod("show", "ExampleClass", function(object) {
     callNextMethod()
-    cat("row2row.mat has", ncol(row2row.mat(object)), "columns\n")
-    cat("col2col.mat has", nrow(col2col.mat(object)), "rows\n")
-    cat("row2col.mat has", ncol(row2row.mat(object)), "columns\n")
-    cat("col2row.mat has", ncol(row2row.mat(object)), "rows\n")
+    cat(
+        "rowToRowMat has ", ncol(rowToRowMat(object)), " columns\n",
+        "colToColMat has ", nrow(colToColMat(object)), " rows\n",
+        "rowToColMat has ", ncol(rowToRowMat(object)), " columns\n",
+        "colToRowMat has ", ncol(rowToRowMat(object)), " rows\n",
+        sep=""
+    )
 })
 ```
 
@@ -271,33 +283,33 @@ We define some setter methods for the custom slots containing the 1D structures.
 Again, this usually requires the creation of new generics.
 
 ```{r}
-setGeneric("row.vec<-", function(x, ..., value) standardGeneric("row.vec<-"))
-setGeneric("col.vec<-", function(x, ..., value) standardGeneric("col.vec<-"))
+setGeneric("rowVec<-", function(x, ..., value) standardGeneric("rowVec<-"))
+setGeneric("colVec<-", function(x, ..., value) standardGeneric("colVec<-"))
 ```
 
 We define the class-specific methods for these generics.
 Note that use of `validObject` to ensure that the assigned input is still valid.
 
 ```{r}
-setReplaceMethod("row.vec", "ExampleClass", function(x, value) {
-    x@row.vec <- value
+setReplaceMethod("rowVec", "ExampleClass", function(x, value) {
+    x@rowVec <- value
     validObject(x)
-    return(x)
+    x
 })
-setReplaceMethod("col.vec", "ExampleClass", function(x, value) {
-    x@col.vec <- value
+setReplaceMethod("colVec", "ExampleClass", function(x, value) {
+    x@colVec <- value
     validObject(x)
-    return(x)
+    x
 })
 ```
 
 We test these methods out:
 
 ```{r}
-row.vec(thing) <- 0:9
-row.vec(thing)
-col.vec(thing) <- 7:1
-col.vec(thing)
+rowVec(thing) <- 0:9
+rowVec(thing)
+colVec(thing) <- 7:1
+colVec(thing)
 ```
 
 ## For 2D data structures
@@ -305,44 +317,44 @@ col.vec(thing)
 We repeat this process for the 2D structures.
 
 ```{r}
-setGeneric("row2row.mat<-", function(x, ..., value) standardGeneric("row2row.mat<-"))
-setGeneric("col2col.mat<-", function(x, ..., value) standardGeneric("col2col.mat<-"))
-setGeneric("row2col.mat<-", function(x, ..., value) standardGeneric("row2col.mat<-"))
-setGeneric("col2row.mat<-", function(x, ..., value) standardGeneric("col2row.mat<-"))
+setGeneric("rowToRowMat<-", function(x, ..., value) standardGeneric("rowToRowMat<-"))
+setGeneric("colToColMat<-", function(x, ..., value) standardGeneric("colToColMat<-"))
+setGeneric("rowToColMat<-", function(x, ..., value) standardGeneric("rowToColMat<-"))
+setGeneric("colToRowMat<-", function(x, ..., value) standardGeneric("colToRowMat<-"))
 ```
 
 Again, we define class-specific methods for these generics.
 
 ```{r}
-setReplaceMethod("row2row.mat", "ExampleClass", function(x, value) {
-    x@row2row.mat <- value
+setReplaceMethod("rowToRowMat", "ExampleClass", function(x, value) {
+    x@rowToRowMat <- value
     validObject(x)
-    return(x)
+    x
 })
-setReplaceMethod("col2col.mat", "ExampleClass", function(x, value) {
-    x@col2col.mat <- value
+setReplaceMethod("colToColMat", "ExampleClass", function(x, value) {
+    x@colToColMat <- value
     validObject(x)
-    return(x)
+    x
 })
-setReplaceMethod("row2col.mat", "ExampleClass", function(x, value) {
-    x@row2col.mat <- value
+setReplaceMethod("rowToColMat", "ExampleClass", function(x, value) {
+    x@rowToColMat <- value
     validObject(x)
-    return(x)
+    x
 })
-setReplaceMethod("col2row.mat", "ExampleClass", function(x, value) {
-    x@col2row.mat <- value
+setReplaceMethod("colToRowMat", "ExampleClass", function(x, value) {
+    x@colToRowMat <- value
     validObject(x)
-    return(x)
+    x
 })
 ```
 
 Testing them out:
 
 ```{r}
-row2row.mat(thing) <- -row2row.mat(thing)
-col2col.mat(thing) <- -col2col.mat(thing)
-row2col.mat(thing) <- -row2col.mat(thing)
-col2row.mat(thing) <- -col2row.mat(thing)
+rowToRowMat(thing) <- -rowToRowMat(thing)
+colToColMat(thing) <- -colToColMat(thing)
+rowToColMat(thing) <- -rowToColMat(thing)
+colToRowMat(thing) <- -colToRowMat(thing)
 ```
 
 ## For `SummarizedExperiment` slots
@@ -373,10 +385,10 @@ For example, we will pretend that we want to write a `normalize` function, using
 ```{r}
 setMethod("normalize", "ExampleClass", function(object) {
     # do something exciting, i.e., flip the signs
-    new.row <- -row.vec(object, withDimnames=FALSE) 
-    new.col <- -col.vec(object, withDimnames=FALSE)
-    BiocGenerics:::replaceSlots(object, row.vec=new.row, 
-        col.vec=new.col, check=FALSE)
+    new.row <- -rowVec(object, withDimnames=FALSE) 
+    new.col <- -colVec(object, withDimnames=FALSE)
+    BiocGenerics:::replaceSlots(object, rowVec=new.row, 
+        colVec=new.col, check=FALSE)
 })
 ```
 
@@ -386,8 +398,8 @@ The `replaceSlots` function allows us to skip these validity checks for greater 
 
 ```{r}
 modified <- normalize(thing)
-row.vec(modified)
-col.vec(modified)
+rowVec(modified)
+colVec(modified)
 ```
 
 # Enabling subsetting operations
@@ -400,12 +412,12 @@ We need to ensure that the values in our custom slots are also subsetted.
 
 ```{r}
 setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
-    rv <- row.vec(x, withDimnames=FALSE)
-    cv <- col.vec(x, withDimnames=FALSE)
-    rrm <- row2row.mat(x, withDimnames=FALSE)
-    ccm <- col2col.mat(x, withDimnames=FALSE)
-    rcm <- row2col.mat(x, withDimnames=FALSE)
-    crm <- col2row.mat(x, withDimnames=FALSE)
+    rv <- rowVec(x, withDimnames=FALSE)
+    cv <- colVec(x, withDimnames=FALSE)
+    rrm <- rowToRowMat(x, withDimnames=FALSE)
+    ccm <- colToColMat(x, withDimnames=FALSE)
+    rcm <- rowToColMat(x, withDimnames=FALSE)
+    crm <- colToRowMat(x, withDimnames=FALSE)
 
     if (!missing(i)) {
         if (is.character(i)) {
@@ -430,9 +442,9 @@ setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
     }
 
     out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out, row.vec=rv, col.vec=cv,
-        row2row.mat=rrm, col2col.mat=ccm, 
-        row2col.mat=rcm, col2row.mat=crm, check=FALSE)
+    BiocGenerics:::replaceSlots(out, rowVec=rv, colVec=cv,
+        rowToRowMat=rrm, colToColMat=ccm, 
+        rowToColMat=rcm, colToRowMat=crm, check=FALSE)
 })
 ```
 
@@ -453,12 +465,12 @@ This is generally necessary for sensible replacement of the custom slots.
 ```{r}
 setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
         function(x, i, j, ..., value) {
-    rv <- row.vec(x, withDimnames=FALSE)
-    cv <- col.vec(x, withDimnames=FALSE)
-    rrm <- row2row.mat(x, withDimnames=FALSE)
-    ccm <- col2col.mat(x, withDimnames=FALSE)
-    rcm <- row2col.mat(x, withDimnames=FALSE)
-    crm <- col2row.mat(x, withDimnames=FALSE)
+    rv <- rowVec(x, withDimnames=FALSE)
+    cv <- colVec(x, withDimnames=FALSE)
+    rrm <- rowToRowMat(x, withDimnames=FALSE)
+    ccm <- colToColMat(x, withDimnames=FALSE)
+    rcm <- rowToColMat(x, withDimnames=FALSE)
+    crm <- colToRowMat(x, withDimnames=FALSE)
 
     if (!missing(i)) {
         if (is.character(i)) {
@@ -466,9 +478,9 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
             i <- SummarizedExperiment:::.SummarizedExperiment.charbound(i, rownames(x), fmt)
         }
         i <- as.vector(i)
-        rv[i] <- row.vec(value, withDimnames=FALSE)
-        rrm[i,] <- row2row.mat(value, withDimnames=FALSE)
-        crm[,i] <- col2row.mat(value, withDimnames=FALSE)
+        rv[i] <- rowVec(value, withDimnames=FALSE)
+        rrm[i,] <- rowToRowMat(value, withDimnames=FALSE)
+        crm[,i] <- colToRowMat(value, withDimnames=FALSE)
     }
 
     if (!missing(j)) {
@@ -477,15 +489,15 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
             j <- SummarizedExperiment:::.SummarizedExperiment.charbound(j, colnames(x), fmt)
         }
         j <- as.vector(j)
-        cv[j] <- col.vec(value, withDimnames=FALSE)
-        ccm[,j] <- col2col.mat(value, withDimnames=FALSE)
-        rcm[j,] <- row2col.mat(value, withDimnames=FALSE)
+        cv[j] <- colVec(value, withDimnames=FALSE)
+        ccm[,j] <- colToColMat(value, withDimnames=FALSE)
+        rcm[j,] <- rowToColMat(value, withDimnames=FALSE)
     }
 
     out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out, row.vec=rv, col.vec=cv,
-        row2row.mat=rrm, col2col.mat=ccm, 
-        row2col.mat=rcm, col2row.mat=crm, check=FALSE)
+    BiocGenerics:::replaceSlots(out, rowVec=rv, colVec=cv,
+        rowToRowMat=rrm, colToColMat=ccm, 
+        rowToColMat=rcm, colToRowMat=crm, check=FALSE)
 })
 ```
 
@@ -495,8 +507,8 @@ We can check that this is working properly:
 modified <- thing
 modified[1:5,] <- thing[5:1,]
 modified[,1:2] <- thing[,2:1]
-row.vec(modified)
-col.vec(modified)
+rowVec(modified)
+colVec(modified)
 ````
 
 # Defining combining methods
@@ -509,9 +521,9 @@ This is done by combining the custom per-row slots across class instances.
 ```{r}
 setMethod("rbind", "ExampleClass", function(..., deparse.level=1) {
     args <- list(...)
-    all.rv <- lapply(args, row.vec, withDimnames=FALSE)
-    all.rrm <- lapply(args, row2row.mat, withDimnames=FALSE)
-    all.crm <- lapply(args, col2row.mat, withDimnames=FALSE)
+    all.rv <- lapply(args, rowVec, withDimnames=FALSE)
+    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
+    all.crm <- lapply(args, colToRowMat, withDimnames=FALSE)
 
     all.rv <- do.call(c, all.rv)
     all.rrm <- do.call(rbind, all.rrm)
@@ -519,13 +531,13 @@ setMethod("rbind", "ExampleClass", function(..., deparse.level=1) {
 
     # Checks for identical column state.
     ref <- args[[1]]
-    ref.cv <- col.vec(ref, withDimnames=FALSE)
-    ref.ccm <- col2col.mat(ref, withDimnames=FALSE)
-    ref.rcm <- row2col.mat(ref, withDimnames=FALSE)
+    ref.cv <- colVec(ref, withDimnames=FALSE)
+    ref.ccm <- colToColMat(ref, withDimnames=FALSE)
+    ref.rcm <- rowToColMat(ref, withDimnames=FALSE)
     for (x in args[-1]) {
-        if (!identical(ref.cv, col.vec(x, withDimnames=FALSE)) 
-            || !identical(ref.ccm, col2col.mat(x, withDimnames=FALSE))
-            || !identical(ref.rcm, row2col.mat(x, withDimnames=FALSE))) {
+        if (!identical(ref.cv, colVec(x, withDimnames=FALSE)) 
+            || !identical(ref.ccm, colToColMat(x, withDimnames=FALSE))
+            || !identical(ref.rcm, rowToColMat(x, withDimnames=FALSE))) {
             stop("per-column values are not compatible")
         }
     }
@@ -535,8 +547,8 @@ setMethod("rbind", "ExampleClass", function(..., deparse.level=1) {
     on.exit(S4Vectors:::disableValidity(old.validity))
 
     out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out, row.vec=all.rv,
-        row2row.mat=all.rrm, col2row.mat=all.crm, 
+    BiocGenerics:::replaceSlots(out, rowVec=all.rv,
+        rowToRowMat=all.rrm, colToRowMat=all.crm, 
         check=FALSE)
 })
 ```
@@ -562,9 +574,9 @@ We similarly define a `cbind` method to handle the custom slots.
 ```{r}
 setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
     args <- list(...)
-    all.cv <- lapply(args, col.vec, withDimnames=FALSE)
-    all.ccm <- lapply(args, col2col.mat, withDimnames=FALSE)
-    all.rcm <- lapply(args, row2col.mat, withDimnames=FALSE)
+    all.cv <- lapply(args, colVec, withDimnames=FALSE)
+    all.ccm <- lapply(args, colToColMat, withDimnames=FALSE)
+    all.rcm <- lapply(args, rowToColMat, withDimnames=FALSE)
 
     all.cv <- do.call(c, all.cv)
     all.ccm <- do.call(cbind, all.ccm)
@@ -572,13 +584,13 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
 
     # Checks for identical column state.
     ref <- args[[1]]
-    ref.rv <- row.vec(ref, withDimnames=FALSE)
-    ref.rrm <- row2row.mat(ref, withDimnames=FALSE)
-    ref.crm <- col2row.mat(ref, withDimnames=FALSE)
+    ref.rv <- rowVec(ref, withDimnames=FALSE)
+    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
+    ref.crm <- colToRowMat(ref, withDimnames=FALSE)
     for (x in args[-1]) {
-        if (!identical(ref.rv, row.vec(x, withDimnames=FALSE)) 
-            || !identical(ref.rrm, row2row.mat(x, withDimnames=FALSE))
-            || !identical(ref.crm, col2row.mat(x, withDimnames=FALSE))) {
+        if (!identical(ref.rv, rowVec(x, withDimnames=FALSE)) 
+            || !identical(ref.rrm, rowToRowMat(x, withDimnames=FALSE))
+            || !identical(ref.crm, colToRowMat(x, withDimnames=FALSE))) {
             stop("per-row values are not compatible")
         }
     }
@@ -588,8 +600,8 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
     on.exit(S4Vectors:::disableValidity(old.validity))
 
     out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out, col.vec=all.cv,
-        col2col.mat=all.ccm, row2col.mat=all.rcm, 
+    BiocGenerics:::replaceSlots(out, colVec=all.cv,
+        colToColMat=all.ccm, rowToColMat=all.rcm, 
         check=FALSE)
 })
 ```
