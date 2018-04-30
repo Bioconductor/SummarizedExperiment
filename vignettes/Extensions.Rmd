@@ -64,13 +64,21 @@ Definition of the class is achieved using the `setClass` function from the `r CR
 
 # Defining the constructor
 
-The constructor should provide some methods for setting the new slots in the derived class definition.
+The constructor should provide some arguments for setting the new slots in the derived class definition.
+The default values should be set such that calling the constructor without any arguments returns a valid `ExampleClass` object.
 We use `...` to pass further arguments to the `SummarizedExperiment` constructor, which allows us to avoid re-specifying all its arguments.
 Of course, it is straightforward to specify individual arguments to be passed to the `SummarizedExperiment` constructor if necessary.
 
 ```{r}
-ExampleClass <- function(rowVec, colVec, rowToRowMat, colToColMat, 
-        rowToColMat, colToRowMat, ...) {
+ExampleClass <- function(
+        rowVec=integer(0), 
+        colVec=integer(0),
+        rowToRowMat=matrix(0,0,0),
+        colToColMat=matrix(0,0,0),
+        rowToColMat=matrix(0,0,0),
+        colToRowMat=matrix(0,0,0),
+        ...) {
+    
     se <- SummarizedExperiment(...)
     .ExampleClass(se, rowVec=rowVec, colVec=colVec,
         rowToRowMat=rowToRowMat, colToColMat=colToColMat, 
