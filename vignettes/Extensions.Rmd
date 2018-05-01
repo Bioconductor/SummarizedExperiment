@@ -27,6 +27,70 @@ This allows developers to take advantage of the power of the `SummarizedExperime
 while still accommodating specialized data structures for particular scientific applications.
 This document is intended to provide a developer-level "best practices" reference for the creation of these derived classes.
 
+# Starting off with a simple class
+
+To introduce various concepts, we will start off with a simple derived class that does not add any new slots.
+This is occasionally useful when additional constraints need to be placed on the derived class.
+In this example, we will assume that we want our class to minimally hold a `"counts"` assay that contains non-negative values^[For simplicity's sake, we won't worry about enforcing integer type, as fractional counts are possible.].
+
+We name our new class `CountSE` and define it using the `setClass` function from the _methods_ package, as is conventionally done for all S4 classes.
+We will use Roxygen's `#'` tags to trigger the generation of import/export statements in the `NAMESPACE`.
+
+```{r}
+#' @export
+#' @import methods
+#' @importClassesFrom SummarizedExperiment SummarizedExperiment
+.CountSE <- setClass("CountSE", contains="SummarizedExperiment")
+```
+
+We define a constructor that accepts a count matrix to create a `CountSE` object.
+We use `...` to pass further arguments to the `SummarizedExperiment` constructor, which allows us to avoid re-specifying all its arguments.
+
+```{r}
+#' @export
+#' @importFrom SummarizedExperiment SummarizedExperiment
+CountSE <- function(counts, ...) {
+    se <- SummarizedExperiment(list(counts=counts), ...)
+    .CountSE(se)
+}
+```
+
+The final step is to define a validity method that enforces the constraints that we described earlier.
+This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function.].
+Returning a string indicates that there is a problem and triggers an error in the R session.
+
+```{r}
+setValidity2("CountSE", function(object) {
+    msg <- NULL
+
+    if (assayNames(object)[1] != "counts") {
+        msg <- c(msg, "'counts' must be first assay")
+    }
+
+    if (min(assay(object)) < 0) {
+        msg <- c(msg, "negative values in 'counts'")
+    }
+
+    if (!is.null(msg)) {
+        return(msg)
+    }
+
+    TRUE
+})
+```
+
+Testing out the constructor yields the expected output when counts are provided:
+
+```{r}
+CountSE(matrix(rpois(100, lambda=1), ncol=5))
+```
+
+... and an error otherwise:
+
+```{r, error=TRUE}
+CountSE(matrix(rnorm(100), ncol=5))
+```
+
 # Creating a derived class
 
 To demonstrate, we will consider the derivation of an example class that requires some specialized slots.
@@ -48,8 +112,7 @@ We also consider some 2D data structures:
 Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, `[` and `[<-`.
 For simplicity, we will use (numeric) matrices for the `*.mat` slots.
 
-Definition of the class is achieved using the `setClass` function from the _methods_ package, as conventionally done for all S4 classes.
-We will use Roxygen's `#'` tags to trigger the generation of import/export statements in the `NAMESPACE`.
+Definition of the class 
 
 ```{r}
 #' @export
@@ -71,8 +134,6 @@ We will use Roxygen's `#'` tags to trigger the generation of import/export state
 
 The constructor should provide some arguments for setting the new slots in the derived class definition.
 The default values should be set such that calling the constructor without any arguments returns a valid `ExampleClass` object.
-We use `...` to pass further arguments to the `SummarizedExperiment` constructor, which allows us to avoid re-specifying all its arguments.
-Of course, it is straightforward to specify individual arguments to be passed to the `SummarizedExperiment` constructor if necessary.
 
 ```{r}
 #' @export
