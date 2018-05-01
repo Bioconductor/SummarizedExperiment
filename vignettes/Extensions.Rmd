@@ -93,31 +93,6 @@ ExampleClass <- function(
 }
 ```
 
-Let's test out this constructor by creating an instance of `ExampleClass` that has 10 rows and 7 columns:
-
-```{r}
-RV <- 1:10
-CV <- sample(50, 7)
-RRM <- matrix(runif(30), nrow=10)
-CCM <- matrix(rnorm(14), ncol=7)
-RCM <- matrix(runif(21), nrow=7)
-CRM <- matrix(rnorm(20), ncol=10)
-
-thing <- ExampleClass(rowVec=RV, colVec=CV,
-    rowToRowMat=RRM, colToColMat=CCM,
-    rowToColMat=RCM, colToRowMat=CRM,
-    assays=list(counts=matrix(rnorm(70), nrow=10)),
-    colData=DataFrame(whee=LETTERS[1:7]),
-    rowData=DataFrame(yay=letters[1:10]))
-```
-
-We will also add some row and column names, which will come in handy later.
-
-```{r}
-rownames(thing) <- paste0("FEATURE_", seq_len(nrow(thing)))
-colnames(thing) <- paste0("SAMPLE_", seq_len(ncol(thing)))
-```
-
 # Creating getter methods
 
 ## For 1D data structures
@@ -153,24 +128,6 @@ setMethod("colVec", "ExampleClass", function(x, withDimnames=TRUE) {
         names(out) <- colnames(x)
     out
 })
-```
-
-We check that the methods work:
-
-```{r}
-rowVec(thing)
-colVec(thing)
-```
-
-We test these methods more formally using the `expect_*` functions from the `r CRANpkg("testthat")` package.
-These calls will raise an error if the output is not as expected, which can be used to construct unit tests for the `tests/` subdirectory of your package.
-
-```{r}
-expect_identical(names(rowVec(thing)), rownames(thing))
-expect_identical(rowVec(thing, withDimnames=FALSE), RV)
-
-expect_identical(names(colVec(thing)), colnames(thing))
-expect_identical(colVec(thing, withDimnames=FALSE), CV)
 ```
 
 ## For 2D data structures
@@ -224,42 +181,9 @@ setMethod("colToRowMat", "ExampleClass", function(x, withDimnames=TRUE) {
 })
 ```
 
-Checking that the methods work:
-
-```{r}
-head(rowToRowMat(thing))
-head(colToColMat(thing))
-head(rowToColMat(thing))
-head(colToRowMat(thing))
-```
-
-
-Testing them with `r CRANpkg("testthat")` functions:
-
-```{r}
-expect_identical(rowToRowMat(thing, withDimnames=FALSE), RRM)
-expect_identical(rownames(rowToRowMat(thing)), rownames(thing))
-
-expect_identical(colToColMat(thing, withDimnames=FALSE), CCM)
-expect_identical(colnames(colToColMat(thing)), colnames(thing))
-
-expect_identical(rowToColMat(thing, withDimnames=FALSE), RCM)
-expect_identical(rownames(rowToColMat(thing)), colnames(thing))
-
-expect_identical(colToRowMat(thing, withDimnames=FALSE), CRM)
-expect_identical(colnames(colToRowMat(thing)), rownames(thing))
-```
-
 ## For `SummarizedExperiment` slots
 
-Obviously, we can use the getter methods defined in `r Biocpkg("SummarizedExperiment")` to retrieve data from slots in the base class:
-
-```{r}
-assayNames(thing)
-colData(thing)
-rowData(thing)
-```
-
+The getter methods defined in `r Biocpkg("SummarizedExperiment")` can be directly used to retrieve data from slots in the base class.
 These should generally not require any re-defining for a derived class.
 However, if it is necessary, the methods should use `callNextMethod` internally.
 This will call the method for the base `SummarizedExperiment` class, the output of which can be modified as required.
@@ -276,18 +200,6 @@ setMethod("rowData", "ExampleClass", function(x, ...) {
     # Returning the rowData object.
     out
 })
-```
-
-The function now adds the `extra` field to the `rowData`, as instructed.
-
-```{r}
-colnames(rowData(thing))
-```    
-
-Or more formally, in our unit testing framework:
-
-```{r}
-expect_true("extra" %in% colnames(rowData(thing)))
 ```
 
 # Defining the validity method
@@ -338,14 +250,6 @@ Some notes about this function:
 There were good reasons for this, but I have forgotten them.
 - We also set `withDimnames=FALSE` in our getter calls, as consistent naming is not necessary for internal functions.
 
-A useful set of unit tests involves checking that the default constructors (internal and exported) yield valid objects, along with the `thing` object we constructed earlier:
-
-```{r}
-expect_true(validObject(.ExampleClass())) # internal
-expect_true(validObject(ExampleClass())) # exported
-expect_true(validObject(thing))
-```
-
 # Creating a `show` method
 
 The default `show` method will only display the `SummarizedExperiment` slots.
@@ -365,12 +269,6 @@ setMethod("show", "ExampleClass", function(object) {
         sep=""
     )
 })
-```
-
-Printing the object will now add the extra information about the custom slots.
-
-```{r}
-thing
 ```
 
 # Creating setter methods
@@ -404,16 +302,6 @@ setReplaceMethod("colVec", "ExampleClass", function(x, value) {
     validObject(x)
     x
 })
-```
-
-We test these methods out, using the `test_equivalent` function to ignore names for simplicity.
-
-```{r}
-rowVec(thing) <- 0:9
-expect_equivalent(rowVec(thing), 0:9)
-
-colVec(thing) <- 7:1
-expect_equivalent(colVec(thing), 7:1)
 ```
 
 ## For 2D data structures
@@ -463,35 +351,9 @@ setReplaceMethod("colToRowMat", "ExampleClass", function(x, value) {
 })
 ```
 
-Testing them out:
-
-```{r}
-old <- rowToRowMat(thing)
-rowToRowMat(thing) <- -old
-expect_equivalent(rowToRowMat(thing), -old)
-
-old <- colToColMat(thing)
-colToColMat(thing) <- 2 * old
-expect_equivalent(colToColMat(thing), 2 * old)
-
-old <- rowToColMat(thing)
-rowToColMat(thing) <- old + 1
-expect_equivalent(rowToColMat(thing), old + 1)
-
-old <- colToRowMat(thing) 
-colToRowMat(thing) <- old / 10
-expect_equivalent(colToRowMat(thing), old / 10)
-```
-
 ## For `SummarizedExperiment` slots
 
-Again, we can use the setter methods defined in `r Biocpkg("SummarizedExperiment")` to modify slots in the base class:
-
-```{r}
-colData(thing)$stuff <- sample(100, ncol(thing))
-rowData(thing)$blah <- sample(100, nrow(thing))
-```
-
+Again, we can use the setter methods defined in `r Biocpkg("SummarizedExperiment")` to modify slots in the base class.
 These should generally not require any re-defining.
 However, if it is necessary, the methods should use `callNextMethod` internally:
 
@@ -506,18 +368,6 @@ setReplaceMethod("rowData", "ExampleClass", function(x, ..., value) {
 
     y
 })
-```
-
-And indeed:
-
-```{r}
-rowData(thing)$yay <- 1
-```
-
-Or more formally:
-
-```{r}
-expect_output(rowData(thing) <- 1, "hi")
 ```
 
 ## Other types of modifying functions 
@@ -540,19 +390,6 @@ setMethod("normalize", "ExampleClass", function(object) {
 We use `BiocGenerics:::replaceSlots` instead of the setter methods that we defined above.
 This is because our setters perform validity checks that are unnecessary if we know that the modification cannot alter the validity of the object.
 The `replaceSlots` function allows us to skip these validity checks (`check=FALSE`) for greater efficiency.
-
-```{r}
-modified <- normalize(thing)
-rowVec(modified)
-colVec(modified)
-```
-
-In our unit testing framework:
-
-```{r}
-expect_equal(rowVec(modified), -rowVec(thing))
-expect_equal(colVec(modified), -colVec(thing))
-```
 
 # Enabling subsetting operations
 
@@ -603,31 +440,6 @@ setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
 
 Note the special code for handling character indices, and the use of `callNextMethod` to subset the base `SummarizedExperiment` slots.
 
-We can check that this is working properly:
-
-```{r}
-(subbyrow <- thing[1:5,])
-(subbycol <- thing[,1:2])
-```
-
-Or more formally:
-
-```{r}
-expect_identical(rowVec(subbyrow), rowVec(thing)[1:5])
-expect_identical(rowToRowMat(subbyrow), rowToRowMat(thing)[1:5,])
-expect_identical(colToRowMat(subbyrow), colToRowMat(thing)[,1:5])
-expect_identical(colVec(subbyrow), colVec(thing)) # columns unaffected...
-expect_identical(colToColMat(subbyrow), colToColMat(thing))
-expect_identical(rowToColMat(subbyrow), rowToColMat(thing))
-
-expect_identical(colVec(subbycol), colVec(thing)[1:2])
-expect_identical(colToColMat(subbycol), colToColMat(thing)[,1:2])
-expect_identical(rowToColMat(subbycol), rowToColMat(thing)[1:2,])
-expect_identical(rowVec(subbycol), rowVec(thing)) # rows unaffected...
-expect_identical(rowToRowMat(subbycol), rowToRowMat(thing))
-expect_identical(colToRowMat(subbycol), colToRowMat(thing))
-```
-
 ## Assigning a subset
 
 Subset assignment can be similarly performed, though the signature needs to be specified so that the replacement value is of the same class.
@@ -671,28 +483,6 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
         rowToRowMat=rrm, colToColMat=ccm, 
         rowToColMat=rcm, colToRowMat=crm, check=FALSE)
 })
-```
-
-We can check that this is working properly:
-
-```{r}
-modified <- thing
-modified[1:5,1:2] <- thing[5:1,2:1]
-rowVec(modified)
-colVec(modified)
-```
-
-Or more formally:
-
-```{r}
-rperm <- c(5:1, 6:nrow(thing))
-cperm <- c(2:1, 3:ncol(thing))
-expect_identical(rowVec(modified), rowVec(thing)[rperm])
-expect_identical(rowToRowMat(modified), rowToRowMat(thing)[rperm,])
-expect_identical(colToRowMat(modified), colToRowMat(thing)[,rperm])
-expect_identical(colVec(modified), colVec(thing)[cperm])
-expect_identical(colToColMat(modified), colToColMat(thing)[,cperm])
-expect_identical(rowToColMat(modified), rowToColMat(thing)[cperm,])
 ```
 
 # Defining combining methods
@@ -746,24 +536,6 @@ We also use the `disableValidity` method to avoid the validity check in the base
 This is because the object is technically invalid when the base slots are combined but before it is updated with the new combined values for the custom slots.
 The `on.exit` call ensures that the original validity setting is restored upon exit of the function.
 
-We check that `rbind` does indeed combine by row:
-
-```{r}
-(combined <- rbind(thing, thing))
-```
-
-... and more formally with `r CRANpkg("testthat")`:
-
-```{r}
-rtwice <- rep(seq_len(nrow(thing)), 2)
-expect_identical(rowVec(combined), rowVec(thing)[rtwice])
-expect_identical(rowToRowMat(combined), rowToRowMat(thing)[rtwice,])
-expect_identical(colToRowMat(combined), colToRowMat(thing)[,rtwice])
-expect_identical(colVec(combined), colVec(thing)) # columns unaffected...
-expect_identical(colToColMat(combined), colToColMat(thing))
-expect_identical(rowToColMat(combined), rowToColMat(thing))
-```
-
 ## By column
 
 We similarly define a `cbind` method to handle the custom slots.
@@ -804,21 +576,223 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
 })
 ```
 
-Checking it yields a sensible result:
+# Unit testing procedures
+
+## Overview
+
+We test our new methods using the `expect_*` functions from the `r CRANpkg("testthat")` package.
+Each function will test an expression and will raise an error if the output is not as expected.
+This can be used to construct unit tests for the `tests/` subdirectory of the package.
+Unit testing ensures that the methods behave as expected, especially after any refactoring that may be performed in the future.
+
+For testing, we will construct an instance of `ExampleClass` that has 10 rows and 7 columns:
 
 ```{r}
-(combined <- cbind(thing, thing))
+RV <- 1:10
+CV <- sample(50, 7)
+RRM <- matrix(runif(30), nrow=10)
+CCM <- matrix(rnorm(14), ncol=7)
+RCM <- matrix(runif(21), nrow=7)
+CRM <- matrix(rnorm(20), ncol=10)
+
+thing <- ExampleClass(rowVec=RV, colVec=CV,
+    rowToRowMat=RRM, colToColMat=CCM,
+    rowToColMat=RCM, colToRowMat=CRM,
+    assays=list(counts=matrix(rnorm(70), nrow=10)),
+    colData=DataFrame(whee=LETTERS[1:7]),
+    rowData=DataFrame(yay=letters[1:10]))
 ```
 
-... and testing more formally with `r CRANpkg("testthat")`.
+We will also add some row and column names, which will come in handy later.
+
+```{r}
+rownames(thing) <- paste0("FEATURE_", seq_len(nrow(thing)))
+colnames(thing) <- paste0("SAMPLE_", seq_len(ncol(thing)))
+thing
+```
+
+## Constructor
+
+We test that the `thing` object we constructed is valid:
+
+```{r}
+expect_true(validObject(thing))
+```
+
+Another useful set of unit tests involves checking that the default constructors (internal and exported) yield valid objects:
+
+```{r}
+expect_true(validObject(.ExampleClass())) # internal
+expect_true(validObject(ExampleClass())) # exported
+```
+
+We can also verify that the validity method fails on invalid objects:
+
+```{r}
+expect_error(ExampleClass(rowVec=1))
+expect_error(ExampleClass(colVec=1))
+expect_error(ExampleClass(rowToRowMat=rbind(1)))
+expect_error(ExampleClass(colToColMat=rbind(1)))
+expect_error(ExampleClass(rowToColMat=rbind(1)))
+expect_error(ExampleClass(colToRowMat=rbind(1)))
+```
+
+## Getters
+
+Testing the 1D getter methods:
+
+```{r}
+expect_identical(names(rowVec(thing)), rownames(thing))
+expect_identical(rowVec(thing, withDimnames=FALSE), RV)
+
+expect_identical(names(colVec(thing)), colnames(thing))
+expect_identical(colVec(thing, withDimnames=FALSE), CV)
+```
+
+Testing the 2D getter methods:
+
+```{r}
+expect_identical(rowToRowMat(thing, withDimnames=FALSE), RRM)
+expect_identical(rownames(rowToRowMat(thing)), rownames(thing))
+
+expect_identical(colToColMat(thing, withDimnames=FALSE), CCM)
+expect_identical(colnames(colToColMat(thing)), colnames(thing))
+
+expect_identical(rowToColMat(thing, withDimnames=FALSE), RCM)
+expect_identical(rownames(rowToColMat(thing)), colnames(thing))
+
+expect_identical(colToRowMat(thing, withDimnames=FALSE), CRM)
+expect_identical(colnames(colToRowMat(thing)), rownames(thing))
+```
+
+Testing the custom `rowData` method:
+
+```{r}
+expect_true("extra" %in% colnames(rowData(thing)))
+```
+
+## Setters
+
+Testing the 1D setter methods:
+
+```{r}
+rowVec(thing) <- 0:9
+expect_equivalent(rowVec(thing), 0:9)
+
+colVec(thing) <- 7:1
+expect_equivalent(colVec(thing), 7:1)
+```
+
+Testing the 2D setter methods:
+
+```{r}
+old <- rowToRowMat(thing)
+rowToRowMat(thing) <- -old
+expect_equivalent(rowToRowMat(thing), -old)
+
+old <- colToColMat(thing)
+colToColMat(thing) <- 2 * old
+expect_equivalent(colToColMat(thing), 2 * old)
+
+old <- rowToColMat(thing)
+rowToColMat(thing) <- old + 1
+expect_equivalent(rowToColMat(thing), old + 1)
+
+old <- colToRowMat(thing) 
+colToRowMat(thing) <- old / 10
+expect_equivalent(colToRowMat(thing), old / 10)
+```
+
+Testing our custom `rowData<-` method:
+
+```{r}
+expect_output(rowData(thing) <- 1, "hi")
+```
+
+## Other modifying functions
+
+We test our new `normalize` method:
+
+```{r}
+modified <- normalize(thing)
+expect_equal(rowVec(modified), -rowVec(thing))
+expect_equal(colVec(modified), -colVec(thing))
+```
+
+## Subsetting methods
+
+Subsetting by row:
+
+```{r}
+subbyrow <- thing[1:5,]
+expect_identical(rowVec(subbyrow), rowVec(thing)[1:5])
+expect_identical(rowToRowMat(subbyrow), rowToRowMat(thing)[1:5,])
+expect_identical(colToRowMat(subbyrow), colToRowMat(thing)[,1:5])
+expect_identical(colVec(subbyrow), colVec(thing)) # columns unaffected...
+expect_identical(colToColMat(subbyrow), colToColMat(thing))
+expect_identical(rowToColMat(subbyrow), rowToColMat(thing))
+```
+
+Subsetting by column:
+
+```{r}
+subbycol <- thing[,1:2]
+expect_identical(colVec(subbycol), colVec(thing)[1:2])
+expect_identical(colToColMat(subbycol), colToColMat(thing)[,1:2])
+expect_identical(rowToColMat(subbycol), rowToColMat(thing)[1:2,])
+expect_identical(rowVec(subbycol), rowVec(thing)) # rows unaffected...
+expect_identical(rowToRowMat(subbycol), rowToRowMat(thing))
+expect_identical(colToRowMat(subbycol), colToRowMat(thing))
+```
+
+Subset assignment:
+
+```{r}
+modified <- thing
+modified[1:5,1:2] <- thing[5:1,2:1]
+
+rperm <- c(5:1, 6:nrow(thing))
+expect_identical(rowVec(modified), rowVec(thing)[rperm])
+expect_identical(rowToRowMat(modified), rowToRowMat(thing)[rperm,])
+expect_identical(colToRowMat(modified), colToRowMat(thing)[,rperm])
+
+cperm <- c(2:1, 3:ncol(thing))
+expect_identical(colVec(modified), colVec(thing)[cperm])
+expect_identical(colToColMat(modified), colToColMat(thing)[,cperm])
+expect_identical(rowToColMat(modified), rowToColMat(thing)[cperm,])
+```
+
+## Combining methods
+
+Combining by row:
+
+```{r}
+combined <- rbind(thing, thing)
+
+rtwice <- rep(seq_len(nrow(thing)), 2)
+expect_identical(rowVec(combined), rowVec(thing)[rtwice])
+expect_identical(rowToRowMat(combined), rowToRowMat(thing)[rtwice,])
+expect_identical(colToRowMat(combined), colToRowMat(thing)[,rtwice])
+
+# Columns are unaffected:
+expect_identical(colVec(combined), colVec(thing))
+expect_identical(colToColMat(combined), colToColMat(thing))
+expect_identical(rowToColMat(combined), rowToColMat(thing))
+```
+
+And combining by column.
 We use `test_equivalent` here for simplicity, as column names are altered to preserve uniqueness.
 
 ```{r}
+combined <- cbind(thing, thing)
+
 ctwice <- rep(seq_len(ncol(thing)), 2)
 expect_equivalent(colVec(combined), colVec(thing)[ctwice]) 
 expect_equivalent(colToColMat(combined), colToColMat(thing)[,ctwice])
 expect_equivalent(rowToColMat(combined), rowToColMat(thing)[ctwice,])
-expect_equivalent(rowVec(combined), rowVec(thing)) # rows unaffected...
+
+# Rows are unaffected:
+expect_equivalent(rowVec(combined), rowVec(thing)) 
 expect_equivalent(rowToRowMat(combined), rowToRowMat(thing))
 expect_equivalent(colToRowMat(combined), colToRowMat(thing))
 ```
