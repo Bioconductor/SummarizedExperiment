@@ -861,6 +861,99 @@ expect_error(rbind(thing, thing[,ncol(thing):1]), "not compatible")
 expect_error(cbind(thing, thing[nrow(thing):1,]), "not compatible")
 ```
 
+# Documentation
+
+We suggest creating at least two separate documentation (i.e. `*.Rd`) files.
+The first file would document the class and the constructor:
+
+```
+\name{ExampleClass class}
+
+\alias{ExampleClass-class}
+\alias{ExampleClass}
+
+\title{The ExampleClass class}
+\description{An overview of the ExampleClass class and constructor.}
+
+\usage{
+ExampleClass(rowVec=integer(0), colVec=integer(0),
+    # etc., etc., I won't write it all out here.
+)
+}
+
+\arguments{
+\item{rowVec}{An integer vector mapping to the rows, representing something important.}
+\item{colVec}{An integer vector mapping to the columns, representing something else that's important.}
+% And so on...
+}
+
+\details{
+% Some context on why this class and its slots are necessary.
+The ExampleClass provides an example of how to derive from the SummarizedExperiment class.
+Its slots have no scientific meaning and are purely for demonstration purposes.
+}
+```
+
+The second file would document all of the individual methods:
+
+```
+\name{ExampleClass methods}
+
+% New generics:
+\alias{rowVec}
+\alias{rowVec,ExampleClass-method}
+\alias{rowVec<-}
+\alias{rowVec<-,ExampleClass-method}
+%% And so on...
+
+% Already have a generic:
+\alias{[,ExampleClass-method}
+\alias{[,ExampleClass,ANY-method}
+\alias{[,ExampleClass,ANY,ANY-method}
+
+\alias{rbind,ExampleClass-method}
+%% And so on...
+
+\title{ExampleClass methods}
+\description{Methods for the ExampleClass class.}
+
+\usage{
+\S4method{rowVec}{ExampleClass}(x, withDimnames=FALSE)
+
+\S4method{rowVec}{ExampleClass}(x) <- value
+
+\S4method{[}{ExampleClass}(x, i, j, drop=TRUE)
+
+\S4method{rbind}{ExampleClass}(..., , i, j, drop=TRUE)
+
+%% And so on...
+}
+
+\arguments{
+\item{x}{An ExampleClass object.}
+\item{withDimnames}{A logical scalar indicating whether dimension names from \code{x} should be returned.}
+
+\item{value}{
+For \code{rowVec}, an integer vector of length equal to the number of rows.
+
+For \code{colVec}, an integer vector of length equal to the number of columns.
+
+%% And so on...
+}
+}
+
+\section{Accessors}{
+% Add some details about accessor behaviour here.
+}
+
+\section{Subsetting}{
+% Add some details about subsetting behaviour here.
+}
+
+\section{Combining}{
+% Add some details about combining behaviour here.
+}
+```
 
 # Session information
 
