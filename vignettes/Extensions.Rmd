@@ -33,7 +33,7 @@ This document is intended to provide a developer-level "best practices" referenc
 
 To introduce various concepts, we will start off with a simple derived class that does not add any new slots.
 This is occasionally useful when additional constraints need to be placed on the derived class.
-In this example, we will assume that we want our class to minimally hold a `"counts"` assay that contains non-negative values^[For simplicity's sake, we won't worry about enforcing integer type, as fractional counts are possible.].
+In this example, we will assume that we want our class to minimally hold a `"counts"` assay that contains non-negative values^[For simplicity's sake, we won't worry about enforcing integer type, as fractional values are possible, e.g., when dealing with expected counts.].
 
 ## Defining the class and its constructor
 
@@ -122,12 +122,12 @@ setMethod("negcounts", "CountSE", function(x, withDimnames=TRUE) {
 })
 ```
 
-If any other developers need to compute negative counts for their own classes, they can simply use the generic defined in our package.
+If any other developers need to compute negative counts for their own classes, they can simply use the `negcounts` generic defined in our package.
 
 ## Some comments on package organization
 
-It is convention to put all class definitions (i.e., the `setClass` statement) in a file named `AllClasses.R`, all new generics in a file named `AllGenerics.R`,
-and all other methods in files that are alphanumerically ordered below the first two.
+It is convention to put all class definitions (i.e., the `setClass` statement) in a file named `AllClasses.R`, all new generic definitions in a file named `AllGenerics.R`,
+and all method definitions in files that are alphanumerically ordered below the first two.
 This is because R collates files by alphanumeric order when building a package.
 It is critical that the collation (and definition) of the classes and generics occurs **before** that of the corresponding methods, otherwise errors will occur.
 If alphanumeric ordering is inappropriate, developers can manually specify the collation order using `Collate:` in the `DESCRIPTION` file - 
