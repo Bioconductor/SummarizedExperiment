@@ -27,14 +27,18 @@ This allows developers to take advantage of the power of the `SummarizedExperime
 while still accommodating specialized data structures for particular scientific applications.
 This document is intended to provide a developer-level "best practices" reference for the creation of these derived classes.
 
-# Starting off with a simple class
+# Deriving a simple class
+
+## Overview 
 
 To introduce various concepts, we will start off with a simple derived class that does not add any new slots.
 This is occasionally useful when additional constraints need to be placed on the derived class.
 In this example, we will assume that we want our class to minimally hold a `"counts"` assay that contains non-negative values^[For simplicity's sake, we won't worry about enforcing integer type, as fractional counts are possible.].
 
+## Defining the class and its constructor
+
 We name our new class `CountSE` and define it using the `setClass` function from the _methods_ package, as is conventionally done for all S4 classes.
-We will use Roxygen's `#'` tags to trigger the generation of import/export statements in the `NAMESPACE`.
+We use Roxygen's `#'` tags to trigger the generation of import/export statements in the `NAMESPACE` of our package.
 
 ```{r}
 #' @export
@@ -55,7 +59,9 @@ CountSE <- function(counts, ...) {
 }
 ```
 
-The final step is to define a validity method that enforces the constraints that we described earlier.
+## Defining a validity method
+
+We define a validity method that enforces the constraints that we described earlier.
 This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function.].
 Returning a string indicates that there is a problem and triggers an error in the R session.
 
@@ -79,21 +85,60 @@ setValidity2("CountSE", function(object) {
 })
 ```
 
-Testing out the constructor yields the expected output when counts are provided:
+The constructor yields the expected output when counts are provided:
 
 ```{r}
 CountSE(matrix(rpois(100, lambda=1), ncol=5))
 ```
 
-... and an error otherwise:
+... and an (expected) error otherwise:
 
 ```{r, error=TRUE}
 CountSE(matrix(rnorm(100), ncol=5))
 ```
 
-# Creating a derived class
+## Defining a getter method
 
-To demonstrate, we will consider the derivation of an example class that requires some specialized slots.
+A generic is a group of functions with the same name that operate on different classes.
+Upon calling the generic on an object, the S4 dispatch system will choose the most appropriate function to use based on the object class.
+This allows users and developers to write code that is agnostic to the type of input class.
+
+Let's say that it is of particular scientific interest to obtain the counts with a flipped sign.
+We observe that there are no existing generics that do this task, e.g., in `r Biocpkg("BiocGenerics")` or `r Biocpkg("S4Vectors")`^[If you have an idea for a generally applicable generic that is not yet available, please contact the Bioconductor core team.].
+Instead, we define a new generic `negcounts`:
+
+```{r}
+#' @export
+setGeneric("negcounts", function(x, ...) standardGeneric("negcounts"))
+```
+
+We then define a specific method for our `CountSE` class^[The `...` in the generic function definition means that custom arguments like `withDimnames=` can be provided for specific methods, if necessary.]:
+
+```{r}
+#' @export
+#' @importFrom SummarizedExperiment assay
+setMethod("negcounts", "CountSE", function(x, withDimnames=TRUE) {
+    assay(x, withDimnames=withDimnames) * scale
+})
+```
+
+If any other developers need to compute negative counts for their own classes, they can simply use the generic defined in our package.
+
+## Some comments on package organization
+
+It is convention to put all class definitions (i.e., the `setClass` statement) in a file named `AllClasses.R`, all new generics in a file named `AllGenerics.R`,
+and all other methods in files that are alphanumerically ordered below the first two.
+This is because R collates files by alphanumeric order when building a package.
+It is critical that the collation (and definition) of the classes and generics occurs **before** that of the corresponding methods, otherwise errors will occur.
+If alphanumeric ordering is inappropriate, developers can manually specify the collation order using `Collate:` in the `DESCRIPTION` file - 
+see [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file) for more details.
+
+# Deriving a class with custom slots 
+
+## Class definition
+
+In practice, most derived classes will need to store application-specific data structures.
+For the rest of this document, we will be considering the derivation of a class with custom slots to hold such structures.
 First, we consider 1D data structures:
 
 - `rowVec`: 1:1 mapping from each value to a row of the `SummarizedExperiment`.
@@ -112,7 +157,7 @@ We also consider some 2D data structures:
 Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, `[` and `[<-`.
 For simplicity, we will use (numeric) matrices for the `*.mat` slots.
 
-Definition of the class 
+Definition of the class is achieved using `setClass`, using the `slots=` argument to specify the new custom slots^[It does no harm to repeat the Roxygen tags, which explicitly specifies the imports required for each class and function.].
 
 ```{r}
 #' @export
@@ -130,7 +175,7 @@ Definition of the class
     contains="SummarizedExperiment")
 ```
 
-# Defining the constructor
+## Defining the constructor
 
 The constructor should provide some arguments for setting the new slots in the derived class definition.
 The default values should be set such that calling the constructor without any arguments returns a valid `ExampleClass` object.
@@ -154,13 +199,11 @@ ExampleClass <- function(
 }
 ```
 
-# Creating getter methods
+## Creating getter methods
 
-## For 1D data structures
+### For 1D data structures
 
-We define some getter methods for the custom slots containing the 1D structures.
-This usually requires the creation of new generics if they are not already available, e.g., in `r Biocpkg("BiocGenerics")` or `r Biocpkg("S4Vectors")`^[If you have an idea for a generally applicable generic that is not yet available, please contact the Bioconductor core team.].
-The `...` in the generic function definition means that custom arguments can be provided for specific methods.
+We define some getter generics for the custom slots containing the 1D structures.
 
 ```{r}
 #' @export
@@ -191,7 +234,7 @@ setMethod("colVec", "ExampleClass", function(x, withDimnames=TRUE) {
 })
 ```
 
-## For 2D data structures
+### For 2D data structures
 
 We repeat this process for the 2D structures.
 
@@ -242,7 +285,7 @@ setMethod("colToRowMat", "ExampleClass", function(x, withDimnames=TRUE) {
 })
 ```
 
-## For `SummarizedExperiment` slots
+### For `SummarizedExperiment` slots
 
 The getter methods defined in `r Biocpkg("SummarizedExperiment")` can be directly used to retrieve data from slots in the base class.
 These should generally not require any re-defining for a derived class.
@@ -263,13 +306,15 @@ setMethod("rowData", "ExampleClass", function(x, ...) {
 })
 ```
 
-# Defining the validity method
+## Defining the validity method
 
-We want to be notified (and an error to be thrown) if the new slots are filled with inappropriate values.
-This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function.].
-Returning a string indicates that there is a problem with the validity of the `ExampleClass` instance.
+We use `setValidity2` to define a validity function for `ExampleClass`.
+We use the previously defined getter functions to retreive the slot values rather than using `@`.
+There were good reasons for this, but I have forgotten them.
+We also set `withDimnames=FALSE` in our getter calls, as consistent naming is not necessary for internal functions.
 
 ```{r}
+#' @importFrom BiocGenerics NCOL NROW
 setValidity2("ExampleClass", function(object) {
     NR <- NROW(object)
     NC <- NCOL(object)
@@ -304,16 +349,11 @@ setValidity2("ExampleClass", function(object) {
 })
 ```
 
-Some notes about this function:
+We use the `NCOL` and `NROW` methods from `r Biocpkg("BiocGenerics")` as these support various Bioconductor objects, whereas the base methods do not.
 
-- We use the `NCOL` and `NROW` methods from `r Biocpkg("BiocGenerics")` as these provide support for various Bioconductor objects.
-- We use the getter functions to retreive the slot values rather than using `@`.
-There were good reasons for this, but I have forgotten them.
-- We also set `withDimnames=FALSE` in our getter calls, as consistent naming is not necessary for internal functions.
+## Creating a `show` method
 
-# Creating a `show` method
-
-The default `show` method will only display the `SummarizedExperiment` slots.
+The default `show` method will only display information about the `SummarizedExperiment` slots.
 We can augment it to display some relevant aspects of the custom slots.
 This is done by calling the base `show` method before printing additional fields as necessary.
 
@@ -332,9 +372,9 @@ setMethod("show", "ExampleClass", function(object) {
 })
 ```
 
-# Creating setter methods
+## Creating setter methods
 
-## For 1D data structures
+### For 1D data structures
 
 We define some setter methods for the custom slots containing the 1D structures.
 Again, this usually requires the creation of new generics.
@@ -365,7 +405,7 @@ setReplaceMethod("colVec", "ExampleClass", function(x, value) {
 })
 ```
 
-## For 2D data structures
+### For 2D data structures
 
 We repeat this process for the 2D structures.
 
@@ -412,7 +452,7 @@ setReplaceMethod("colToRowMat", "ExampleClass", function(x, value) {
 })
 ```
 
-## For `SummarizedExperiment` slots
+### For `SummarizedExperiment` slots
 
 Again, we can use the setter methods defined in `r Biocpkg("SummarizedExperiment")` to modify slots in the base class.
 These should generally not require any re-defining.
@@ -431,7 +471,7 @@ setReplaceMethod("rowData", "ExampleClass", function(x, ..., value) {
 })
 ```
 
-## Other types of modifying functions 
+### Other types of modifying functions 
 
 Imagine that we want to write a function that returns a modified `ExampleClass`, e.g., where the signs of the `*.vec` fields are reversed.
 For example, we will pretend that we want to write a `normalize` function, using the generic from `r Biocpkg("BiocGenerics")`.
@@ -452,9 +492,9 @@ We use `BiocGenerics:::replaceSlots` instead of the setter methods that we defin
 This is because our setters perform validity checks that are unnecessary if we know that the modification cannot alter the validity of the object.
 The `replaceSlots` function allows us to skip these validity checks (`check=FALSE`) for greater efficiency.
 
-# Enabling subsetting operations
+## Enabling subsetting operations
 
-## Getting a subset
+### Getting a subset
 
 A key strength of the `SummarizedExperiment` class is that subsetting is synchronized across the various (meta)data fields.
 This avoids book-keeping errors and guarantees consistency throughout an interactive analysis session.
@@ -501,7 +541,7 @@ setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
 
 Note the special code for handling character indices, and the use of `callNextMethod` to subset the base `SummarizedExperiment` slots.
 
-## Assigning a subset
+### Assigning a subset
 
 Subset assignment can be similarly performed, though the signature needs to be specified so that the replacement value is of the same class.
 This is generally necessary for sensible replacement of the custom slots.
@@ -546,9 +586,9 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
 })
 ```
 
-# Defining combining methods
+## Defining combining methods
 
-## By row
+### By row
 
 We need to define a `rbind` method for our custom class.
 This is done by combining the custom per-row slots across class instances.
@@ -597,7 +637,7 @@ We also use the `disableValidity` method to avoid the validity check in the base
 This is because the object is technically invalid when the base slots are combined but before it is updated with the new combined values for the custom slots.
 The `on.exit` call ensures that the original validity setting is restored upon exit of the function.
 
-## By column
+### By column
 
 We similarly define a `cbind` method to handle the custom slots.
 
