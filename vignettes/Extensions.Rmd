@@ -309,8 +309,8 @@ setMethod("rowData", "ExampleClass", function(x, ...) {
 ## Defining the validity method
 
 We use `setValidity2` to define a validity function for `ExampleClass`.
-We use the previously defined getter functions to retreive the slot values rather than using `@`.
-There were good reasons for this, but I have forgotten them.
+We use the previously defined getter functions to retrieve the slot values rather than using `@`.
+This is generally a good idea to keep the interface separate from the implementation^[This protects against changes to the slot names, and simplifies development when the storage mode differs from the conceptual meaning of the data, e.g., for efficiency purposes.]. 
 We also set `withDimnames=FALSE` in our getter calls, as consistent naming is not necessary for internal functions.
 
 ```{r}
