@@ -22,23 +22,32 @@ library(testthat)
 
 # Motivation
 
-A large number of Bioconductor packages contain extensions of the standard `SummarizedExperiment` class from the `r Biocpkg("SummarizedExperiment")` package.
-This allows developers to take advantage of the power of the `SummarizedExperiment` representation for synchronising data and metadata, 
-while still accommodating specialized data structures for particular scientific applications.
-This document is intended to provide a developer-level "best practices" reference for the creation of these derived classes.
+A large number of Bioconductor packages contain extensions of the
+standard `SummarizedExperiment` class from the
+[SummarizedExperiment][] package.  This allows developers to take
+advantage of the power of the `SummarizedExperiment` representation
+for synchronising data and metadata, while still accommodating
+specialized data structures for particular scientific applications.
+This document is intended to provide a developer-level "best
+practices" reference for the creation of these derived classes.
 
 # Deriving a simple class
 
 ## Overview 
 
-To introduce various concepts, we will start off with a simple derived class that does not add any new slots.
-This is occasionally useful when additional constraints need to be placed on the derived class.
-In this example, we will assume that we want our class to minimally hold a `"counts"` assay that contains non-negative values^[For simplicity's sake, we won't worry about enforcing integer type, as fractional values are possible, e.g., when dealing with expected counts.].
+To introduce various concepts, we will start off with a simple derived
+class that does not add any new slots.  This is occasionally useful
+when additional constraints need to be placed on the derived class.
+In this example, we will assume that we want our class to minimally
+hold a `"counts"` assay that contains non-negative
+values^[For simplicity's sake, we won't worry about enforcing integer type, as fractional values are possible, e.g., when dealing with expected counts.].
 
 ## Defining the class and its constructor
 
-We name our new class `CountSE` and define it using the `setClass` function from the _methods_ package, as is conventionally done for all S4 classes.
-We use Roxygen's `#'` tags to trigger the generation of import/export statements in the `NAMESPACE` of our package.
+We name our new class `CountSE` and define it using the `setClass`
+function from the _methods_ package, as is conventionally done for all
+S4 classes.  We use Roxygen's `#'` tags to trigger the generation of
+import/export statements in the `NAMESPACE` of our package.
 
 ```{r}
 #' @export
@@ -47,8 +56,10 @@ We use Roxygen's `#'` tags to trigger the generation of import/export statements
 .CountSE <- setClass("CountSE", contains="SummarizedExperiment")
 ```
 
-We define a constructor that accepts a count matrix to create a `CountSE` object.
-We use `...` to pass further arguments to the `SummarizedExperiment` constructor, which allows us to avoid re-specifying all its arguments.
+We define a constructor that accepts a count matrix to create a
+`CountSE` object.  We use `...` to pass further arguments to the
+`SummarizedExperiment` constructor, which allows us to avoid
+re-specifying all its arguments.
 
 ```{r}
 #' @export
@@ -61,9 +72,12 @@ CountSE <- function(counts, ...) {
 
 ## Defining a validity method
 
-We define a validity method that enforces the constraints that we described earlier.
-This is done by defining a validity function using `setValidity2` from the `r Biocpkg("S4Vectors")` package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function.].
-Returning a string indicates that there is a problem and triggers an error in the R session.
+We define a validity method that enforces the constraints that we
+described earlier.  This is done by defining a validity function using
+`setValidity2` from the [S4Vectors][]
+package^[This allows us to turn off the validity checks in internal functions where intermediate objects may not be valid within the scope of the function.].
+Returning a string indicates that there is a problem and triggers an
+error in the R session.
 
 ```{r}
 setValidity2("CountSE", function(object) {
@@ -77,11 +91,9 @@ setValidity2("CountSE", function(object) {
         msg <- c(msg, "negative values in 'counts'")
     }
 
-    if (!is.null(msg)) {
-        return(msg)
-    }
-
-    TRUE
+    if (is.null(msg)) {
+        TRUE
+    } else msg
 })
 ```
 
@@ -99,12 +111,16 @@ CountSE(matrix(rnorm(100), ncol=5))
 
 ## Defining a getter method
 
-A generic is a group of functions with the same name that operate on different classes.
-Upon calling the generic on an object, the S4 dispatch system will choose the most appropriate function to use based on the object class.
-This allows users and developers to write code that is agnostic to the type of input class.
+A generic is a group of functions with the same name that operate on
+different classes.  Upon calling the generic on an object, the S4
+dispatch system will choose the most appropriate function to use based
+on the object class.  This allows users and developers to write code
+that is agnostic to the type of input class.
 
-Let's say that it is of particular scientific interest to obtain the counts with a flipped sign.
-We observe that there are no existing generics that do this task, e.g., in `r Biocpkg("BiocGenerics")` or `r Biocpkg("S4Vectors")`^[If you have an idea for a generally applicable generic that is not yet available, please contact the Bioconductor core team.].
+Let's say that it is of particular scientific interest to obtain the
+counts with a flipped sign.  We observe that there are no existing
+generics that do this task, e.g., in [BiocGenerics][] or
+[S4Vectors][]^[If you have an idea for a generally applicable generic that is not yet available, please contact the Bioconductor core team.].
 Instead, we define a new generic `negcounts`:
 
 ```{r}
@@ -112,7 +128,8 @@ Instead, we define a new generic `negcounts`:
 setGeneric("negcounts", function(x, ...) standardGeneric("negcounts"))
 ```
 
-We then define a specific method for our `CountSE` class^[The `...` in the generic function definition means that custom arguments like `withDimnames=` can be provided for specific methods, if necessary.]:
+We then define a specific method for our `CountSE`
+class^[The `...` in the generic function definition means that custom arguments like `withDimnames=` can be provided for specific methods, if necessary.]:
 
 ```{r}
 #' @export
@@ -122,42 +139,61 @@ setMethod("negcounts", "CountSE", function(x, withDimnames=TRUE) {
 })
 ```
 
-If any other developers need to compute negative counts for their own classes, they can simply use the `negcounts` generic defined in our package.
+If any other developers need to compute negative counts for their own
+classes, they can simply use the `negcounts` generic defined in our
+package.
 
 ## Some comments on package organization
 
-It is convention to put all class definitions (i.e., the `setClass` statement) in a file named `AllClasses.R`, all new generic definitions in a file named `AllGenerics.R`,
-and all method definitions in files that are alphanumerically ordered below the first two.
-This is because R collates files by alphanumeric order when building a package.
-It is critical that the collation (and definition) of the classes and generics occurs **before** that of the corresponding methods, otherwise errors will occur.
-If alphanumeric ordering is inappropriate, developers can manually specify the collation order using `Collate:` in the `DESCRIPTION` file - 
-see [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file) for more details.
+It is convention to put all class definitions (i.e., the `setClass`
+statement) in a file named `AllClasses.R`, all new generic definitions
+in a file named `AllGenerics.R`, and all method definitions in files
+that are alphanumerically ordered below the first two.  This is
+because R collates files by alphanumeric order when building a
+package.  It is critical that the collation (and definition) of the
+classes and generics occurs **before** that of the corresponding
+methods, otherwise errors will occur.  If alphanumeric ordering is
+inappropriate, developers can manually specify the collation order
+using `Collate:` in the `DESCRIPTION` file - see
+[Writing R Extensions][R-exts] for more details.
+
+[R-exts]: https://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file
 
 # Deriving a class with custom slots 
 
 ## Class definition
 
-In practice, most derived classes will need to store application-specific data structures.
-For the rest of this document, we will be considering the derivation of a class with custom slots to hold such structures.
-First, we consider 1D data structures:
+In practice, most derived classes will need to store
+application-specific data structures.  For the rest of this document,
+we will be considering the derivation of a class with custom slots to
+hold such structures.  First, we consider 1D data structures:
 
-- `rowVec`: 1:1 mapping from each value to a row of the `SummarizedExperiment`.
-- `colVec`: 1:1 mapping from each value to a column of the `SummarizedExperiment`.
+- `rowVec`: 1:1 mapping from each value to a row of the
+  `SummarizedExperiment`.
+- `colVec`: 1:1 mapping from each value to a column of the
+  `SummarizedExperiment`.
 
-Any 1D structure can be used if it supports `length`, `c`, `[` and `[<-`.
-For simplicity, we will use integer vectors for the `*.vec` slots.
+Any 1D structure can be used if it supports `length`, `c`,
+`[` and `[<-`.  For simplicity, we will use integer vectors for the `*.vec` 
+slots.
 
 We also consider some 2D data structures: 
 
-- `rowToRowMat`: 1:1 mapping from each row to a row of the `SummarizedExperiment`.
-- `colToColMat`: 1:1 mapping from each column to a column of the `SummarizedExperiment`.
-- `rowToColMat`: 1:1 mapping from each row to a column of the `SummarizedExperiment`.
-- `colToRowMat`: 1:1 mapping from each column to a row of the `SummarizedExperiment`.
+- `rowToRowMat`: 1:1 mapping from each row to a row of the 
+  `SummarizedExperiment`.
+- `colToColMat`: 1:1 mapping from each column to a column of the 
+  `SummarizedExperiment`.
+- `rowToColMat`: 1:1 mapping from each row to a column of the 
+  `SummarizedExperiment`.
+- `colToRowMat`: 1:1 mapping from each column to a row of the 
+  `SummarizedExperiment`.
 
-Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, `[` and `[<-`.
-For simplicity, we will use (numeric) matrices for the `*.mat` slots.
+Any 2D structure can be used if it supports `nrow`, `ncol`, `cbind`, `rbind`, 
+`[` and `[<-`.  For simplicity, we will use (numeric) matrices for the `*.mat` 
+slots.
 
-Definition of the class is achieved using `setClass`, using the `slots=` argument to specify the new custom slots^[It does no harm to repeat the Roxygen tags, which explicitly specifies the imports required for each class and function.].
+Definition of the class is achieved using `setClass`, using the `slots=` 
+argument to specify the new custom slots^[It does no harm to repeat the Roxygen tags, which explicitly specifies the imports required for each class and function.].
 
 ```{r}
 #' @export
@@ -172,26 +208,29 @@ Definition of the class is achieved using `setClass`, using the `slots=` argumen
         rowToColMat="matrix",
         colToRowMat="matrix"
     ),
-    contains="SummarizedExperiment")
+    contains="SummarizedExperiment"
+)
 ```
 
 ## Defining the constructor
 
-The constructor should provide some arguments for setting the new slots in the derived class definition.
-The default values should be set such that calling the constructor without any arguments returns a valid `ExampleClass` object.
+The constructor should provide some arguments for setting the new
+slots in the derived class definition.  The default values should be
+set such that calling the constructor without any arguments returns a
+valid `ExampleClass` object.
 
 ```{r}
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 ExampleClass <- function(
-        rowVec=integer(0), 
-        colVec=integer(0),
-        rowToRowMat=matrix(0,0,0),
-        colToColMat=matrix(0,0,0),
-        rowToColMat=matrix(0,0,0),
-        colToRowMat=matrix(0,0,0),
-        ...) {
-    
+    rowVec=integer(0), 
+    colVec=integer(0),
+    rowToRowMat=matrix(0,0,0),
+    colToColMat=matrix(0,0,0),
+    rowToColMat=matrix(0,0,0),
+    colToRowMat=matrix(0,0,0),
+    ...)
+{
     se <- SummarizedExperiment(...)
     .ExampleClass(se, rowVec=rowVec, colVec=colVec,
         rowToRowMat=rowToRowMat, colToColMat=colToColMat, 
@@ -203,18 +242,22 @@ ExampleClass <- function(
 
 ### For 1D data structures
 
-We define some getter generics for the custom slots containing the 1D structures.
+We define some getter generics for the custom slots containing the 1D
+structures.
 
 ```{r}
 #' @export
 setGeneric("rowVec", function(x, ...) standardGeneric("rowVec"))
+
 #' @export
 setGeneric("colVec", function(x, ...) standardGeneric("colVec"))
 ```
 
-We then define the class-specific methods for these generics.
-Note the `withDimnames=TRUE` argument, which enforces consistency between the names of the extracted object and the original `SummarizedExperiment`.
-It is possible to turn this off for greater efficiency, e.g., for internal usage where names are not necessary.
+We then define the class-specific methods for these generics.  Note
+the `withDimnames=TRUE` argument, which enforces consistency between
+the names of the extracted object and the original
+`SummarizedExperiment`.  It is possible to turn this off for greater
+efficiency, e.g., for internal usage where names are not necessary.
 
 ```{r}
 #' @export
@@ -241,10 +284,13 @@ We repeat this process for the 2D structures.
 ```{r}
 #' @export
 setGeneric("rowToRowMat", function(x, ...) standardGeneric("rowToRowMat"))
+
 #' @export
 setGeneric("colToColMat", function(x, ...) standardGeneric("colToColMat"))
+
 #' @export
 setGeneric("rowToColMat", function(x, ...) standardGeneric("rowToColMat"))
+
 #' @export
 setGeneric("colToRowMat", function(x, ...) standardGeneric("colToRowMat"))
 ```
@@ -287,10 +333,13 @@ setMethod("colToRowMat", "ExampleClass", function(x, withDimnames=TRUE) {
 
 ### For `SummarizedExperiment` slots
 
-The getter methods defined in `r Biocpkg("SummarizedExperiment")` can be directly used to retrieve data from slots in the base class.
-These should generally not require any re-defining for a derived class.
-However, if it is necessary, the methods should use `callNextMethod` internally.
-This will call the method for the base `SummarizedExperiment` class, the output of which can be modified as required.
+The getter methods defined in [SummarizedExperiment][] can be directly
+used to retrieve data from slots in the base class.  These should
+generally not require any re-defining for a derived class.  However,
+if it is necessary, the methods should use `callNextMethod`
+internally.  This will call the method for the base
+`SummarizedExperiment` class, the output of which can be modified as
+required.
 
 ```{r}
 #' @export
@@ -308,10 +357,13 @@ setMethod("rowData", "ExampleClass", function(x, ...) {
 
 ## Defining the validity method
 
-We use `setValidity2` to define a validity function for `ExampleClass`.
-We use the previously defined getter functions to retrieve the slot values rather than using `@`.
-This is generally a good idea to keep the interface separate from the implementation^[This protects against changes to the slot names, and simplifies development when the storage mode differs from the conceptual meaning of the data, e.g., for efficiency purposes.]. 
-We also set `withDimnames=FALSE` in our getter calls, as consistent naming is not necessary for internal functions.
+We use `setValidity2` to define a validity function for
+`ExampleClass`.  We use the previously defined getter functions to
+retrieve the slot values rather than using `@`.  This is generally a
+good idea to keep the interface separate from the
+implementation^[This protects against changes to the slot names, and simplifies development when the storage mode differs from the conceptual meaning of the data, e.g., for efficiency purposes.].
+We also set `withDimnames=FALSE` in our getter calls, as consistent
+naming is not necessary for internal functions.
 
 ```{r}
 #' @importFrom BiocGenerics NCOL NROW
@@ -325,37 +377,48 @@ setValidity2("ExampleClass", function(object) {
         msg <- c(msg, "'rowVec' should have length equal to the number of rows")
     }
     if (length(colVec(object, withDimnames=FALSE)) != NC) {
-        msg <- c(msg, "'colVec' should have length equal to the number of columns")
+        msg <- c(
+            msg, "'colVec' should have length equal to the number of columns"
+        )
     }
 
     # 2D
     if (NROW(rowToRowMat(object, withDimnames=FALSE)) != NR) {
-        msg <- c(msg, "'nrow(rowToRowMat)' should be equal to the number of rows")
+        msg <- c(
+            msg, "'nrow(rowToRowMat)' should be equal to the number of rows"
+        )
     }
     if (NCOL(colToColMat(object, withDimnames=FALSE)) != NC) {
-        msg <- c(msg, "'ncol(colToColMat)' should be equal to the number of columns")
+        msg <- c(
+            msg, "'ncol(colToColMat)' should be equal to the number of columns"
+        )
     }
     if (NROW(rowToColMat(object, withDimnames=FALSE)) != NC) {
-        msg <- c(msg, "'nrow(rowToColMat)' should be equal to the number of columns")
+        msg <- c(
+            msg, "'nrow(rowToColMat)' should be equal to the number of columns"
+        )
     }
     if (NCOL(colToRowMat(object, withDimnames=FALSE)) != NR) {
-        msg <- c(msg, "'ncol(colToRowMat)' should be equal to the number of rows")
+        msg <- c(
+            msg, "'ncol(colToRowMat)' should be equal to the number of rows"
+        )
     }
 
     if (length(msg)) {
-        return(msg)
-    }
-    return(TRUE)
+        msg
+    } else TRUE
 })
 ```
 
-We use the `NCOL` and `NROW` methods from `r Biocpkg("BiocGenerics")` as these support various Bioconductor objects, whereas the base methods do not.
+We use the `NCOL` and `NROW` methods from [BiocGenerics][] as these
+support various Bioconductor objects, whereas the base methods do not.
 
 ## Creating a `show` method
 
-The default `show` method will only display information about the `SummarizedExperiment` slots.
-We can augment it to display some relevant aspects of the custom slots.
-This is done by calling the base `show` method before printing additional fields as necessary.
+The default `show` method will only display information about the
+`SummarizedExperiment` slots.  We can augment it to display some
+relevant aspects of the custom slots.  This is done by calling the
+base `show` method before printing additional fields as necessary.
 
 ```{r}
 #' @export
@@ -376,18 +439,20 @@ setMethod("show", "ExampleClass", function(object) {
 
 ### For 1D data structures
 
-We define some setter methods for the custom slots containing the 1D structures.
-Again, this usually requires the creation of new generics.
+We define some setter methods for the custom slots containing the 1D
+structures.  Again, this usually requires the creation of new
+generics.
 
 ```{r}
 #' @export
 setGeneric("rowVec<-", function(x, ..., value) standardGeneric("rowVec<-"))
+
 #' @export
 setGeneric("colVec<-", function(x, ..., value) standardGeneric("colVec<-"))
 ```
 
-We define the class-specific methods for these generics.
-Note that use of `validObject` to ensure that the assigned input is still valid.
+We define the class-specific methods for these generics.  Note that
+use of `validObject` to ensure that the assigned input is still valid.
 
 ```{r}
 #' @export
@@ -411,13 +476,24 @@ We repeat this process for the 2D structures.
 
 ```{r}
 #' @export
-setGeneric("rowToRowMat<-", function(x, ..., value) standardGeneric("rowToRowMat<-"))
+setGeneric("rowToRowMat<-", function(x, ..., value)
+    standardGeneric("rowToRowMat<-")
+)
+
 #' @export
-setGeneric("colToColMat<-", function(x, ..., value) standardGeneric("colToColMat<-"))
+setGeneric("colToColMat<-", function(x, ..., value)
+    standardGeneric("colToColMat<-")
+)
+
 #' @export
-setGeneric("rowToColMat<-", function(x, ..., value) standardGeneric("rowToColMat<-"))
+setGeneric("rowToColMat<-", function(x, ..., value) 
+    standardGeneric("rowToColMat<-")
+)
+
 #' @export
-setGeneric("colToRowMat<-", function(x, ..., value) standardGeneric("colToRowMat<-"))
+setGeneric("colToRowMat<-", function(x, ..., value)
+    standardGeneric("colToRowMat<-")
+)
 ```
 
 Again, we define class-specific methods for these generics.
@@ -454,9 +530,10 @@ setReplaceMethod("colToRowMat", "ExampleClass", function(x, value) {
 
 ### For `SummarizedExperiment` slots
 
-Again, we can use the setter methods defined in `r Biocpkg("SummarizedExperiment")` to modify slots in the base class.
-These should generally not require any re-defining.
-However, if it is necessary, the methods should use `callNextMethod` internally:
+Again, we can use the setter methods defined in
+[SummarizedExperiment][] to modify slots in the base class.  These
+should generally not require any re-defining.  However, if it is
+necessary, the methods should use `callNextMethod` internally:
 
 ```{r}
 #' @export
@@ -465,7 +542,7 @@ setReplaceMethod("rowData", "ExampleClass", function(x, ..., value) {
     y <- callNextMethod() # returns a modified ExampleClass
     
     # Do something extra here.
-    cat("hi!\n")
+    message("hi!\n")
 
     y
 })
@@ -473,8 +550,11 @@ setReplaceMethod("rowData", "ExampleClass", function(x, ..., value) {
 
 ### Other types of modifying functions 
 
-Imagine that we want to write a function that returns a modified `ExampleClass`, e.g., where the signs of the `*.vec` fields are reversed.
-For example, we will pretend that we want to write a `normalize` function, using the generic from `r Biocpkg("BiocGenerics")`.
+Imagine that we want to write a function that returns a modified
+`ExampleClass`, e.g., where the signs of the `*.vec` fields are
+reversed.  For example, we will pretend that we want to write a
+`normalize` function, using the generic from [BiocGenerics][].
+
 
 ```{r}
 #' @export
@@ -488,17 +568,22 @@ setMethod("normalize", "ExampleClass", function(object) {
 })
 ```
 
-We use `BiocGenerics:::replaceSlots` instead of the setter methods that we defined above.
-This is because our setters perform validity checks that are unnecessary if we know that the modification cannot alter the validity of the object.
-The `replaceSlots` function allows us to skip these validity checks (`check=FALSE`) for greater efficiency.
+We use `BiocGenerics:::replaceSlots` instead of the setter methods
+that we defined above.  This is because our setters perform validity
+checks that are unnecessary if we know that the modification cannot
+alter the validity of the object.  The `replaceSlots` function allows
+us to skip these validity checks (`check=FALSE`) for greater
+efficiency.
 
 ## Enabling subsetting operations
 
 ### Getting a subset
 
-A key strength of the `SummarizedExperiment` class is that subsetting is synchronized across the various (meta)data fields.
-This avoids book-keeping errors and guarantees consistency throughout an interactive analysis session.
-We need to ensure that the values in our custom slots are also subsetted.
+A key strength of the `SummarizedExperiment` class is that subsetting
+is synchronized across the various (meta)data fields.  This avoids
+book-keeping errors and guarantees consistency throughout an
+interactive analysis session.  We need to ensure that the values in
+our custom slots are also subsetted.
 
 ```{r}
 #' @export
@@ -513,7 +598,9 @@ setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
     if (!missing(i)) {
         if (is.character(i)) {
             fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
-            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(i, rownames(x), fmt)
+            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(
+                i, rownames(x), fmt
+            )
         }
         i <- as.vector(i)
         rv <- rv[i]
@@ -524,7 +611,9 @@ setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
     if (!missing(j)) {
         if (is.character(j)) {
             fmt <- paste0("<", class(x), ">[,j] index out of bounds: %s")
-            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(j, colnames(x), fmt)
+            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(
+                j, colnames(x), fmt
+            )
         }
         j <- as.vector(j)
         cv <- cv[j]
@@ -539,12 +628,15 @@ setMethod("[", "ExampleClass", function(x, i, j, drop=TRUE) {
 })
 ```
 
-Note the special code for handling character indices, and the use of `callNextMethod` to subset the base `SummarizedExperiment` slots.
+Note the special code for handling character indices, and the use of
+`callNextMethod` to subset the base `SummarizedExperiment` slots.
 
 ### Assigning a subset
 
-Subset assignment can be similarly performed, though the signature needs to be specified so that the replacement value is of the same class.
-This is generally necessary for sensible replacement of the custom slots.
+Subset assignment can be similarly performed, though the signature
+needs to be specified so that the replacement value is of the same
+class.  This is generally necessary for sensible replacement of the
+custom slots.
 
 ```{r}
 #' @export
@@ -560,7 +652,9 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
     if (!missing(i)) {
         if (is.character(i)) {
             fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
-            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(i, rownames(x), fmt)
+            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(
+                i, rownames(x), fmt
+            )
         }
         i <- as.vector(i)
         rv[i] <- rowVec(value, withDimnames=FALSE)
@@ -571,7 +665,9 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
     if (!missing(j)) {
         if (is.character(j)) {
             fmt <- paste0("<", class(x), ">[,j] index out of bounds: %s")
-            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(j, colnames(x), fmt)
+            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(
+                j, colnames(x), fmt
+            )
         }
         j <- as.vector(j)
         cv[j] <- colVec(value, withDimnames=FALSE)
@@ -590,8 +686,8 @@ setReplaceMethod("[", c("ExampleClass", "ANY", "ANY", "ExampleClass"),
 
 ### By row
 
-We need to define a `rbind` method for our custom class.
-This is done by combining the custom per-row slots across class instances.
+We need to define a `rbind` method for our custom class.  This is done
+by combining the custom per-row slots across class instances.
 
 ```{r}
 #' @export
@@ -613,7 +709,8 @@ setMethod("rbind", "ExampleClass", function(..., deparse.level=1) {
     for (x in args[-1]) {
         if (!identical(ref.cv, colVec(x, withDimnames=FALSE)) 
             || !identical(ref.ccm, colToColMat(x, withDimnames=FALSE))
-            || !identical(ref.rcm, rowToColMat(x, withDimnames=FALSE))) {
+            || !identical(ref.rcm, rowToColMat(x, withDimnames=FALSE)))
+        {
             stop("per-column values are not compatible")
         }
     }
@@ -629,13 +726,18 @@ setMethod("rbind", "ExampleClass", function(..., deparse.level=1) {
 })
 ```
 
-We check the other per-column slots across all elements to ensure that they are the same.
-This protects the user against combining incompatible objects.
-However, depending on the application, this may not be necessary (or too costly) for all slots, in which case it can be limited to critical slots.
+We check the other per-column slots across all elements to ensure that
+they are the same.  This protects the user against combining
+incompatible objects.  However, depending on the application, this may
+not be necessary (or too costly) for all slots, in which case it can
+be limited to critical slots.
 
-We also use the `disableValidity` method to avoid the validity check in the base `cbind` method.
-This is because the object is technically invalid when the base slots are combined but before it is updated with the new combined values for the custom slots.
-The `on.exit` call ensures that the original validity setting is restored upon exit of the function.
+We also use the `disableValidity` method to avoid the validity check
+in the base `cbind` method.  This is because the object is technically
+invalid when the base slots are combined but before it is updated with
+the new combined values for the custom slots.  The `on.exit` call
+ensures that the original validity setting is restored upon exit of
+the function.
 
 ### By column
 
@@ -661,7 +763,8 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
     for (x in args[-1]) {
         if (!identical(ref.rv, rowVec(x, withDimnames=FALSE)) 
             || !identical(ref.rrm, rowToRowMat(x, withDimnames=FALSE))
-            || !identical(ref.crm, colToRowMat(x, withDimnames=FALSE))) {
+            || !identical(ref.crm, colToRowMat(x, withDimnames=FALSE)))
+        {
             stop("per-row values are not compatible")
         }
     }
@@ -681,12 +784,15 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
 
 ## Overview
 
-We test our new methods using the `expect_*` functions from the `r CRANpkg("testthat")` package.
-Each function will test an expression and will raise an error if the output is not as expected.
-This can be used to construct unit tests for the `tests/` subdirectory of the package.
-Unit testing ensures that the methods behave as expected, especially after any refactoring that may be performed in the future.
+We test our new methods using the `expect_*` functions from the
+[testthat][] package.  Each function will test an expression and will
+raise an error if the output is not as expected.  This can be used to
+construct unit tests for the `tests/` subdirectory of the package.
+Unit testing ensures that the methods behave as expected, especially
+after any refactoring that may be performed in the future.
 
-For testing, we will construct an instance of `ExampleClass` that has 10 rows and 7 columns:
+For testing, we will construct an instance of `ExampleClass` that has
+10 rows and 7 columns:
 
 ```{r}
 RV <- 1:10
@@ -701,10 +807,12 @@ thing <- ExampleClass(rowVec=RV, colVec=CV,
     rowToColMat=RCM, colToRowMat=CRM,
     assays=list(counts=matrix(rnorm(70), nrow=10)),
     colData=DataFrame(whee=LETTERS[1:7]),
-    rowData=DataFrame(yay=letters[1:10]))
+    rowData=DataFrame(yay=letters[1:10])
+)
 ```
 
-We will also add some row and column names, which will come in handy later.
+We will also add some row and column names, which will come in handy
+later.
 
 ```{r}
 rownames(thing) <- paste0("FEATURE_", seq_len(nrow(thing)))
@@ -720,7 +828,8 @@ We test that the `thing` object we constructed is valid:
 expect_true(validObject(thing))
 ```
 
-Another useful set of unit tests involves checking that the default constructors (internal and exported) yield valid objects:
+Another useful set of unit tests involves checking that the default
+constructors (internal and exported) yield valid objects:
 
 ```{r}
 expect_true(validObject(.ExampleClass())) # internal
@@ -807,10 +916,11 @@ expect_equivalent(colToRowMat(thing), old / 10)
 Testing our custom `rowData<-` method:
 
 ```{r}
-expect_output(rowData(thing) <- 1, "hi")
+expect_message(rowData(thing) <- 1, "hi")
 ```
 
-We ensure that we can successfully trigger errors on the validity method:
+We ensure that we can successfully trigger errors on the validity
+method:
 
 ```{r}
 expect_error(rowVec(thing) <- 0, "rowVec")
@@ -890,7 +1000,8 @@ expect_identical(colToColMat(modified), colToColMat(thing)[,cperm])
 expect_identical(rowToColMat(modified), rowToColMat(thing)[cperm,])
 ```
 
-Checking that we obtain the same object after trivial assignment operations:
+Checking that we obtain the same object after trivial assignment
+operations:
 
 ```{r}
 modified <- thing
@@ -928,8 +1039,8 @@ expect_identical(colToColMat(combined), colToColMat(thing))
 expect_identical(rowToColMat(combined), rowToColMat(thing))
 ```
 
-And combining by column.
-We use `test_equivalent` here for simplicity, as column names are altered to preserve uniqueness.
+And combining by column.  We use `test_equivalent` here for
+simplicity, as column names are altered to preserve uniqueness.
 
 ```{r}
 combined <- cbind(thing, thing)
@@ -945,7 +1056,8 @@ expect_equivalent(rowToRowMat(combined), rowToRowMat(thing))
 expect_equivalent(colToRowMat(combined), colToRowMat(thing))
 ```
 
-Checking that we get the same object if we combine a single object or an empty object:
+Checking that we get the same object if we combine a single object or
+an empty object:
 
 ```{r}
 expect_equal(thing, rbind(thing))
@@ -964,8 +1076,8 @@ expect_error(cbind(thing, thing[nrow(thing):1,]), "not compatible")
 
 # Documentation
 
-We suggest creating at least two separate documentation (i.e. `*.Rd`) files.
-The first file would document the class and the constructor:
+We suggest creating at least two separate documentation (i.e. `*.Rd`)
+files.  The first file would document the class and the constructor:
 
 ```
 \name{ExampleClass class}
@@ -983,15 +1095,20 @@ ExampleClass(rowVec=integer(0), colVec=integer(0),
 }
 
 \arguments{
-\item{rowVec}{An integer vector mapping to the rows, representing something important.}
-\item{colVec}{An integer vector mapping to the columns, representing something else that's important.}
-% And so on...
+    \item{rowVec}{An integer vector mapping to the rows, representing
+        something important.}
+
+    \item{colVec}{An integer vector mapping to the columns, representing
+        something else that's important.}
+
+    % And so on...
 }
 
 \details{
-% Some context on why this class and its slots are necessary.
-The ExampleClass provides an example of how to derive from the SummarizedExperiment class.
-Its slots have no scientific meaning and are purely for demonstration purposes.
+    % Some context on why this class and its slots are necessary.
+    The ExampleClass provides an example of how to derive from the
+    SummarizedExperiment class.  Its slots have no scientific meaning and
+    are purely for demonstration purposes.
 }
 ```
 
@@ -1031,28 +1148,32 @@ The second file would document all of the individual methods:
 }
 
 \arguments{
-\item{x}{An ExampleClass object.}
-\item{withDimnames}{A logical scalar indicating whether dimension names from \code{x} should be returned.}
+    \item{x}{An ExampleClass object.}
 
-\item{value}{
-For \code{rowVec}, an integer vector of length equal to the number of rows.
+    \item{withDimnames}{A logical scalar indicating whether dimension names
+        from \code{x} should be returned.}
 
-For \code{colVec}, an integer vector of length equal to the number of columns.
+    \item{value}{
+        For \code{rowVec}, an integer vector of length equal to the number of 
+        rows.
 
-%% And so on...
-}
+        For \code{colVec}, an integer vector of length equal to the number of 
+        columns.
+    }
+
+    %% And so on...
 }
 
 \section{Accessors}{
-% Add some details about accessor behaviour here.
+    % Add some details about accessor behaviour here.
 }
 
 \section{Subsetting}{
-% Add some details about subsetting behaviour here.
+    % Add some details about subsetting behaviour here.
 }
 
 \section{Combining}{
-% Add some details about combining behaviour here.
+    % Add some details about combining behaviour here.
 }
 ```
 
@@ -1061,3 +1182,8 @@ For \code{colVec}, an integer vector of length equal to the number of columns.
 ```{r}
 sessionInfo()
 ```
+
+[BiocGenerics]: https://bioconductor.org/packages/BiocGenerics
+[S4Vectors]: https://bioconductor.org/packages/S4Vectors
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+[testthat]: https://cran.r-project.org/package=testthat
