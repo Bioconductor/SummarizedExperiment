@@ -1,14 +1,14 @@
 ---
-title: "Extending the SummarizedExperiment class"
+title: "2. Extending the SummarizedExperiment class"
 author: Aaron Lun
-date: "Revised: 28 April, 2018"
+date: "Revised: 3 May, 2018"
 output:
   BiocStyle::html_document:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Extensions}
+  %\VignetteIndexEntry{2. Extending the SummarizedExperiment class}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\usepackage[utf8]{inputenc}
 ---
 
 ```{r, echo=FALSE, results="hide"}
