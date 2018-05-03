@@ -1,7 +1,7 @@
 ---
 title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
 author: "Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès"
-date: "Revised: 22 June, 2016"
+date: "Revised: 3 May, 2018"
 output:
   BiocStyle::html_document:
     toc: true
@@ -248,4 +248,10 @@ to subset a `SummarizedExperiment` object by an interval.
 # chromosome 1
 roi <- GRanges(seqnames="1", ranges=100000:1100000)
 subsetByOverlaps(se, roi)
+```
+
+# Session information
+
+```{r}
+sessionInfo()
 ```
