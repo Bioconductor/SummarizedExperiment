@@ -1,12 +1,12 @@
 ---
-title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
+title: "1. _SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
 author: "Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès"
 date: "Revised: 22 June, 2016"
 output:
   BiocStyle::html_document:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{SummarizedExperiment}
+  %\VignetteIndexEntry{1. SummarizedExperiment for Coordinating Experimental Assays, Samples, and Regions of Interest}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
