@@ -1,5 +1,5 @@
 ---
-title: "2. Extending the SummarizedExperiment class"
+title: "Extending the SummarizedExperiment class"
 author: Aaron Lun
 date: "Revised: 3 May, 2018"
 output:
