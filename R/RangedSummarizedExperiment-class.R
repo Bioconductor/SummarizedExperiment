@@ -126,24 +126,31 @@ setMethod("SummarizedExperiment", "SimpleList",
         }
     }
 
-    ## validate
-    ok <- vapply(assays, function(x) {
-        colnames <- colnames(x)
-        test <- is.null(colnames) || identical(colnames, ans_colnames)
-        if (!test)
-            stop("assay colnames() must be NULL or equal colData rownames()")
+    ## validate the assay rownames and colnames
+    .validate_names <- function(nms, expected_nms, what1, what2)
+    {
+        if (is.null(nms))
+            return()
+        if (!is.character(nms))
+            stop(wmsg(what1, " must be NULL or a character vector"))
+        if (!is.null(attributes(nms)))
+            stop(wmsg(what1, " must be NULL or a character vector",
+                             " with no attributes"))
+        if (!identical(nms, expected_nms))
+            stop(wmsg(what1, " must be NULL or identical to ", what2))
+    }
 
-        rownames <- rownames(x)
-        test <- test &&
-            is.null(rownames) || identical(rownames, ans_rownames)
-        if (!test) {
-            txt <- "assay rownames() must be NULL or equal rowData rownames() /
-                    rowRanges names()"
-            stop(paste(strwrap(txt, exdent=2), collapse="\n"))
-        }
-
-        test
-    }, logical(1))
+    for(i in seq_along(assays)) {
+        a <- assays[[i]]
+        rownames <- rownames(a)
+        .validate_names(rownames, ans_rownames,
+                        "assay rownames()",
+                        "rowData rownames() / rowRanges names()")
+        colnames <- colnames(a)
+        .validate_names(colnames, ans_colnames,
+                        "assay colnames()",
+                        "colData rownames()")
+    }
 
     assays <- Assays(assays)
 
