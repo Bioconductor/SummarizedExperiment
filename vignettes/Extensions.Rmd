@@ -135,7 +135,7 @@ class^[The `...` in the generic function definition means that custom arguments 
 #' @export
 #' @importFrom SummarizedExperiment assay
 setMethod("negcounts", "CountSE", function(x, withDimnames=TRUE) {
-    assay(x, withDimnames=withDimnames) * scale
+    -assay(x, withDimnames=withDimnames)
 })
 ```
 
