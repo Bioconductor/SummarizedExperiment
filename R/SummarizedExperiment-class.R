@@ -123,8 +123,13 @@ setReplaceMethod("names", "SummarizedExperiment",
 setGeneric("rowData", function(x, ...) standardGeneric("rowData"))
 
 setMethod("rowData", "SummarizedExperiment",
-    function(x, ...) mcols(x, ...)
-)
+          function(x, use.names = TRUE)
+{
+    if (use.names && anyDuplicated(rownames(x)))
+        stop("'rowData()' cannot return duplicate rownames, ",
+             "set 'use.names=FALSE'")
+    mcols(x, use.names = use.names)
+})
 
 setGeneric("rowData<-",
     function(x, ..., value) standardGeneric("rowData<-"))
@@ -545,7 +550,7 @@ setMethod("replaceROWS", "SummarizedExperiment",
 setMethod("subset", "SummarizedExperiment",
     function(x, subset, select, ...)
 {
-    i <- S4Vectors:::evalqForSubset(subset, rowData(x), ...)
+    i <- S4Vectors:::evalqForSubset(subset, rowData(x, use.names = FALSE), ...)
     j <- S4Vectors:::evalqForSubset(select, colData(x), ...)
     x[i, j]
 })
@@ -621,8 +626,8 @@ setMethod("show", "SummarizedExperiment",
     if (dlen[[1]]) scat("rownames(%d): %s\n", dimnames[[1]])
     else scat("rownames: NULL\n")
 
-    ## rowData()
-    scat("rowData names(%d): %s\n", names(rowData(object)))
+    ## rowData`()
+    scat("rowData names(%d): %s\n", names(rowData(object, use.names=FALSE)))
 
     ## colnames()
     if (dlen[[2]]) scat("colnames(%d): %s\n", dimnames[[2]])

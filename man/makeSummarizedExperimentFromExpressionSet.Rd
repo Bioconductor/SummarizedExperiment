@@ -99,8 +99,12 @@ as(sample.ExpressionSet, "SummarizedExperiment")
 makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet, probeRangeMapper)
 
 # using the gene range mapper
-makeSummarizedExperimentFromExpressionSet(sample.ExpressionSet,
-                                          geneRangeMapper("TxDb.Hsapiens.UCSC.hg19.knownGene"))
+se <- makeSummarizedExperimentFromExpressionSet(
+    sample.ExpressionSet,
+    geneRangeMapper("TxDb.Hsapiens.UCSC.hg19.knownGene")
+)
+se
+rowData(se, use.names = FALSE)          # duplicate row names
 
 ## ---------------------------------------------------------------------
 ## GOING FROM SummarizedExperiment TO ExpressionSet

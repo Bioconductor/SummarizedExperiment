@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.12.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o rowData() gains use.names=TRUE argument; prior behavior was to
+      use.names=FALSE. rowData() by default fails when rownames()
+      contain duplicates.
+
 CHANGES IN VERSION 1.10.0
 -------------------------
 

@@ -85,17 +85,28 @@ test_SummarizedExperiment_construction_colnames <- function()
 
     ## when colData rownames == NULL, take dimnames from assay colnames
     colnames <- LETTERS[1:3]
-    se <- SummarizedExperiment(matrix(0, 2, 3, dimnames=list(NULL, colnames)),
-                               colData=DataFrame(x=colnames)[,FALSE])
+    rownames <- letters[1:2]
+    se <- SummarizedExperiment(
+        matrix(0, 2, 3, dimnames=list(NULL, colnames)),
+        colData=DataFrame(x=colnames)[,FALSE]
+    )
     checkIdentical(colnames(se), colnames)
-    checkIdentical(colnames(assay(se, withDimnames=FALSE)), colnames,
-                   "don't remove non-NULL colnames")
+    checkIdentical(
+        dimnames(assay(se, withDimnames=FALSE)),
+        list(NULL, colnames),
+        "don't remove non-NULL colnames"
+    )
+    checkIdentical(rownames(colData(se)), colnames)
+    checkIdentical(rownames(rowData(se)), NULL)
 
     ## matching colData rownames and assay colnames
-    se <- SummarizedExperiment(matrix(0, 2, 3, dimnames=list(NULL, colnames)),
-                               colData=DataFrame(row.names=colnames))
-    checkIdentical(colnames(se), colnames)
-    checkIdentical(colnames(assay(se, withDimnames=FALSE)), colnames)
+    se <- SummarizedExperiment(
+        matrix(0, 2, 3, dimnames=list(rownames, colnames)),
+        colData=DataFrame(row.names=colnames)
+    )
+    checkIdentical(dimnames(se), list(rownames, colnames))
+    checkIdentical(rownames(colData(se)), colnames)
+    checkIdentical(rownames(rowData(se)), rownames)
 }
 
 test_SummarizedExperiment_getters <- function()

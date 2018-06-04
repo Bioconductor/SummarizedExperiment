@@ -135,7 +135,10 @@ colData(x, ...) <- value
     forwarded to \code{assays}.
 
     For \code{rowData}, arguments passed thru \code{...} are forwarded to
-    \code{\link[S4Vectors]{mcols}}.
+    \code{\link[S4Vectors]{mcols}}. In particular, \code{use.names =
+    FALSE} suppresses addition of rownames (e.g., because rownames of
+    \code{SummarizedExperiment} can contain duplicates, but rownames of
+    \code{DataFrame} / \code{data.frame} cannot).
 
     For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment
     objects to be combined.
