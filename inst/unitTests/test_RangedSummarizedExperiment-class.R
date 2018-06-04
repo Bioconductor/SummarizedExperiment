@@ -294,7 +294,13 @@ test_RangedSummarizedExperiment_rbind <- function()
     ## rowRanges
     rowData(se1) <- DataFrame("one"=1:5)
     rowData(se2) <- DataFrame("two"=6:10)
-    checkException(rbind(se1, se2), silent=TRUE)
+    checkIdentical(
+        rbind(
+            cbind(rowData(se1), two = NA_integer_),
+            cbind(one = NA_integer_, rowData(se2))
+        ),
+        rowData(rbind(se1, se2), use.names = FALSE)
+    )
     ## colDat
     se1 <- rseList[[1]]
     se2 <- se1
