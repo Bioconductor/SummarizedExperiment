@@ -54,24 +54,20 @@
     A \link{RangedSummarizedExperiment} object.
   }
   \item{shift, use.names}{
-    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+    See \code{?\link{shift}} in the \pkg{IRanges}
     package.
   }
   \item{start, end, width, fix}{
-    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
-    package.
+    See \code{?\link{shift}} in the \pkg{IRanges} package.
   }
   \item{ignore.strand, both}{
-    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
-    package.
+    See \code{?\link{shift}} in the \pkg{IRanges} package.
   }
   \item{upstream, downstream}{
-    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
-    package.
+    See \code{?\link{shift}} in the \pkg{IRanges} package.
   }
   \item{keep.all.ranges}{
-    See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
-    package.
+    See \code{?\link{shift}} in the \pkg{IRanges} package.
   }
 }
 
@@ -88,7 +84,7 @@
   where \code{f} is the name of the function and \code{...} any additional
   arguments passed to it.
 
-  See \code{?\link[GenomicRanges]{shift}} in the \pkg{GenomicRanges}
+  See \code{?\link{shift}} in the \pkg{IRanges}
   package for the details of how these transformations operate on a
   \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
   object.
@@ -98,8 +94,8 @@
   \itemize{
     \item \link{RangedSummarizedExperiment} objects.
 
-    \item The \link[GenomicRanges]{shift} man page in the
-          \pkg{GenomicRanges} package where \emph{intra range transformations}
+    \item The \link{shift} man page in the
+          \pkg{IRanges} package where \emph{intra range transformations}
           of a \link[GenomicRanges]{GenomicRanges} or
           \link[GenomicRanges]{GRangesList} object are documented.
   }
