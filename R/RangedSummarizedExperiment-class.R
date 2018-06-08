@@ -195,7 +195,7 @@ setMethod("SummarizedExperiment", "missing",
 {
     new_SummarizedExperiment(from@assays,
                              names(from@rowRanges),
-                             mcols(from@rowRanges),
+                             mcols(from@rowRanges, use.names=FALSE),
                              from@colData,
                              from@metadata)
 }
@@ -208,7 +208,7 @@ setAs("RangedSummarizedExperiment", "SummarizedExperiment",
 {
     partitioning <- PartitioningByEnd(integer(length(from)), names=names(from))
     rowRanges <- relist(GRanges(), partitioning)
-    mcols(rowRanges) <- mcols(from)
+    mcols(rowRanges) <- mcols(from, use.names=FALSE)
     .new_RangedSummarizedExperiment(from@assays,
                                     rowRanges,
                                     from@colData,
@@ -331,7 +331,7 @@ setMethod("subset", "RangedSummarizedExperiment",
 
 ## mcols
 setMethod("mcols", "RangedSummarizedExperiment",
-    function(x, use.names=FALSE, ...)
+    function(x, use.names=TRUE, ...)
 {
     mcols(rowRanges(x), use.names=use.names, ...)
 })

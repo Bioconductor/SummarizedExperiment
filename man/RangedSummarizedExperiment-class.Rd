@@ -300,11 +300,11 @@ rowRanges(rse)
 rowData(rse)  # same as 'mcols(rowRanges(rse))'
 colData(rse)
 
-rse[, rse$Treatment == "ChIP"]
+rse[ , rse$Treatment == "ChIP"]
 
 ## cbind() combines objects with the same ranges but different samples:
 rse1 <- rse
-rse2 <- rse1[,1:3]
+rse2 <- rse1[ , 1:3]
 colnames(rse2) <- letters[1:ncol(rse2)] 
 cmb1 <- cbind(rse1, rse2)
 dim(cmb1)
@@ -312,7 +312,7 @@ dimnames(cmb1)
 
 ## rbind() combines objects with the same samples but different ranges:
 rse1 <- rse
-rse2 <- rse1[1:50,]
+rse2 <- rse1[1:50, ]
 rownames(rse2) <- letters[1:nrow(rse2)] 
 cmb2 <- rbind(rse1, rse2)
 dim(cmb2)

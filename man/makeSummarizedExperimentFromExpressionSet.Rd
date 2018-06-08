@@ -104,7 +104,7 @@ se <- makeSummarizedExperimentFromExpressionSet(
     geneRangeMapper("TxDb.Hsapiens.UCSC.hg19.knownGene")
 )
 se
-rowData(se, use.names = FALSE)          # duplicate row names
+rowData(se)  # duplicate row names
 
 ## ---------------------------------------------------------------------
 ## GOING FROM SummarizedExperiment TO ExpressionSet

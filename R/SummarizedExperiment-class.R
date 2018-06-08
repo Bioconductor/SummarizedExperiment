@@ -120,16 +120,13 @@ setReplaceMethod("names", "SummarizedExperiment",
 ## call the rows / cols something different from 'features' or 'samples', so
 ## might as well avoid the issue
 
-setGeneric("rowData", function(x, ...) standardGeneric("rowData"))
+setGeneric("rowData", signature="x",
+    function(x, use.names=TRUE, ...) standardGeneric("rowData")
+)
 
 setMethod("rowData", "SummarizedExperiment",
-          function(x, use.names = TRUE)
-{
-    if (use.names && anyDuplicated(rownames(x)))
-        stop("'rowData()' cannot return duplicate rownames, ",
-             "set 'use.names=FALSE'")
-    mcols(x, use.names = use.names)
-})
+    function(x, use.names=TRUE, ...) mcols(x, use.names=use.names, ...)
+)
 
 setGeneric("rowData<-",
     function(x, ..., value) standardGeneric("rowData<-"))
@@ -550,7 +547,7 @@ setMethod("replaceROWS", "SummarizedExperiment",
 setMethod("subset", "SummarizedExperiment",
     function(x, subset, select, ...)
 {
-    i <- S4Vectors:::evalqForSubset(subset, rowData(x, use.names = FALSE), ...)
+    i <- S4Vectors:::evalqForSubset(subset, rowData(x, use.names=FALSE), ...)
     j <- S4Vectors:::evalqForSubset(select, colData(x), ...)
     x[i, j]
 })
@@ -747,7 +744,7 @@ setMethod("cbind", "SummarizedExperiment",
 
 .cbind.DataFrame <- function(args, accessor, accessorName)
 {
-    lst <- lapply(args, accessor)
+    lst <- lapply(args, accessor, use.names=FALSE)
     if (!.compare(lst)) {
         nms <- lapply(lst, names)
         nmsv <- unlist(nms, use.names=FALSE)
