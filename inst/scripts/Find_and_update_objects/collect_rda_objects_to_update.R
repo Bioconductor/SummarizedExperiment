@@ -21,7 +21,7 @@
 INFILE <- "RDA_OBJECTS"
 OUTFILE <- "RDA_OBJECTS_TO_UPDATE"
 
-library(BiocInstaller)
+library(BiocManager)
 library(SummarizedExperiment)
 
 if (FALSE) {
@@ -91,7 +91,7 @@ collectRdaObjectsToUpdate <- function(rda_objects, outfile="")
     installed_pkgs <- rownames(installed.packages())
     missing_pkgs <- setdiff(pkgs, installed_pkgs)
     if (length(missing_pkgs) != 0L) {
-        biocLite(missing_pkgs)
+        install(missing_pkgs)
         installed_pkgs <- rownames(installed.packages())
         missing_pkgs <- setdiff(pkgs, installed_pkgs)
         if (length(missing_pkgs) != 0L) {
