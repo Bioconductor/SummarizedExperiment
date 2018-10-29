@@ -1,11 +1,25 @@
 CHANGES IN VERSION 1.12.0
 -------------------------
 
+NEW FEATURES
+
+    o The package has a new vignette "Extending the SummarizedExperiment class"
+      by Aaron Lun intended for developers. It documents in great details the
+      process of implementing a SummarizedExperiment extension (a.k.a.
+      subclass).
+
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o rowData() gains use.names=TRUE argument; prior behavior was to
       use.names=FALSE. rowData() by default fails when rownames()
       contains NAs.
+
+BUG FIXES
+
+    o Better error handling in SummarizedExperiment() constructor.
+      SummarizedExperiment() now prints an informative error message when
+      the supplied assays have insane rownames or colnames. This addresses
+      https://github.com/Bioconductor/SummarizedExperiment/issues/7
 
 
 CHANGES IN VERSION 1.10.0
