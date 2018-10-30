@@ -1,10 +1,11 @@
 ---
 title: "Extending the SummarizedExperiment class"
 author: Aaron Lun
-date: "Revised: 3 May, 2018"
+date: "Revised: 30 October, 2018"
 output:
   BiocStyle::html_document:
     toc: true
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{2. Extending the SummarizedExperiment class}
   %\VignetteEngine{knitr::rmarkdown}
@@ -780,6 +781,51 @@ setMethod("cbind", "ExampleClass", function(..., deparse.level=1) {
 })
 ```
 
+## Defining coercion methods
+
+### Coercion from `SummarizedExperiment`
+
+We define a method to coerce `SummarizedExperiment` objects into our new `ExampleClass` class.
+
+```{r}
+#' @exportMethods coerce
+setAs("SummarizedExperiment", "ExampleClass", function(from) {
+    new("ExampleClass", from, 
+        rowVec=integer(nrow(from)), 
+        colVec=integer(ncol(from)),
+        rowToRowMat=matrix(0,nrow(from),0),
+        colToColMat=matrix(0,0,ncol(from)),
+        rowToColMat=matrix(0,ncol(from),0),
+        colToRowMat=matrix(0,0,nrow(from)))
+})
+```
+
+... which works as expected:
+
+```{r}
+se <- SummarizedExperiment(matrix(rpois(100, lambda=1), ncol=5))
+as(se, "CountSE")
+```
+
+This was not strictly necessary for our previous `CountSE` class as no new slots were added.
+Of course, developers can still explicitly write a conversion method perform additional work to achieve a "sensible" conversion - 
+for example, one might take the absolute values of all entries of the first matrix to ensure that the `CountSE` is valid for all input `SummarizedExperiment` objects.
+
+### Deriving from a `RangedSummarizedExperiment`
+
+Note that, if we were deriving from a `RangedSummarizedExperiment` (e.g., for some `ExampleClassRanged`), 
+it would be necessary to define explicit conversions from both `RangedSummarizedExperiment` _and_ `SummarizedExperment` to `ExampleClassRanged`.
+In theory, we should only have to define a conversion from `RangedSummarizedExperiment` to `ExampleClassRanged` - 
+then, any attempt to convert from a `SummarizedExperiment` to `ExampleClassRanged` would:
+
+1. Use the existing `SummarizedExperiment` to `RangedSummarizedExperiment` converter defined in `r Biocpkg("SummarizedExperiment")`, and then
+2. Use the new `RangedSummarizedExperiment` to `ExampleClassRanged` converter that we just defined.
+
+Unfortunately, in cases involving conversion to non-direct subclasses, the S4 system automatically creates methods for any conversions that are not explicitly defined.
+This means that the correct "chain" of methods listed above is not used when converting from a `SummarizedExperiment` to a `ExampleClassRanged` object.
+The automatically generated method is used instead, which may not yield a valid object when the specifics of the conversion are ignored.
+We avoid this scenario by explicitly defining converters for both `SummarizedExperiment` and `RangedSummarizedExperiment` to `ExampleClassRanged`.
+
 # Unit testing procedures
 
 ## Overview
@@ -845,6 +891,14 @@ expect_error(ExampleClass(rowToRowMat=rbind(1)), "rowToRowMat")
 expect_error(ExampleClass(colToColMat=rbind(1)), "colToColMat")
 expect_error(ExampleClass(rowToColMat=rbind(1)), "rowToColMat")
 expect_error(ExampleClass(colToRowMat=rbind(1)), "colToRowMat")
+```
+
+Finally, we check that the coercion method yields a valid object.
+
+```{r}
+se <- as(thing, "SummarizedExperiment")
+conv <- as(se, "ExampleClass")
+expect_true(validObject(conv))
 ```
 
 ## Getters
