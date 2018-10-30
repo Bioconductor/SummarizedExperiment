@@ -808,7 +808,7 @@ as(se, "CountSE")
 ```
 
 This was not strictly necessary for our previous `CountSE` class as no new slots were added.
-Of course, developers can perform additional work to achieve a "sensible" conversion - 
+Of course, developers can still explicitly write a conversion method perform additional work to achieve a "sensible" conversion - 
 for example, one might take the absolute values of all entries of the first matrix to ensure that the `CountSE` is valid for all input `SummarizedExperiment` objects.
 
 ### Deriving from a `RangedSummarizedExperiment`
@@ -821,9 +821,9 @@ then, any attempt to convert from a `SummarizedExperiment` to `ExampleClassRange
 1. Use the existing `SummarizedExperiment` to `RangedSummarizedExperiment` converter defined in `r Biocpkg("SummarizedExperiment")`, and then
 2. Use the new `RangedSummarizedExperiment` to `ExampleClassRanged` converter that we just defined.
 
-Unfortunately, in cases involving conversion to non-direct subclasses, the S4 system automatically creates functions for any conversions that are not explicitly defined.
-This means that the correct "chain" of conversions listed above is not used.
-The automatically generated function is used instead, which may not yield a valid object when the specifics of the conversion are ignored.
+Unfortunately, in cases involving conversion to non-direct subclasses, the S4 system automatically creates methods for any conversions that are not explicitly defined.
+This means that the correct "chain" of methods listed above is not used when converting from a `SummarizedExperiment` to a `ExampleClassRanged` object.
+The automatically generated method is used instead, which may not yield a valid object when the specifics of the conversion are ignored.
 We avoid this scenario by explicitly defining converters for both `SummarizedExperiment` and `RangedSummarizedExperiment` to `ExampleClassRanged`.
 
 # Unit testing procedures
