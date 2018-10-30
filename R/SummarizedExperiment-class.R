@@ -120,10 +120,12 @@ setReplaceMethod("names", "SummarizedExperiment",
 ## call the rows / cols something different from 'features' or 'samples', so
 ## might as well avoid the issue
 
-setGeneric("rowData", function(x, ...) standardGeneric("rowData"))
+setGeneric("rowData", signature="x",
+    function(x, use.names=TRUE, ...) standardGeneric("rowData")
+)
 
 setMethod("rowData", "SummarizedExperiment",
-    function(x, ...) mcols(x, ...)
+    function(x, use.names=TRUE, ...) mcols(x, use.names=use.names, ...)
 )
 
 setGeneric("rowData<-",
@@ -545,7 +547,7 @@ setMethod("replaceROWS", "SummarizedExperiment",
 setMethod("subset", "SummarizedExperiment",
     function(x, subset, select, ...)
 {
-    i <- S4Vectors:::evalqForSubset(subset, rowData(x), ...)
+    i <- S4Vectors:::evalqForSubset(subset, rowData(x, use.names=FALSE), ...)
     j <- S4Vectors:::evalqForSubset(select, colData(x), ...)
     x[i, j]
 })
@@ -621,8 +623,8 @@ setMethod("show", "SummarizedExperiment",
     if (dlen[[1]]) scat("rownames(%d): %s\n", dimnames[[1]])
     else scat("rownames: NULL\n")
 
-    ## rowData()
-    scat("rowData names(%d): %s\n", names(rowData(object)))
+    ## rowData`()
+    scat("rowData names(%d): %s\n", names(rowData(object, use.names=FALSE)))
 
     ## colnames()
     if (dlen[[2]]) scat("colnames(%d): %s\n", dimnames[[2]])
@@ -742,7 +744,7 @@ setMethod("cbind", "SummarizedExperiment",
 
 .cbind.DataFrame <- function(args, accessor, accessorName)
 {
-    lst <- lapply(args, accessor)
+    lst <- lapply(args, accessor, use.names=FALSE)
     if (!.compare(lst)) {
         nms <- lapply(lst, names)
         nmsv <- unlist(nms, use.names=FALSE)
@@ -842,8 +844,8 @@ setMethod("realize", "SummarizedExperiment",
             ##      on disk doesn't store the dimnames in the HDF5 file at the
             ##      moment.
             a <- assay(x, i, withDimnames=FALSE)
-            dimnames(a) <- NULL
-            assay(x, i) <- realize(a, BACKEND=BACKEND)
+            a <- DelayedArray:::set_dimnames(a, NULL)
+            assay(x, i, withDimnames=FALSE) <- realize(a, BACKEND=BACKEND)
         }
         x
     }

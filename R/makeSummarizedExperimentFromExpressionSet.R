@@ -24,7 +24,7 @@
     ## the first mcols are automatically included in the data.frame from
     ## as.data.frame, the secondary mcols holds the metadata for the first
     ## metadata columns.
-    metaData <- mcols(mcols(from))
+    metaData <- mcols(mcols(from, use.names=FALSE), use.names=FALSE)
     if (is.null(metaData)) {
         metaData <- as.data.frame(matrix(ncol=0, nrow=NCOL(data)))
     } else {
@@ -34,12 +34,12 @@
 }
 .from_GRangesList_to_FeatureData <- function(from)
 {
-    data <- as.data.frame(mcols(from))
+    data <- as.data.frame(mcols(from, use.names=FALSE))
 
     ## the first mcols are automatically included in the data.frame from
     ## as.data.frame, the secondary mcols holds the metadata for the first
     ## metadata columns.
-    metaData <- mcols(mcols(from))
+    metaData <- mcols(mcols(from, use.names=FALSE), use.names=FALSE)
     if (is.null(metaData)) {
         metaData <- as.data.frame(matrix(ncol=0, nrow=NCOL(data)))
     } else {
@@ -58,7 +58,7 @@
 .from_DataFrame_to_AnnotatedDataFrame <- function(df)
 {
     data <- as(df, "data.frame")
-    metaData <- mcols(df)
+    metaData <- mcols(df, use.names=FALSE)
     if (is.null(metaData)) {
         metaData <- as.data.frame(matrix(ncol=0, nrow=NCOL(data)))
     } else {

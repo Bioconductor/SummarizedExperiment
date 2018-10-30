@@ -96,7 +96,7 @@ assays(x, ..., withDimnames=TRUE)
 assays(x, ..., withDimnames=TRUE) <- value
 assay(x, i, ...)
 assay(x, i, ...) <- value
-rowData(x, ...)
+rowData(x, use.names=TRUE, ...)
 rowData(x, ...) <- value
 colData(x, ...)
 colData(x, ...) <- value
@@ -134,14 +134,14 @@ colData(x, ...) <- value
     For \code{assay}, \code{...} may contain \code{withDimnames}, which is
     forwarded to \code{assays}.
 
-    For \code{rowData}, arguments passed thru \code{...} are forwarded to
-    \code{\link[S4Vectors]{mcols}}.
-
     For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment
     objects to be combined.
 
     For other accessors, ignored.
   }
+
+  \item{value}{An object of a class specified in the S4 method
+    signature or as outlined in \sQuote{Details}.}
 
   \item{i, j}{
     For \code{assay}, \code{assay<-}, \code{i} is an integer or
@@ -170,10 +170,18 @@ colData(x, ...) <- value
     = ...} is more efficient than \code{names(assays(x)) = ...}); it
     does not influence actual assignment of dimnames to assays.}
 
-  \item{drop}{A \code{logical(1)}, ignored by these methods.}
+  \item{use.names}{Like \code{\link[S4Vectors]{mcols}(x)}, by default
+    \code{rowData(x)} propagates the rownames of \code{x} to the returned
+    \link[S4Vectors]{DataFrame} object (note that for a SummarizedExperiment
+    object, the rownames are also the names i.e. \code{rownames(x)} is
+    always the same as \code{names(x)}). Setting \code{use.names=FALSE}
+    suppresses this propagation i.e. it returns a \link[S4Vectors]{DataFrame}
+    object with no rownames. Use this when \code{rowData(x)} fails,
+    which can happen when the rownames contain NAs (because the rownames
+    of a SummarizedExperiment object can contain NAs, but the rownames of
+    a \link[S4Vectors]{DataFrame} object cannot).}
 
-  \item{value}{An object of a class specified in the S4 method
-    signature or as outlined in \sQuote{Details}.}
+  \item{drop}{A \code{logical(1)}, ignored by these methods.}
 
   \item{deparse.level}{See \code{?base::\link[base]{cbind}} for a description of
     this argument.}
@@ -273,10 +281,8 @@ colData(x, ...) <- value
     \item{\code{assayNames(x)}, \code{assayNames(x) <- value}:}{Get or
      set the names of \code{assay()} elements.}
 
-    \item{\code{rowData(x)}, \code{rowData(x) <- value}:}{Get or set the
-      row data. \code{value} is a \link{DataFrame} object. Row
-      names of \code{value} must be NULL or consistent with the existing
-      row names of \code{x}.}
+    \item{\code{rowData(x, use.names=TRUE)}, \code{rowData(x) <- value}:}{
+      Get or set the row data. \code{value} is a \link{DataFrame} object.}
 
     \item{\code{colData(x)}, \code{colData(x) <- value}:}{Get or set the
       column data. \code{value} is a \link{DataFrame} object. Row

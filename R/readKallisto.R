@@ -7,7 +7,7 @@
         invokeRestart("muffleWarning")
     }) || {
         msg <- sprintf('install %s with
-            source("http://bioconductor.org/biocLite.R"); biocLite("%s")',
+            install.packages("BiocManager"); BiocManager::install("%s")',
             pkg, pkg)
         stop(paste(strwrap(msg, exdent=2), collapse="\n"))
     }
@@ -20,7 +20,7 @@
         else file(file, open="rt")
     })
 }
-    
+
 .close <- function(cons)
     UseMethod(".close")
 
@@ -51,7 +51,7 @@ KALLISTO_ASSAYS <- c("est_counts", "tpm", "eff_length")
 
 .read.connection <- function(con)
     read.delim(con, header=TRUE, colClasses=.KALLISTO_COLCLASSES, row.names=1)
-    
+
 .read.H5IdComponent <- function(con) {
     eff_length <- rhdf5::h5read(con, "/aux/eff_lengths")
     est_counts <- rhdf5::h5read(con, "/est_counts")
@@ -146,7 +146,7 @@ readKallisto <-
         rhdf5::h5read(con, "/aux/ids", list(i))
     else rhdf5::h5read(con, "/aux/ids")
 }
-    
+
 readKallistoBootstrap <-
     function(file, i, j)
 {
