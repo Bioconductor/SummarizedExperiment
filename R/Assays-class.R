@@ -7,26 +7,28 @@
 ###   (b) Lossless back and forth coercion from/to SimpleList. The coercion
 ###       method from SimpleList doesn't need (and should not) validate the
 ###       returned object.
-###   (c) length, names, names<-, [[, [[<-, dim, [, [<-, rbind, cbind
+###   (c) length, names, names<-, getListElement, setListElement, dim,
+###       [, [<-, rbind, cbind
 ###
 ### An Assays concrete subclass needs to implement (b) (required) plus
 ### optionally any of the methods in (c).
 ###
 ### IMPORTANT: Methods that return a modified Assays object (a.k.a.
-### endomorphisms), that is, [ as well as replacement methods names<-, [[<-,
-### and [<-, must respect the copy-on-change contract. With objects that
-### don't make use of references internally, the developer doesn't need to
-### take any special action for that because it's automatically taken care of
-### by R itself. However, for objects that do make use of references internally
-### (e.g. environments, external pointers, pointer to a file on disk, etc...),
-### the developer needs to be careful to implement endomorphisms with
-### copy-on-change semantics. This can easily be achieved (and is what the
-### default methods for Assays objects do) by performaing a full (deep) copy
-### of the object before modifying it instead of trying to modify it in-place.
-### Note that the full (deep) copy is not always necessary in order to achieve
-### copy-on-change semantics: it's enough (and often preferrable for
-### performance reasons) to copy only the parts of the objects that need to
-### be modified.
+### endomorphisms), that is, [ as well as replacement methods names<-,
+### setListElement, and [<-, must respect the copy-on-change contract.
+### With objects that don't make use of references internally, the developer
+### doesn't need to take any special action for that because it's
+### automatically taken care of by R itself. However, for objects that do
+### make use of references internally (e.g. environments, external pointers,
+### pointer to a file on disk, etc...), the developer needs to be careful
+### to implement endomorphisms with copy-on-change semantics. This can
+### easily be achieved (and is what the default methods for Assays objects
+### do) by performaing a full (deep) copy of the object before modifying it
+### instead of trying to modify it in-place. However note that this full
+### (deep) copy can be very expensive and is actually not necessary in
+### order to achieve copy-on-change semantics: it's enough (and often
+### preferrable for performance reasons) to copy only the parts of the
+### object that need to be modified.
 ###
 
 
@@ -113,16 +115,16 @@ setReplaceMethod("names", "Assays",
     }
 )
 
-setMethod("[[", "Assays",
-    function(x, i, j, ...)
+setMethod("getListElement", "Assays",
+    function(x, i, exact=TRUE)
     {
         assays <- as(x, "SimpleList", strict=FALSE)
         getListElement(assays, i)
     }
 )
 
-setReplaceMethod("[[", "Assays",
-    function(x, i, j, ..., value)
+setMethod("setListElement", "Assays",
+    function(x, i, value)
     {
         assays <- as(x, "SimpleList", strict=FALSE)
         assays <- setListElement(assays, i, value)
@@ -137,7 +139,7 @@ setMethod("dim", "Assays",
     {
         if (length(x) == 0L)
             return(c(0L, 0L))
-        dim(x[[1L]])
+        dim(getListElement(x, 1L))
     }
 )
 
@@ -230,7 +232,7 @@ setReplaceMethod("[", "Assays",
 ### 'assays' is assumed to be an unnamed list of length >= 1
 .bind_assays <- function(assays, along.cols=FALSE)
 {
-    if (length(dim(assays[[1L]])) == 2L) {
+    if (length(dim(getListElement(assays, 1L))) == 2L) {
         BINDING_FUN <- if (along.cols) "cbind" else "rbind"
     } else {
         BINDING_FUN <- if (along.cols) "acbind" else "arbind"
@@ -253,7 +255,7 @@ setReplaceMethod("[", "Assays",
     if (is.null(uvar)) {
         ## no names, match by position
         res <- lapply(seq_len(len1), function(index) {
-            assays <- lapply(objects, "[[", index)
+            assays <- lapply(objects, getListElement, index)
             .bind_assays(assays, along.cols=along.cols)
         })
     } else {
@@ -263,12 +265,12 @@ setReplaceMethod("[", "Assays",
         if (!ok)
             stop("assays must have the same names()")
         res <- lapply(uvar, function(index) {
-            assays <- lapply(objects, "[[", index)
+            assays <- lapply(objects, getListElement, index)
             .bind_assays(assays, along.cols=along.cols)
         })
         names(res) <- uvar
     }
-    as(SimpleList(res), class(objects[[1L]]))
+    as(SimpleList(res), class(getListElement(objects, 1L)))
 }
 
 setMethod("rbind", "Assays",
@@ -346,7 +348,7 @@ setAs("ShallowSimpleListAssays", "SimpleList", function(from) from$data)
 ### the copy-on-change contract (only provided for illustration purposes).
 ###
 ### We implement the REQUIRED coercions plus OPTIONAL methods: length, names,
-### names<-, [[, and [[<-.
+### names<-, getListElement, and setListElement.
 ###
 
 setClass("AssaysInEnv",
@@ -370,8 +372,8 @@ setReplaceMethod("names", "AssaysInEnv",
     }
 )
 
-setMethod("[[", "AssaysInEnv",
-    function(x, i, j, ...)
+setMethod("getListElement", "AssaysInEnv",
+    function(x, i, exact=TRUE)
     {
         key <- setNames(ls(x@envir, sorted=TRUE), names(x))[[i]]
         get(key, envir=x@envir)
@@ -379,8 +381,8 @@ setMethod("[[", "AssaysInEnv",
 )
 
 ### Does NOT respect the copy-on-change contract!
-setReplaceMethod("[[", "AssaysInEnv",
-    function(x, i, j, ..., value)
+setMethod("setListElement", "AssaysInEnv",
+    function(x, i, value)
     {
         key <- setNames(ls(x@envir, sorted=TRUE), names(x))[[i]]
         assign(key, value, envir=x@envir)

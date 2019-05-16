@@ -7,8 +7,8 @@
 \alias{length,Assays-method}
 \alias{names,Assays-method}
 \alias{names<-,Assays-method}
-\alias{[[,Assays,ANY,ANY-method}
-\alias{[[<-,Assays,ANY,ANY-method}
+\alias{getListElement,Assays-method}
+\alias{setListElement,Assays-method}
 \alias{dim,Assays-method}
 \alias{[,Assays,ANY-method}
 \alias{[,Assays,ANY,ANY,ANY-method}
@@ -39,8 +39,8 @@
 \alias{length,AssaysInEnv-method}
 \alias{names,AssaysInEnv-method}
 \alias{names<-,AssaysInEnv-method}
-\alias{[[,AssaysInEnv,ANY,ANY-method}
-\alias{[[<-,AssaysInEnv,ANY,ANY-method}
+\alias{getListElement,AssaysInEnv-method}
+\alias{setListElement,AssaysInEnv-method}
 \alias{coerce,SimpleList,AssaysInEnv-method}
 \alias{coerce,AssaysInEnv,SimpleList-method}
 
@@ -69,7 +69,7 @@
               The coercion method from \link{SimpleList} doesn't need (and
               should not) validate the returned object.
     \item (c) \code{length}, \code{names}, \code{`names<-`},
-              \code{[[}, \code{`[[<-`},
+              \code{getListElement}, \code{setListElement},
               \code{dim}, \code{[}, \code{`[<-`}, \code{rbind}, \code{cbind}.
   }
   An Assays concrete subclass needs to implement (b) (required) plus,
@@ -77,20 +77,21 @@
 
   IMPORTANT: Methods that return a modified Assays object (a.k.a.
   endomorphisms), that is, \code{[} as well as replacement methods
-  \code{names<-}, \code{[[<-}, and \code{[<-}, must respect the
-  \emph{copy-on-change contract}.
+  \code{names<-}, \code{setListElement}, and \code{[<-}, must respect
+  the \emph{copy-on-change contract}.
   With objects that don't make use of references internally, the developer
-  doesn't need to take any special action for that because it's automatically
-  taken care of by R itself. However, for objects that do make use of
-  references internally (e.g. environments, external pointers, pointer to a
-  file on disk, etc...), the developer needs to be careful to implement
-  endomorphisms with copy-on-change semantics.
-  This can easily be achieved (and is what the default methods for Assays
-  objects do) by performaing a full (deep) copy of the object before modifying
-  it instead of trying to modify it in-place. Note that the full (deep) copy
-  is not always necessary in order to achieve copy-on-change semantics: it's
-  enough (and often preferrable for performance reasons) to copy only the
-  parts of the objects that need to be modified.
+  doesn't need to take any special action for that because it's
+  automatically taken care of by R itself. However, for objects that do
+  make use of references internally (e.g. environments, external pointers,
+  pointer to a file on disk, etc...), the developer needs to be careful
+  to implement endomorphisms with copy-on-change semantics. This can
+  easily be achieved (and is what the default methods for Assays objects
+  do) by performaing a full (deep) copy of the object before modifying it
+  instead of trying to modify it in-place. However note that this full
+  (deep) copy can be very expensive and is actually not necessary in
+  order to achieve copy-on-change semantics: it's enough (and often
+  preferrable for performance reasons) to copy only the parts of the
+  object that need to be modified.
 
   Assays has currently 3 implementations which are formalized by concrete
   subclasses SimpleListAssays, ShallowSimpleListAssays, and AssaysInEnv.
@@ -109,7 +110,7 @@
   ShallowSimpleListAssays.
 }
 
-\author{Martin Morgan, \url{mtmorgan@fhcrc.org}}
+\author{Martin Morgan and Hervé Pagès}
 
 \seealso{
   \itemize{
@@ -131,19 +132,19 @@ a
 as(a, "SimpleList")
 
 length(a)
-a[[2]]
+getListElement(a, 2)
 dim(a)
 
 b <- a[-4, 2]
 b
 length(b)
-b[[2]]
+getListElement(b, 2)
 dim(b)
 
 names(a)
 names(a) <- c("a1", "a2")
 names(a)
-a[["a2"]]
+getListElement(a, "a2")
 
 rbind(a, a)
 cbind(a, a)
