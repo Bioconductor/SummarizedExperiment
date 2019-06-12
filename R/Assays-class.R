@@ -366,7 +366,7 @@ setMethod("names", "AssaysInEnv", function(x) x@envir[[.NAMES_SYMBOL]])
 setReplaceMethod("names", "AssaysInEnv",
     function(x, value)
     {
-        value <- S4Vectors:::normalize_names_replacement_value(value, x)
+        value <- S4Vectors:::normarg_names(value, class(x), length(x))
         x@envir[[.NAMES_SYMBOL]] <- value
         x
     }

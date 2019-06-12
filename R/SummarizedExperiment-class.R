@@ -111,7 +111,7 @@ setMethod("names", "SummarizedExperiment", function(x) x@NAMES)
 setReplaceMethod("names", "SummarizedExperiment",
     function(x, value)
     {
-        NAMES <- S4Vectors:::normalize_names_replacement_value(value, x)
+        NAMES <- S4Vectors:::normarg_names(value, class(x), length(x))
         BiocGenerics:::replaceSlots(x, NAMES=NAMES, check=FALSE)
     }
 )
@@ -310,9 +310,9 @@ setMethod("dimnames", "SummarizedExperiment",
 setReplaceMethod("dimnames", c("SummarizedExperiment", "list"),
     function(x, value)
 {
-    NAMES <- S4Vectors:::normalize_names_replacement_value(value[[1]], x)
+    NAMES <- S4Vectors:::normarg_names(value[[1L]], class(x), length(x))
     colData <- colData(x)
-    rownames(colData) <- value[[2]]
+    rownames(colData) <- value[[2L]]
     BiocGenerics:::replaceSlots(x, NAMES=NAMES, colData=colData, check=FALSE)
 })
 
