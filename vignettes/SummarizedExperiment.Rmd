@@ -68,13 +68,6 @@ are described by a `GRanges` or a `GRangesList` object, accessible using the
 The following graphic displays the class geometry and highlights the
 vertical (column) and horizontal (row) relationships.
 
-
-```{r include = FALSE}
-# download current version of SE diagram
-#download.file("https://docs.google.com/feeds/download/drawings/Export?id=18OcDb80FpvSGRYnFl-8vUqwNNLaNHrG1I9SWKHCselo&exportFormat=svg", "SE.svg")
-download.file("https://docs.google.com/feeds/download/drawings/Export?id=1kiC8Qlo1mhSnLDqkGiRNPSo6GWn3C2duBszCFbJCB-g&exportFormat=svg", "SE.svg")
-```
-
 ![Summarized Experiment](SE.svg)
 
 ## Assays
