@@ -54,7 +54,7 @@
   Assays with the latter being currently the default implementation of Assays
   objects. Other implementations (e.g. disk-based) could easily be added.
 
-  Note that these classes are not meant to be used directly by the end-user
+  Note that these classes are not meant to be used directly by the end user
   and the material in this man page is aimed at package developers.
 }
 
