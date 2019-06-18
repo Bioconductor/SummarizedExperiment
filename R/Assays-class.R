@@ -13,23 +13,28 @@
 ### An Assays concrete subclass needs to implement (b) (required) plus
 ### optionally any of the methods in (c).
 ###
-### IMPORTANT: Methods that return a modified Assays object (a.k.a.
-### endomorphisms), that is, [ as well as replacement methods names<-,
-### setListElement, and [<-, must respect the copy-on-change contract.
-### With objects that don't make use of references internally, the developer
-### doesn't need to take any special action for that because it's
-### automatically taken care of by R itself. However, for objects that do
-### make use of references internally (e.g. environments, external pointers,
-### pointer to a file on disk, etc...), the developer needs to be careful
-### to implement endomorphisms with copy-on-change semantics. This can
-### easily be achieved (and is what the default methods for Assays objects
-### do) by performaing a full (deep) copy of the object before modifying it
-### instead of trying to modify it in-place. However note that this full
-### (deep) copy can be very expensive and is actually not necessary in
-### order to achieve copy-on-change semantics: it's enough (and often
-### preferrable for performance reasons) to copy only the parts of the
-### object that need to be modified.
+### IMPORTANT
+### ---------
 ###
+### 1. Nobody in the Assays hierarchy is allowed to inherit from SimpleList
+###    because of the conflicting semantic of [.
+###
+### 2. Methods that return a modified Assays object (a.k.a. endomorphisms),
+###    that is, [ as well as replacement methods names<-, setListElement,
+###    and [<-, must respect the copy-on-change contract. With objects that
+###    don't make use of references internally, the developer doesn't need
+###    to take any special action for that because it's automatically taken
+###    care of by R itself. However, for objects that do make use of
+###    references internally (e.g. environments, external pointers, pointer
+###    to a file on disk, etc...), the developer needs to be careful to
+###    implement endomorphisms with copy-on-change semantics. This can
+###    easily be achieved (and is what the default methods for Assays objects
+###    do) by performaing a full (deep) copy of the object before modifying it
+###    instead of trying to modify it in-place. However note that this full
+###    (deep) copy can be very expensive and is actually not necessary in
+###    order to achieve copy-on-change semantics: it's enough (and often
+###    preferrable for performance reasons) to copy only the parts of the
+###    object that need to be modified.
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,8 +83,13 @@ setValidity2("Assays", .valid.Assays)
 Assays <- function(assays=SimpleList())
 {
     assays <- .normarg_assays(assays)
-    #ans <- as(assays, "SimpleListAssays")
-    ans <- as(assays, "ShallowSimpleListAssays")
+    ## Starting with SummarizedExperiment 1.15.4, we wrap the user-supplied
+    ## assays in a SimpleAssays object instead of a ShallowSimpleListAssays
+    ## object. Note that there are probably hundreds (if not thousands) of
+    ## serialized SummarizedExperiment objects around that use
+    ## ShallowSimpleListAssays. These objects should keep working as before!
+    ans <- as(assays, "SimpleAssays")
+    #ans <- as(assays, "ShallowSimpleListAssays")
     #ans <- as(assays, "AssaysInEnv")  # a *broken* alternative
     validObject(ans)
     ans
@@ -87,48 +97,45 @@ Assays <- function(assays=SimpleList())
 
 ### Accessors
 
-.SL_get_length <- selectMethod("length", "SimpleList")
 setMethod("length", "Assays",
     function(x)
     {
-        assays <- as(x, "SimpleList", strict=FALSE)
-        .SL_get_length(assays)
+        x <- as(x, "SimpleList")
+        callGeneric()
     }
 )
 
-.SL_get_names <- selectMethod("names", "SimpleList")
 setMethod("names", "Assays",
     function(x)
     {
-        assays <- as(x, "SimpleList", strict=FALSE)
-        .SL_get_names(assays)
+        x <- as(x, "SimpleList")
+        callGeneric()
     }
 )
 
-.SL_set_names <- selectMethod("names<-", "SimpleList")
 setReplaceMethod("names", "Assays",
     function(x, value)
     {
-        assays <- as(x, "SimpleList", strict=FALSE)
-        assays <- .SL_set_names(assays, value)
-        as(assays, class(x))
+        ans_class <- class(x)
+        x <- as(x, "SimpleList")
+        as(callGeneric(), ans_class)
     }
 )
 
 setMethod("getListElement", "Assays",
     function(x, i, exact=TRUE)
     {
-        assays <- as(x, "SimpleList", strict=FALSE)
-        getListElement(assays, i)
+        x <- as(x, "SimpleList")
+        callGeneric()
     }
 )
 
 setMethod("setListElement", "Assays",
     function(x, i, value)
     {
-        assays <- as(x, "SimpleList", strict=FALSE)
-        assays <- setListElement(assays, i, value)
-        ans <- as(assays, class(x))
+        ans_class <- class(x)
+        x <- as(x, "SimpleList")
+        ans <- as(callGeneric(), ans_class)
         validObject(ans)
         ans
     }
@@ -311,20 +318,38 @@ setMethod("updateObject", "Assays", .updateObject_Assays)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### SimpleListAssays class
+### SimpleAssays class
+###
+### Store the Assays in a SimpleList object.
 ###
 
-### The order of inheritance is important: first Assays, then SimpleList!
-setClass("SimpleListAssays", contains=c("Assays", "SimpleList"))
+### SimpleAssays cannot contain SimpleList because of the conflicting
+### semantic of [.
+setClass("SimpleAssays",
+    contains="Assays",
+    representation(data="SimpleList")
+)
 
-### Lossless back and forth coercion from/to SimpleList are automatically
-### taken care of by automatic methods defined by the methods package.
+### We only need to implement the REQUIRED coercions.
+
+setAs("SimpleList", "SimpleAssays",
+    function(from) new2("SimpleAssays", data=from, check=FALSE)
+)
+
+setAs("SimpleAssays", "SimpleList", function(from) from@data)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### ShallowSimpleListAssays class
 ###
-### We implement the REQUIRED coercions only.
+### WARNING: Looks like reference classes as implemented in the methods
+### package are a bit problematic e.g. all.equal() can return false negatives
+### after a serialization/deserialization cycle on a ref object as reported
+### here https://stat.ethz.ch/pipermail/bioc-devel/2019-May/015112.html
+### Anyway their use in the assays slot of a SummarizedExperiment object is
+### probably not needed anymore now that R is "shallow copy by default"
+### according to this comment by Michael:
+###     https://github.com/Bioconductor/SummarizedExperiment/issues/16#issuecomment-455541415
 ###
 
 .ShallowData <- setRefClass("ShallowData",
@@ -333,6 +358,8 @@ setClass("SimpleListAssays", contains=c("Assays", "SimpleList"))
 .ShallowSimpleListAssays0 <- setRefClass("ShallowSimpleListAssays",
     fields = list( data = "SimpleList" ),
     contains = c("ShallowData", "Assays"))
+
+### We only need to implement the REQUIRED coercions.
 
 setAs("SimpleList", "ShallowSimpleListAssays",
     function(from) .ShallowSimpleListAssays0(data=from)

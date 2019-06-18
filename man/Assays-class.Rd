@@ -19,9 +19,11 @@
 \alias{acbind,Matrix-method}
 \alias{updateObject,Assays-method}
 
-\alias{class:SimpleListAssays}
-\alias{SimpleListAssays-class}
-\alias{SimpleListAssays}
+\alias{class:SimpleAssays}
+\alias{SimpleAssays-class}
+\alias{SimpleAssays}
+\alias{coerce,SimpleList,SimpleAssays-method}
+\alias{coerce,SimpleAssays,SimpleList-method}
 
 \alias{class:ShallowData}
 \alias{ShallowData-class}
@@ -50,8 +52,8 @@
   The Assays virtual class and its methods provide a formal abstraction
   of the assays slot of \link{SummarizedExperiment} objects.
 
-  SimpleListAssays and ShallowSimpleListAssays are concrete subclasses of
-  Assays with the latter being currently the default implementation of Assays
+  SimpleAssays and ShallowSimpleListAssays are concrete subclasses of
+  Assays with the former being currently the default implementation of Assays
   objects. Other implementations (e.g. disk-based) could easily be added.
 
   Note that these classes are not meant to be used directly by the end user
@@ -65,9 +67,10 @@
   The Assays API consists of:
   \itemize{
     \item (a) The \code{Assays()} constructor function.
-    \item (b) Lossless back and forth coercion from/to \link{SimpleList}.
-              The coercion method from \link{SimpleList} doesn't need (and
-              should not) validate the returned object.
+    \item (b) Lossless back and forth coercion from/to
+              \link[S4Vectors]{SimpleList}. The coercion method from
+              \link[S4Vectors]{SimpleList} doesn't need (and should not)
+              validate the returned object.
     \item (c) \code{length}, \code{names}, \code{`names<-`},
               \code{getListElement}, \code{setListElement},
               \code{dim}, \code{[}, \code{`[<-`}, \code{rbind}, \code{cbind}.
@@ -75,27 +78,36 @@
   An Assays concrete subclass needs to implement (b) (required) plus,
   optionally any of the methods in (c).
 
-  IMPORTANT: Methods that return a modified Assays object (a.k.a.
-  endomorphisms), that is, \code{[} as well as replacement methods
-  \code{names<-}, \code{setListElement}, and \code{[<-}, must respect
-  the \emph{copy-on-change contract}.
-  With objects that don't make use of references internally, the developer
-  doesn't need to take any special action for that because it's
-  automatically taken care of by R itself. However, for objects that do
-  make use of references internally (e.g. environments, external pointers,
-  pointer to a file on disk, etc...), the developer needs to be careful
-  to implement endomorphisms with copy-on-change semantics. This can
-  easily be achieved (and is what the default methods for Assays objects
-  do) by performaing a full (deep) copy of the object before modifying it
-  instead of trying to modify it in-place. However note that this full
-  (deep) copy can be very expensive and is actually not necessary in
-  order to achieve copy-on-change semantics: it's enough (and often
-  preferrable for performance reasons) to copy only the parts of the
-  object that need to be modified.
+  IMPORTANT:
+  \enumerate{
+    \item Nobody in the Assays hierarchy is allowed to inherit from
+          \link[S4Vectors]{SimpleList} because of the conflicting semantic
+          of \code{[}.
+
+    \item Methods that return a modified Assays object (a.k.a.
+          endomorphisms), that is, \code{[} as well as replacement methods
+          \code{names<-}, \code{setListElement}, and \code{[<-}, must respect
+          the \emph{copy-on-change contract}.
+          With objects that don't make use of references internally, the
+          developer doesn't need to take any special action for that because
+          it's automatically taken care of by R itself. However, for objects
+          that do make use of references internally (e.g. environments,
+          external pointers, pointer to a file on disk, etc...), the developer
+          needs to be careful to implement endomorphisms with copy-on-change
+          semantics. This can easily be achieved (and is what the default
+          methods for Assays objects do) by performaing a full (deep) copy of
+          the object before modifying it instead of trying to modify it
+          in-place. However note that this full (deep) copy can be very
+          expensive and is actually not necessary in order to achieve
+          copy-on-change semantics: it's enough (and often preferrable for
+          performance reasons) to copy only the parts of the object that need
+          to be modified.
+  }
 
   Assays has currently 3 implementations which are formalized by concrete
-  subclasses SimpleListAssays, ShallowSimpleListAssays, and AssaysInEnv.
-  ShallowSimpleListAssays is the default. AssaysInEnv is a \emph{broken}
+  subclasses SimpleAssays, ShallowSimpleListAssays, and AssaysInEnv.
+  SimpleAssays is the default (prior to SummarizedExperiment 1.15.4,
+  ShallowSimpleListAssays was the default). AssaysInEnv is a \emph{broken}
   alternative to ShallowSimpleListAssays that does NOT respect the
   \emph{copy-on-change contract}. It is only provided for illustration
   purposes (see source file Assays-class.R for the details).
@@ -104,8 +116,8 @@
   class hierarchy (not exported from the \pkg{GenomicRanges} name space)
   defines a reference class ShallowData with a single field \code{data}
   of type \code{ANY}, and a derived class ShallowSimpleListAssays
-  that specializes the type of \code{data} as \link{SimpleList}, and
-  \code{contains=c("ShallowData", "Assays")}. The assays slot of a
+  that specializes the type of \code{data} as \link[S4Vectors]{SimpleList},
+  and \code{contains=c("ShallowData", "Assays")}. The assays slot of a
   \link{SummarizedExperiment} object contains an instance of
   ShallowSimpleListAssays.
 }

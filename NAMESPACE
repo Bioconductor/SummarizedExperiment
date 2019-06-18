@@ -17,7 +17,7 @@ import(DelayedArray)
 ###
 
 exportClasses(
-    Assays, ShallowData, ShallowSimpleListAssays,
+    Assays, SimpleAssays, ShallowData, ShallowSimpleListAssays,
     SummarizedExperiment,
     RangedSummarizedExperiment
 )

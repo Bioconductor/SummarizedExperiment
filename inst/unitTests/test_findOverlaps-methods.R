@@ -40,8 +40,8 @@ test_interfaces <- function()
 test_findOverlaps_methods <- function()
 {
     identical_SummarizedExperiment <- function(x, y) {
-        x@assays <- as(assays(x), "SimpleListAssays")
-        y@assays <- as(assays(y), "SimpleListAssays")
+        x@assays <- as(assays(x), "SimpleAssays")
+        y@assays <- as(assays(y), "SimpleAssays")
         identical(x, y)
     }
     for (i in 1:2) {

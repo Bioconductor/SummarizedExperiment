@@ -7,12 +7,12 @@ test_bind_Assays <- function() {
 
     target <- Map(rbind, l1, l2)
     current <- rbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 
     target <- Map(cbind, l1, l2)
     current <- cbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 
     ## named -- map by name
@@ -23,12 +23,12 @@ test_bind_Assays <- function() {
 
     target <- Map(rbind, l1, l2[match(names(l2), names(l1))])
     current <- rbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 
     target <- Map(cbind, l1, l2[match(names(l2), names(l1))])
     current <- cbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 }
 
@@ -43,12 +43,12 @@ test_bind_higher_order_Assays <- function() {
 
     target <- Map(arbind, l1, l2)
     current <- rbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 
     target <- Map(acbind, l1, l2)
     current <- cbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 
     ## named -- map by name
@@ -61,12 +61,12 @@ test_bind_higher_order_Assays <- function() {
 
     target <- Map(arbind, l1, l2[match(names(l2), names(l1))])
     current <- rbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 
     target <- Map(acbind, l1, l2[match(names(l2), names(l1))])
     current <- cbind(a1, a2)
-    checkTrue(is(current, "ShallowSimpleListAssays"))
+    checkTrue(is(current, "SimpleAssays"))
     checkIdentical(as(target, "SimpleList"), as(current, "SimpleList"))
 }
 
