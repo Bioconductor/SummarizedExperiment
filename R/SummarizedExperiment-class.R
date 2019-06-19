@@ -25,7 +25,7 @@ setMethod("parallelSlotNames", "SummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Validity.
+### Validity
 ###
 
 .valid.SummarizedExperiment.assays_nrow <- function(x)
@@ -73,7 +73,7 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Low-level constructor (not exported).
+### Low-level constructor (not exported)
 ###
 
 new_SummarizedExperiment <- function(assays, names, rowData, colData,
@@ -99,7 +99,7 @@ new_SummarizedExperiment <- function(assays, names, rowData, colData,
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Getters and setters.
+### Accessors
 ###
 
 setMethod("length", "SummarizedExperiment",
@@ -177,17 +177,10 @@ setGeneric("assays<-",
     function(x, ..., withDimnames=TRUE, value)
 {
     ## withDimnames arg allows names(assays(se, withDimnames=FALSE)) <- value
-    ok <- vapply(value, function(elt, xdimnames) {
-        e <- dimnames(elt)
-        (is.null(e[[1]]) || identical(e[[1]], xdimnames[[1]])) &&
-             (is.null(e[[2]]) || identical(e[[2]], xdimnames[[2]]))
-    }, logical(1), xdimnames=dimnames(x))
-    if (!all(ok))
-        stop("current and replacement dimnames() differ")
     x <- BiocGenerics:::replaceSlots(x, assays=Assays(value), check=FALSE)
-    ## validObject(x) should be called below because it would then fully
-    ## re-validate objects that derive from SummarizedExperiment (e.g.
-    ## DESeqDataSet objects) after the user sets the assays slot with
+    ## validObject(x) should NOT be called below because it would then
+    ## fully re-validate objects that derive from SummarizedExperiment
+    ## (e.g. DESeqDataSet objects) after the user sets the assays slot with
     ## assays(x) <- value. For example the assays slot of a DESeqDataSet
     ## object must contain a matrix named 'counts' and calling validObject(x)
     ## would check that but .valid.SummarizedExperiment(x) doesn't.
@@ -290,11 +283,7 @@ setReplaceMethod("assayNames", c("SummarizedExperiment", "character"),
     x
 })
 
-## cannonical location for dim, dimnames; dimnames should be checked
-## for consistency (if non-null) and stripped from assays on
-## construction, or added from assays if row/col names are NULL in
-## <SummarizedExperiment> but not assays. dimnames need to be added on
-## to assays when assays() invoked
+## cannonical location for dim, dimnames
 setMethod("dim", "SummarizedExperiment",
     function(x)
 {
@@ -325,7 +314,7 @@ setReplaceMethod("dimnames", c("SummarizedExperiment", "NULL"),
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Subsetting.
+### Subsetting
 ###
 
 .SummarizedExperiment.charbound <-
@@ -552,8 +541,9 @@ setMethod("subset", "SummarizedExperiment",
     x[i, j]
 })
 
+
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Quick colData access.
+### Quick colData access
 ###
 
 setMethod("[[", c("SummarizedExperiment", "ANY", "missing"),
@@ -587,7 +577,7 @@ setReplaceMethod("$", "SummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Display.
+### Show
 ###
 
 setMethod("show", "SummarizedExperiment",
@@ -636,7 +626,7 @@ setMethod("show", "SummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Combine.
+### Combine
 ###
 
 ### Appropriate for objects with different ranges and same samples.

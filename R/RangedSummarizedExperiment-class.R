@@ -25,7 +25,7 @@ setMethod("parallelSlotNames", "RangedSummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Validity.
+### Validity
 ###
 
 ### The names and mcols of a RangedSummarizedExperiment must be set on its
@@ -52,7 +52,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Constructor.
+### Constructor
 ###
 
 .new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
@@ -99,7 +99,6 @@ setMethod("SummarizedExperiment", "SimpleList",
         if (is.null(rownames(colData)))
             rownames(colData) <- .get_colnames_from_assays(assays)
     }
-    ans_colnames <- rownames(colData)
 
     if (is.null(rowData)) {
         if (missing(rowRanges)) {
@@ -124,32 +123,6 @@ setMethod("SummarizedExperiment", "SimpleList",
             if (is.null(ans_rownames))
                 ans_rownames <- .get_rownames_from_assays(assays)
         }
-    }
-
-    ## validate the assay rownames and colnames
-    .validate_names <- function(nms, expected_nms, what1, what2)
-    {
-        if (is.null(nms))
-            return()
-        if (!is.character(nms))
-            stop(wmsg(what1, " must be NULL or a character vector"))
-        if (!is.null(attributes(nms)))
-            stop(wmsg(what1, " must be NULL or a character vector",
-                             " with no attributes"))
-        if (!identical(nms, expected_nms))
-            stop(wmsg(what1, " must be NULL or identical to ", what2))
-    }
-
-    for(i in seq_along(assays)) {
-        a <- assays[[i]]
-        rownames <- rownames(a)
-        .validate_names(rownames, ans_rownames,
-                        "assay rownames()",
-                        "rowData rownames() / rowRanges names()")
-        colnames <- colnames(a)
-        .validate_names(colnames, ans_colnames,
-                        "assay colnames()",
-                        "colData rownames()")
     }
 
     assays <- Assays(assays)
@@ -185,7 +158,7 @@ setMethod("SummarizedExperiment", "missing",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Coercion.
+### Coercion
 ###
 ### See makeSummarizedExperimentFromExpressionSet.R for coercion back and
 ### forth between SummarizedExperiment and ExpressionSet.
@@ -221,7 +194,7 @@ setAs("SummarizedExperiment", "RangedSummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Getters and setters.
+### Accessors
 ###
 
 ### The rowRanges() generic is defined in the DelayedArray package.
@@ -301,11 +274,10 @@ setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Subsetting.
+### Subsetting
 ###
 
-.DollarNames.RangedSummarizedExperiment <-
-    .DollarNames.SummarizedExperiment
+.DollarNames.RangedSummarizedExperiment <- .DollarNames.SummarizedExperiment
 
 setMethod("subset", "RangedSummarizedExperiment",
     function(x, subset, select, ...)
