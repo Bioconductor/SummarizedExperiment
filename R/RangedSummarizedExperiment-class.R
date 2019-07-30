@@ -476,31 +476,52 @@ setMethod("seqinfo", "RangedSummarizedExperiment",
     seqinfo(x@rowRanges)
 })
 
-setReplaceMethod("seqinfo", "RangedSummarizedExperiment",
-    function (x, new2old= NULL,
-              pruning.mode=c("error", "coarse", "fine", "tidy"),
-              value)
+.set_RangedSummarizedExperiment_seqinfo <-
+    function(x, new2old=NULL,
+             pruning.mode=c("error", "coarse", "fine", "tidy"),
+             value)
 {
-    if (!is(value, "Seqinfo")) 
+    if (!is(value, "Seqinfo"))
         stop("the supplied 'seqinfo' must be a Seqinfo object")
-    dangling_seqlevels <-
-        GenomeInfoDb:::getDanglingSeqlevels(x@rowRanges, new2old=new2old,
-                                            pruning.mode=pruning.mode,
-                                            seqlevels(value))
-    if (length(dangling_seqlevels) != 0L) 
-        x <- x[!(seqnames(x) %in% dangling_seqlevels)]
-    x@rowRanges <-
-        update(x@rowRanges,
-               seqnames = GenomeInfoDb:::makeNewSeqnames(x, new2old,
-                                                         seqlevels(value)),
-               seqinfo = value)
+    pruning.mode <- match.arg(pruning.mode)
+    if (pruning.mode == "fine") {
+        if (is(x@rowRanges, "GenomicRanges"))
+            stop(wmsg("\"fine\" pruning mode is not supported on ",
+                      class(x), " objects with a rowRanges component that ",
+                      "is a GRanges object or a GenomicRanges derivative"))
+    } else {
+        dangling_seqlevels <- GenomeInfoDb:::getDanglingSeqlevels(x@rowRanges,
+                                  new2old=new2old,
+                                  pruning.mode=pruning.mode,
+                                  seqlevels(value))
+        if (length(dangling_seqlevels) != 0L) {
+            idx <- !(seqnames(x@rowRanges) %in% dangling_seqlevels)
+            ## 'idx' should be either a logical vector or a list-like
+            ## object where all the list elements are logical vectors (e.g.
+            ## a LogicalList or RleList object). If the latter, we transform
+            ## it into a logical vector.
+            if (is(idx, "List")) {
+                if (pruning.mode == "coarse") {
+                    idx <- all(idx)  # "coarse" pruning
+                } else {
+                    idx <- any(idx) | elementNROWS(idx) == 0L  # "tidy" pruning
+                }
+            }
+            ## 'idx' now guaranteed to be a logical vector.
+            x <- x[idx]
+        }
+    }
+    seqinfo(x@rowRanges, new2old=new2old, pruning.mode=pruning.mode) <- value
     if (is.character(msg <- .valid.RangedSummarizedExperiment(x)))
         stop(msg)
     x
-})
+}
+setReplaceMethod("seqinfo", "RangedSummarizedExperiment",
+    .set_RangedSummarizedExperiment_seqinfo
+)
 
 setMethod("split", "RangedSummarizedExperiment",
-    function(x, f, drop=FALSE, ...) 
+    function(x, f, drop=FALSE, ...)
 {
     splitAsList(x, f, drop=drop)
 })
