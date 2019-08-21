@@ -352,7 +352,7 @@ test_RangedSummarizedExperiment_GRanges_values <- function()
     isAssign <- grep("<-$", .singleDispatch, value=TRUE)
     .funs <- setdiff(.singleDispatch, isAssign)
     ## 'exp' created after manual inspection of results
-    exp <- setNames(c("02dde", "80339", "26836", "410ea", "77198",
+    exp <- setNames(c("02dde", "80339", "df2bc", "410ea", "77198",
                       "ec53a", "35e2c", "625d9", "3c90a"), .funs)
     obs <- sapply(.funs, function(.fun) {
         substr(digest(getGeneric(.fun)(x)), 1, 5)
