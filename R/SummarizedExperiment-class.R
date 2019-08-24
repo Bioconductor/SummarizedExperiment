@@ -849,7 +849,8 @@ setMethod("realize", "SummarizedExperiment",
 .updateObject_SummarizedExperiment <- function(object, ..., verbose=FALSE)
 {
     object@assays <- updateObject(object@assays, ..., verbose=verbose)
-    object
+    object@colData <- updateObject(object@colData, ..., verbose=verbose)
+    callNextMethod()  # call method for Vector objects
 }
 
 setMethod("updateObject", "SummarizedExperiment",
