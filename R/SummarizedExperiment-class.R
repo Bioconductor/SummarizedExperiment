@@ -583,15 +583,6 @@ setReplaceMethod("$", "SummarizedExperiment",
 setMethod("show", "SummarizedExperiment",
     function(object)
 {
-    selectSome <- S4Vectors:::selectSome
-    scat <- function(fmt, vals=character(), exdent=2, ...)
-    {
-        vals <- ifelse(nzchar(vals), vals, "''")
-        lbls <- paste(S4Vectors:::selectSome(vals), collapse=" ")
-        txt <- sprintf(fmt, length(vals), lbls)
-        cat(strwrap(txt, exdent=exdent, ...), sep="\n")
-    }
-
     cat("class:", class(object), "\n")
     cat("dim:", dim(object), "\n")
 
@@ -599,29 +590,29 @@ setMethod("show", "SummarizedExperiment",
     expt <- names(metadata(object))
     if (is.null(expt))
         expt <- character(length(metadata(object)))
-    scat("metadata(%d): %s\n", expt)
+    coolcat("metadata(%d): %s\n", expt)
 
     ## assays()
     nms <- assayNames(object)
     if (is.null(nms))
         nms <- character(length(assays(object, withDimnames=FALSE)))
-    scat("assays(%d): %s\n", nms)
+    coolcat("assays(%d): %s\n", nms)
 
     ## rownames()
     dimnames <- dimnames(object)
     dlen <- sapply(dimnames, length)
-    if (dlen[[1]]) scat("rownames(%d): %s\n", dimnames[[1]])
-    else scat("rownames: NULL\n")
+    if (dlen[[1]]) coolcat("rownames(%d): %s\n", dimnames[[1]])
+    else cat("rownames: NULL\n")
 
     ## rowData`()
-    scat("rowData names(%d): %s\n", names(rowData(object, use.names=FALSE)))
+    coolcat("rowData names(%d): %s\n", names(rowData(object, use.names=FALSE)))
 
     ## colnames()
-    if (dlen[[2]]) scat("colnames(%d): %s\n", dimnames[[2]])
+    if (dlen[[2]]) coolcat("colnames(%d): %s\n", dimnames[[2]])
     else cat("colnames: NULL\n")
 
     ## colData()
-    scat("colData names(%d): %s\n", names(colData(object)))
+    coolcat("colData names(%d): %s\n", names(colData(object)))
 })
 
 
