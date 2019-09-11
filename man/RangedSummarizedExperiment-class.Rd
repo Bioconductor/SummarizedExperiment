@@ -110,7 +110,7 @@ rowRanges(x, ...) <- value
     a \link[S4Vectors]{DataFrame} object from the \pkg{S4Vectors} package,
     a \link[Matrix]{sparseMatrix} derivative from the \pkg{Matrix} package,
     a \link[DelayedArray]{DelayedMatrix} object from the \pkg{DelayedArray}
-    packages, etc...).
+    package, etc...).
     All elements of the list must have the same dimensions, and dimension
     names (if present) must be consistent across elements and with the row
     names of \code{rowRanges} and \code{colData}.}
