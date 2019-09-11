@@ -8,10 +8,6 @@
 
 % Constructor
 \alias{SummarizedExperiment}
-\alias{SummarizedExperiment,SimpleList-method}
-\alias{SummarizedExperiment,ANY-method}
-\alias{SummarizedExperiment,list-method}
-\alias{SummarizedExperiment,missing-method}
 
 % Coercion
 \alias{coerce,RangedSummarizedExperiment,SummarizedExperiment-method}
@@ -89,12 +85,10 @@
 
 ## Constructor
 
-SummarizedExperiment(assays, ...)
-\S4method{SummarizedExperiment}{SimpleList}(assays, rowData=NULL, rowRanges=GRangesList(),
-    colData=DataFrame(), metadata=list())
-\S4method{SummarizedExperiment}{ANY}(assays, ...)
-\S4method{SummarizedExperiment}{list}(assays, ...)
-\S4method{SummarizedExperiment}{missing}(assays, ...)
+SummarizedExperiment(assays=SimpleList(),
+                     rowData=NULL, rowRanges=GRangesList(),
+                     colData=DataFrame(),
+                     metadata=list())
 
 ## Accessors
 
@@ -112,10 +106,14 @@ rowRanges(x, ...) <- value
 \arguments{
 
   \item{assays}{A \code{list} or \code{SimpleList} of matrix-like elements,
-    or a matrix-like object. All elements of the list must have the same
-    dimensions, and dimension names (if present) must be consistent
-    across elements and with the row names of \code{rowRanges} and
-    \code{colData}.}
+    or a matrix-like object (e.g. an ordinary matrix, a data frame,
+    a \link[S4Vectors]{DataFrame} object from the \pkg{S4Vectors} package,
+    a \link[Matrix]{sparseMatrix} derivative from the \pkg{Matrix} package,
+    a \link[DelayedArray]{DelayedMatrix} object from the \pkg{DelayedArray}
+    packages, etc...).
+    All elements of the list must have the same dimensions, and dimension
+    names (if present) must be consistent across elements and with the row
+    names of \code{rowRanges} and \code{colData}.}
 
   \item{rowData}{A \link[S4Vectors]{DataFrame} object describing 
     the rows. Row names, if present, become the row names of the
@@ -139,18 +137,12 @@ rowRanges(x, ...) <- value
   \item{metadata}{An optional \code{list} of arbitrary content
     describing the overall experiment.}
 
-  \item{...}{For \code{SummarizedExperiment}, S4 methods \code{list}
-    and \code{matrix}, arguments identical to those of the
-    \code{SimpleList} method.
-
-    For \code{rowRanges}, ignored.
-
-  }
-
   \item{x}{A RangedSummarizedExperiment object. The \code{rowRanges} setter
     will also accept a \link{SummarizedExperiment} object and will first
     coerce it to RangedSummarizedExperiment before it sets \code{value} on
     it.}
+
+  \item{...}{Further arguments to be passed to or from other methods.}
 
   \item{value}{A \link[GenomicRanges]{GRanges} or
     \link[GenomicRanges]{GRangesList} object.}
