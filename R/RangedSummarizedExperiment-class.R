@@ -82,13 +82,12 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
     rownames(assays[[1L]])
 }
 
-setGeneric("SummarizedExperiment",
-    function(assays, ...) standardGeneric("SummarizedExperiment"))
-
-setMethod("SummarizedExperiment", "SimpleList",
-   function(assays, rowData=NULL, rowRanges=GRangesList(), colData=DataFrame(),
-            metadata=list())
+SummarizedExperiment <- function(assays=SimpleList(),
+                                 rowData=NULL, rowRanges=GRangesList(),
+                                 colData=DataFrame(),
+                                 metadata=list())
 {
+    assays <- normarg_assays(assays)
     if (missing(colData) && 0L != length(assays)) {
         assay <- assays[[1]]
         nms <- colnames(assay)
@@ -133,28 +132,7 @@ setMethod("SummarizedExperiment", "SimpleList",
     } else {
         .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
     }
-})
-
-setMethod("SummarizedExperiment", "ANY",
-    function(assays, ...)
-{
-    if (is.matrix(assays) && is.list(assays))
-        ## special case -- matrix of lists
-        assays <- list(assays)
-    SummarizedExperiment(SimpleList(assays), ...)
-})
-
-setMethod("SummarizedExperiment", "list",
-    function(assays, ...)
-{
-    SummarizedExperiment(do.call(SimpleList, assays), ...)
-})
-
-setMethod("SummarizedExperiment", "missing",
-    function(assays, ...)
-{
-    SummarizedExperiment(SimpleList(), ...)
-})
+}
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

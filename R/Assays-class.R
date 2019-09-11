@@ -68,21 +68,38 @@ setValidity2("Assays", .valid.Assays)
 
 ### Constructor
 
-.normarg_assays <- function(assays)
+normarg_assays <- function(assays)
 {
-    if (!is(assays, "SimpleList")) {
-        if (is.list(assays) || is.array(assays)) {
-            assays <- SimpleList(assays)
-        } else {
-            stop("'assays' must be a SimpleList, list or array")
-        }
-    }
-    assays
+    assays_dim <- dim(assays)
+    ## Some objects like SplitDataFrameList have a "dim" method that
+    ## returns a non-MULL object (a matrix!) even though they don't have
+    ## an array-like semantic.
+    if (length(assays_dim) >= 2L && !is.matrix(assays_dim))
+        #return(SimpleList(assays))  # broken on a data frame
+        return(new2("SimpleList", listData=list(assays), check=FALSE))
+
+    if (is.list(assays))
+        #return(do.call(SimpleList, assays)) # broken on list of data frames
+        return(new2("SimpleList", listData=assays, check=FALSE))
+
+    if (is(assays, "SimpleList"))
+        return(assays)
+
+    ## As a last resort, we try to coerce 'assays' to SimpleList but only if
+    ## it's already a List (we raise an error if it's not).
+    if (!is(assays, "List"))
+        ### The truth is that the assays can be any array-like objects with
+        ### at least 2 dimensions, not just matrix-like objects.
+        stop(wmsg("'assays' must be a list or SimpleList of matrix-like ",
+                  "elements, or a matrix-like object ",
+                  "(see '?SummarizedExperiment')"))
+
+    as(assays, "SimpleList")  # could fail
 }
 
 Assays <- function(assays=SimpleList())
 {
-    assays <- .normarg_assays(assays)
+    assays <- normarg_assays(assays)
     ## Starting with SummarizedExperiment 1.15.4, we wrap the user-supplied
     ## assays in a SimpleAssays object instead of a ShallowSimpleListAssays
     ## object. Note that there are probably hundreds (if not thousands) of

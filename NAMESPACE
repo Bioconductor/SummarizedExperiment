@@ -79,6 +79,7 @@ exportMethods(
 
 export(
     Assays,
+    SummarizedExperiment,
     .DollarNames.SummarizedExperiment,
     .DollarNames.RangedSummarizedExperiment,
     makeSummarizedExperimentFromExpressionSet,
@@ -95,7 +96,6 @@ export(
 ###
 
 export(
-    SummarizedExperiment,
     "rowRanges<-",
     rowData, "rowData<-",
     colData, "colData<-",
@@ -106,7 +106,6 @@ export(
 
 ### Exactly the same list as above.
 exportMethods(
-    SummarizedExperiment,
     "rowRanges<-",
     rowData, "rowData<-",
     colData, "colData<-",
