@@ -150,6 +150,13 @@ setReplaceMethod("colData", c("SummarizedExperiment", "DataFrame"),
     BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
 
+setReplaceMethod("colData", c("SummarizedExperiment", "NULL"),
+    function(x, ..., value)
+{
+    value <- S4Vectors:::make_zero_col_DataFrame(ncol(x))
+    BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
+})
+
 setGeneric("assays",
     function(x, ..., withDimnames=TRUE) standardGeneric("assays"),
     signature="x")

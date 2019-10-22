@@ -17,6 +17,7 @@
 \alias{colData,SummarizedExperiment-method}
 \alias{colData<-}
 \alias{colData<-,SummarizedExperiment,DataFrame-method}
+\alias{colData<-,SummarizedExperiment,NULL-method}
 \alias{assays}
 \alias{assays,SummarizedExperiment-method}
 \alias{assays<-}
