@@ -153,7 +153,7 @@ setReplaceMethod("colData", c("SummarizedExperiment", "DataFrame"),
 setReplaceMethod("colData", c("SummarizedExperiment", "NULL"),
     function(x, ..., value)
 {
-    value <- S4Vectors:::make_zero_col_DataFrame(ncol(x))
+    value <- new2("DFrame", nrows=ncol(x), rownames=colnames(x), check=FALSE)
     BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
 
