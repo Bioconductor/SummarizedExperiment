@@ -1,3 +1,31 @@
+CHANGES IN VERSION 1.16.0
+-------------------------
+
+NEW FEATURES
+
+    o Some improvements to the SummarizedExperiment() constructor (see commit
+      0d74843c)
+
+    o Support 'colData(SummarizedExperiment) <- NULL' to clear colData
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o All the arguments of the SummarizedExperiment() constructor are now
+      visible (no more ellipsis) and have default values. So tab completion
+      works. See commit 0d74843c
+
+    o The dimnames on the individual assays of a SummarizedExperiment derivative
+      now can be anything (see issue #25 for the details)
+
+BUG FIXES
+
+    o Some fixes to the SummarizedExperiment() constructor (see commit
+      0d74843c)
+
+    o Address all.equal() false positives on SummarizedExperiment objects
+      (see issue #16 for the details)
+
+
 CHANGES IN VERSION 1.12.0
 -------------------------
 
