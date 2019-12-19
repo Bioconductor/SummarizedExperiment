@@ -168,7 +168,7 @@ readKallistoBootstrap <-
     }
     if (!missing(j) && is.numeric(j)) {
         if (any(j < 1L) || any(j > nboot))
-            stop("'j' must be > 0 and <=", nboot)
+            stop("'j' must be >= 1 and <=", nboot)
         j <- paste0("bs", as.integer(j) - 1L)
     }
 
