@@ -320,49 +320,86 @@ test_SummarizedExperiment_subsetassign <- function()
 test_SummarizedExperiment_assays_4d <- function()
 {
     ## construction/validation
-    A <- array(0, c(3, 2, 5, 4), list(c("a1", "a2", "a3"),
-                                      c("b1", "b2"),
+    A <- array(0, c(3, 2, 5, 4), list(c("x1", "x2", "x3"),
+                                      c("y1", "y2"),
                                       NULL,
-                                      c("d1", "d2", "d3", "d4")))
-    B <- array(0, c(3, 2, 6), list(c("a1", "a2", "a3"),
-                                   c("b1", "oops"),
-                                   NULL))
+                                      c("t1", "t2", "t3", "t4")))
+    B <- array(0, c(3, 2, 6),    list(c("x1", "x2", "x3"),
+                                      c("y1", "oops"),
+                                      NULL))
     assays0 <- SimpleList(A=A, B=B)
     checkTrue(validObject(SummarizedExperiment(assays0)))
 
     dimnames(B)[1:2] <- dimnames(A)[1:2]
-    C <- array(0, c(3, 2, 4), list(NULL,
-                                   c("b1", "b2"),
-                                   c("z1", "z2", "z3", "z4")))
+    C <- array(0, c(3, 2, 4),    list(NULL,
+                                      c("y1", "y2"),
+                                      c("z1", "z2", "z3", "z4")))
+    D <- array(0, c(3, 2, 7, 2), list(NULL,
+                                      NULL,
+                                      NULL,
+                                      c("t1", "t2")))
+    E <- array(0, c(3, 2, 0))
 
-    assays0 <- SimpleList(A=A, B=B, C=C)
-    se <- SummarizedExperiment(assays0)
-    checkTrue(validObject(se, complete=TRUE))
+    assays0 <- SimpleList(A=A, B=B, C=C, D=D, E=E)
+    se0 <- se1 <- SummarizedExperiment(assays0)
+    dimnames(se0) <- NULL
+    checkTrue(validObject(se0, complete=TRUE))
+    checkTrue(validObject(se1, complete=TRUE))
 
     ## dimnames
-    checkIdentical(dimnames(A)[1:2], dimnames(se))
-    checkIdentical(dimnames(B)[1:2], dimnames(se))
-    for (i in seq_along(assays(se))) {
-        checkIdentical(assays0[[i]], assay(se, i, withDimnames=FALSE))
-        checkIdentical(dimnames(se), dimnames(assay(se, i))[1:2])
+    checkIdentical(NULL, dimnames(se0))
+    checkIdentical(dimnames(A)[1:2], dimnames(se1))
+
+    ## assays
+    for (i in seq_along(assays0)) {
+        target <- assays0[[i]]
+        checkIdentical(target, assay(se0, i, withDimnames=FALSE))
+        checkIdentical(target, assay(se1, i, withDimnames=FALSE))
     }
 
+    target0 <- target1 <- dimnames(assays0[[1]])
+    target0[1:2] <- list(NULL)
+    checkIdentical(target0, dimnames(assay(se0, 1)))
+    checkIdentical(target1, dimnames(assay(se1, 1)))
+
+    checkIdentical(NULL, dimnames(assay(se0, 2)))
+    checkIdentical(dimnames(assays0[[2]]), dimnames(assay(se1, 2)))
+
+    target0 <- target1 <- dimnames(assays0[[3]])
+    target0[1:2] <- list(NULL)
+    checkIdentical(target0, dimnames(assay(se0, 3)))
+    target1[1:2] <- dimnames(se1)
+    checkIdentical(target1, dimnames(assay(se1, 3)))
+
+    target0 <- target1 <- dimnames(assays0[[4]])
+    checkIdentical(target0, dimnames(assay(se0, 4)))
+    target1[1:2] <- dimnames(se1)
+    checkIdentical(target1, dimnames(assay(se1, 4)))
+
+    checkIdentical(NULL, dimnames(assay(se0, 5)))
+    target1 <- c(dimnames(se1), list(NULL))
+    checkIdentical(target1, dimnames(assay(se1, 5)))
+
     ## [
-    se2 <- se[3:2, ]
-    checkIdentical(A[3:2, , , , drop=FALSE], assay(se2, 1, withDimnames=FALSE))
-    checkIdentical(B[3:2, , , drop=FALSE], assay(se2, 2, withDimnames=FALSE))
-    checkIdentical(C[3:2, , , drop=FALSE], assay(se2, 3, withDimnames=FALSE))
+    se2 <- se1[3:2, ]
+    checkIdentical(A[3:2, , , , drop=FALSE],
+                   assay(se2, 1, withDimnames=FALSE))
+    checkIdentical(B[3:2, , , drop=FALSE],
+                   assay(se2, 2, withDimnames=FALSE))
+    checkIdentical(C[3:2, , , drop=FALSE],
+                   assay(se2, 3, withDimnames=FALSE))
 
     ## [<-
     A1 <- A; A1[1, , , ] <- A[1, , , , drop=FALSE] + 1
-    assays(se[1, ])[[1]] <- 1 + assays(se[1, ])[[1]]
-    checkIdentical(assays(se)[[1]], A1)
+    assays(se1[1, ], withDimnames=FALSE)[[1]] <-
+        1 + assays(se1[1, ], withDimnames=FALSE)[[1]]
+    checkIdentical(A1, assays(se1, withDimnames=FALSE)[[1]])
 
     ## [, [<- don't support more than 4 dimensions
     a <- array(0, c(3, 3, 3, 3, 3),
                list(LETTERS[1:3], letters[1:3], NULL, NULL, NULL))
     assays <- SimpleList(a=a)
     se <- SummarizedExperiment(assays)
-    checkException(se[1,], silent=TRUE)
+    checkException(se[1, ], silent=TRUE)
 }
 

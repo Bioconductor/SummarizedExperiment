@@ -169,6 +169,8 @@ setMethod("assays", "SummarizedExperiment",
     assays <- as(x@assays, "SimpleList")
     if (withDimnames) {
         x_dimnames <- dimnames(x)
+        if (is.null(x_dimnames))
+            x_dimnames <- list(NULL, NULL)
         assays <- endoapply(assays,
             function(a) {
                 a_dimnames <- dimnames(a)
