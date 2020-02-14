@@ -1,5 +1,5 @@
-M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
-M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
+M1 <- matrix(1, 5, 3)
+M2 <- matrix(1, 3, 3)
 mList <- list(M1, M2)
 assaysList <- list(M1=SimpleList(m=M1), M2=SimpleList(m=M2))
 rowData1 <- DataFrame(id1=LETTERS[1:5])
@@ -40,7 +40,7 @@ test_SummarizedExperiment_construction <- function()
 
     ## array in assays slot
     ss <- se0List[[1]]
-    assays(ss) <- SimpleList(array(1:5, c(5,3,2)))
+    assays(ss, withDimnames=FALSE) <- SimpleList(array(1:5, c(5,3,2)))
     checkTrue(validObject(ss))
     checkTrue(all(dim(assays(ss[1:3,1:2])[[1]]) == c(3, 2, 2)))
 
@@ -134,7 +134,7 @@ test_SummarizedExperiment_getters <- function()
 
         ## dim, dimnames
         checkIdentical(c(nrow(mList[[i]]), nrow(colData0)), dim(se0))
-        checkIdentical(list(NULL, NULL), dimnames(se0))
+        checkIdentical(NULL, dimnames(se0))
 
         ## col / metadata
         checkIdentical(rowDataList[[i]], rowData(se0))
@@ -143,8 +143,8 @@ test_SummarizedExperiment_getters <- function()
     }
 
     ## assays
-    m0 <- matrix(0L, 0, 0, dimnames=list(NULL, NULL))
-    m1 <- matrix(0, 0, 0, dimnames=list(NULL, NULL))
+    m0 <- matrix(0L, 0, 0)
+    m1 <- matrix(0, 0, 0)
     a <- SimpleList(a=m0, b=m1)
     checkIdentical(a, assays(SummarizedExperiment(assays=a)))
     ## assay
@@ -224,7 +224,7 @@ test_SummarizedExperiment_setters <- function()
         dimnames(se1) <- dimnames
         checkIdentical(dimnames, dimnames(se1))
         dimnames(se1) <- NULL
-        checkIdentical(list(NULL, NULL), dimnames(se1))
+        checkIdentical(NULL, dimnames(se1))
     }
 }
 

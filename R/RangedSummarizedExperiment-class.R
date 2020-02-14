@@ -234,7 +234,8 @@ setReplaceMethod("names", "RangedSummarizedExperiment",
 setMethod("dimnames", "RangedSummarizedExperiment",
     function(x)
 {
-    list(names(x), rownames(colData(x)))
+    ans <- list(names(x), rownames(colData(x)))
+    DelayedArray:::simplify_NULL_dimnames(ans)
 })
 
 setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),

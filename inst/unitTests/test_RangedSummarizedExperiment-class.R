@@ -9,8 +9,8 @@ library(digest)
 
 .otherFuns <- c("is.unsorted", "order", "rank", "sort")
 
-M1 <- matrix(1, 5, 3, dimnames=list(NULL, NULL))
-M2 <- matrix(1, 3, 3, dimnames=list(NULL, NULL))
+M1 <- matrix(1, 5, 3)
+M2 <- matrix(1, 3, 3)
 mList <- list(M1, M2)
 assaysList <- list(gr=SimpleList(m=M1), grl=SimpleList(m=M2))
 rowRangesList <- 
@@ -61,7 +61,7 @@ test_RangedSummarizedExperiment_getters <- function()
 
         ## dim, dimnames
         checkIdentical(c(length(rowRanges), nrow(colData)), dim(rse))
-        checkIdentical(list(NULL, NULL), dimnames(rse))
+        checkIdentical(NULL, dimnames(rse))
 
         ## row / col / metadata
         checkIdentical(rowRanges, rowRanges(rse))
@@ -120,7 +120,7 @@ test_RangedSummarizedExperiment_setters <- function()
         dimnames(ss1) <- dimnames
         checkIdentical(dimnames, dimnames(ss1))
         dimnames(ss1) <- NULL
-        checkIdentical(list(NULL, NULL), dimnames(ss1))
+        checkIdentical(NULL, dimnames(ss1))
     }
 }
 

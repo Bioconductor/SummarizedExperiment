@@ -93,10 +93,10 @@
 
 assayNames(x, ...)
 assayNames(x, ...) <- value
-assays(x, ..., withDimnames=TRUE)
-assays(x, ..., withDimnames=TRUE) <- value
-assay(x, i, ...)
-assay(x, i, ...) <- value
+assays(x, withDimnames=TRUE, ...)
+assays(x, withDimnames=TRUE, ...) <- value
+assay(x, i, withDimnames=TRUE, ...)
+assay(x, i, withDimnames=TRUE, ...) <- value
 rowData(x, use.names=TRUE, ...)
 rowData(x, ...) <- value
 colData(x, ...)
@@ -132,8 +132,7 @@ colData(x, ...) <- value
   \item{x}{A SummarizedExperiment object.}
 
   \item{...}{
-    For \code{assay}, \code{...} may contain \code{withDimnames}, which is
-    forwarded to \code{assays}.
+    For \code{assay}, arguments in \code{...} are forwarded to \code{assays}.
 
     For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment
     objects to be combined.
@@ -162,14 +161,24 @@ colData(x, ...) <- value
   \item{name}{A symbol representing the name of a column of
     \code{colData}.}
 
-  \item{withDimnames}{A \code{logical(1)}, indicating whether dimnames
-    should be applied to extracted assay elements. Setting
-    \code{withDimnames=FALSE} increases the speed and memory efficiency
-    with which assays are extracted. \code{withDimnames=TRUE} in the
-    getter \code{assays<-} allows efficient complex assignments (e.g.,
-    updating names of assays, \code{names(assays(x, withDimnames=FALSE))
-    = ...} is more efficient than \code{names(assays(x)) = ...}); it
-    does not influence actual assignment of dimnames to assays.}
+  \item{withDimnames}{A \code{logical(1)}, indicating whether the
+    dimnames of the SummarizedExperiment object should be applied (i.e.
+    copied) to the extracted assays. More precisely, setting
+    \code{withDimnames=FALSE} in the \emph{getter} returns the
+    assays \emph{as-is} whereas setting \code{withDimnames=FALSE}
+    return them with possibly modified dimnames.
+
+    Setting \code{withDimnames=FALSE} in the \emph{setter} (\code{assays<-})
+    is required when the dimnames on the supplied assays are not identical
+    to the dimnames on the SummarizedExperiment object; it does not
+    influence actual assignment of dimnames to assays (they're always
+    stored as-is).
+
+    Note that \preformatted{  assays(x, withDimnames=FALSE) <- assays(x, withDimnames=FALSE)}
+    is guaranteed to always work and be a no-op. This is not the case
+    if \code{withDimnames=TRUE} is used or if \code{withDimnames} is
+    not specified.
+  }
 
   \item{use.names}{Like \code{\link[S4Vectors]{mcols}(x)}, by default
     \code{rowData(x)} propagates the rownames of \code{x} to the returned
@@ -396,22 +405,12 @@ colData(x, ...) <- value
 
   In addition, the representation of the \code{assays} slot of
   SummarizedExperiment is as a virtual class Assays. This
-  allows derived classes (\code{contains="Assays"}) to easily implement
+  allows derived classes (\code{contains="Assays"}) to implement
   alternative requirements for the assays, e.g., backed by file-based
   storage like NetCDF or the \code{ff} package, while re-using the existing
   SummarizedExperiment class without modification.
   See \link{Assays} for more information.
 
-  The current \code{assays} slot is implemented as a reference class
-  that has copy-on-change semantics. This means that modifying non-assay
-  slots does not copy the (large) assay data, and at the same time the
-  user is not surprised by reference-based semantics. Updates to
-  non-assay slots are very fast; updating the assays slot itself can be
-  5x or more faster than with an S4 instance in the slot. One useful
-  technique when working with \code{assay} or \code{assays} function is
-  use of the \code{withDimnames=FALSE} argument, which benefits speed
-  and memory use by not copying dimnames from the row- and colData
-  elements to each assay.
 }
 
 \author{Martin Morgan, \url{mtmorgan@fhcrc.org}}

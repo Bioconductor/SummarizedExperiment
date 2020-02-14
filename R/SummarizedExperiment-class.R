@@ -157,34 +157,73 @@ setReplaceMethod("colData", c("SummarizedExperiment", "NULL"),
     BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
 
-setGeneric("assays",
-    function(x, ..., withDimnames=TRUE) standardGeneric("assays"),
-    signature="x")
+setGeneric("assays", signature="x",
+    function(x, withDimnames=TRUE, ...) standardGeneric("assays")
+)
 
 setMethod("assays", "SummarizedExperiment",
-    function(x, ..., withDimnames=TRUE)
+    function(x, withDimnames=TRUE, ...)
 {
+    if (!isTRUEorFALSE(withDimnames))
+        stop(wmsg("'withDimnames' must be TRUE or FALSE"))
     assays <- as(x@assays, "SimpleList")
     if (withDimnames) {
+        x_dimnames <- dimnames(x)
         assays <- endoapply(assays,
-            function(assay) {
-                dimnames(assay)[1:2] <- dimnames(x)
-                assay
+            function(a) {
+                a_dimnames <- dimnames(a)
+                a_dimnames[1:2] <- x_dimnames
+                dimnames(a) <- DelayedArray:::simplify_NULL_dimnames(a_dimnames)
+                a
             }
         )
     }
     assays
 })
 
-setGeneric("assays<-",
-    function(x, ..., withDimnames=TRUE, value) standardGeneric("assays<-"),
-    signature=c("x", "value"))
+setGeneric("assays<-", signature=c("x", "value"),
+    function(x, withDimnames=TRUE, ..., value) standardGeneric("assays<-"),
+)
+
+### For assays with more than 2 dimensions, **only** the first 2 dimnames
+### components (i.e. rownames and colnames) are compared with 'x_dimnames'.
+.assays_have_identical_dimnames <- function(assays, x_dimnames)
+{
+    if (length(assays) == 0L)
+        return(TRUE)
+    ok <- vapply(seq_along(assays),
+        function(i) {
+            a_dimnames <- dimnames(getListElement(assays, i))
+            a_dimnames <- DelayedArray:::simplify_NULL_dimnames(a_dimnames[1:2])
+            identical(a_dimnames, x_dimnames)
+        },
+        logical(1)
+    )
+    all(ok)
+}
 
 .SummarizedExperiment.assays.replace <-
-    function(x, ..., withDimnames=TRUE, value)
+    function(x, withDimnames=TRUE, ..., value)
 {
-    ## withDimnames arg allows names(assays(se, withDimnames=FALSE)) <- value
-    x <- BiocGenerics:::replaceSlots(x, assays=Assays(value), check=FALSE)
+    if (!isTRUEorFALSE(withDimnames))
+        stop(wmsg("'withDimnames' must be TRUE or FALSE"))
+    ## By default the dimnames on the supplied assays must be identical to
+    ## the dimnames on 'x'. The user must use 'withDimnames=FALSE' if it's
+    ## not the case. This is for symetry with the behavior of the getter.
+    ## See https://github.com/Bioconductor/SummarizedExperiment/issues/35
+    value <- Assays(value)
+    if (withDimnames && !.assays_have_identical_dimnames(value, dimnames(x))) {
+        if (length(dim(value)) > 2L) {
+            what <- "rownames and colnames"
+        } else {
+            what <- "dimnames"
+        }
+        stop(wmsg("please use 'assay(x, withDimnames=FALSE)) <- value' ",
+                  "or 'assays(x, withDimnames=FALSE)) <- value' when ",
+                  "the ", what, " on the supplied assay(s) are not identical ",
+                  "to the ", what, " on ", class(x), " object 'x'"))
+    }
+    x <- BiocGenerics:::replaceSlots(x, assays=value, check=FALSE)
     ## validObject(x) should NOT be called below because it would then
     ## fully re-validate objects that derive from SummarizedExperiment
     ## (e.g. DESeqDataSet objects) after the user sets the assays slot with
@@ -206,13 +245,15 @@ setReplaceMethod("assays", c("SummarizedExperiment", "SimpleList"),
 setReplaceMethod("assays", c("SummarizedExperiment", "list"),
     .SummarizedExperiment.assays.replace)
 
-setGeneric("assay", function(x, i, ...) standardGeneric("assay"))
+setGeneric("assay", signature=c("x", "i"),
+    function(x, i, withDimnames=TRUE, ...) standardGeneric("assay")
+)
 
 ## convenience for common use case
 setMethod("assay", c("SummarizedExperiment", "missing"),
-    function(x, i, ...)
+    function(x, i, withDimnames=TRUE, ...)
 {
-    assays <- assays(x, ...)
+    assays <- assays(x, withDimnames=withDimnames, ...)
     if (0L == length(assays))
         stop("'assay(<", class(x), ">, i=\"missing\", ...) ",
              "length(assays(<", class(x), ">)) is 0'")
@@ -220,10 +261,10 @@ setMethod("assay", c("SummarizedExperiment", "missing"),
 })
 
 setMethod("assay", c("SummarizedExperiment", "numeric"),
-    function(x, i, ...)
+    function(x, i, withDimnames=TRUE, ...)
 {
     tryCatch({
-        assays(x, ...)[[i]]
+        assays(x, withDimnames=withDimnames, ...)[[i]]
     }, error=function(err) {
         stop("'assay(<", class(x), ">, i=\"numeric\", ...)' ",
              "invalid subscript 'i'\n", conditionMessage(err))
@@ -231,12 +272,12 @@ setMethod("assay", c("SummarizedExperiment", "numeric"),
 })
 
 setMethod("assay", c("SummarizedExperiment", "character"),
-    function(x, i, ...)
+    function(x, i, withDimnames=TRUE, ...)
 {
     msg <- paste0("'assay(<", class(x), ">, i=\"character\", ...)' ",
                   "invalid subscript 'i'")
     res <- tryCatch({
-        assays(x, ...)[[i]]
+        assays(x, withDimnames=withDimnames, ...)[[i]]
     }, error=function(err) {
         stop(msg, "\n", conditionMessage(err))
     })
@@ -246,29 +287,29 @@ setMethod("assay", c("SummarizedExperiment", "character"),
 })
 
 setGeneric("assay<-", signature=c("x", "i"),
-    function(x, i, ..., value) standardGeneric("assay<-"))
+    function(x, i, withDimnames=TRUE, ..., value) standardGeneric("assay<-"))
 
 setReplaceMethod("assay", c("SummarizedExperiment", "missing"),
-    function(x, i, ..., value)
+    function(x, i, withDimnames=TRUE, ..., value)
 {
-    if (0L == length(assays(x)))
+    if (0L == length(assays(x, withDimnames=FALSE)))
         stop("'assay(<", class(x), ">) <- value' ", "length(assays(<",
              class(x), ">)) is 0")
-    assays(x)[[1]] <- value
+    assays(x, withDimnames=withDimnames, ...)[[1]] <- value
     x
 })
 
 setReplaceMethod("assay", c("SummarizedExperiment", "numeric"),
-    function(x, i = 1, ..., value)
+    function(x, i, withDimnames=TRUE, ..., value)
 {
-    assays(x, ...)[[i]] <- value
+    assays(x, withDimnames=withDimnames, ...)[[i]] <- value
     x
 })
 
 setReplaceMethod("assay", c("SummarizedExperiment", "character"),
-    function(x, i, ..., value)
+    function(x, i, withDimnames=TRUE, ..., value)
 {
-    assays(x, ...)[[i]] <- value
+    assays(x, withDimnames=withDimnames, ...)[[i]] <- value
     x
 })
 
@@ -300,7 +341,8 @@ setMethod("dim", "SummarizedExperiment",
 setMethod("dimnames", "SummarizedExperiment",
     function(x)
 {
-    list(names(x), rownames(colData(x)))
+    ans <- list(names(x), rownames(colData(x)))
+    DelayedArray:::simplify_NULL_dimnames(ans)
 })
 
 setReplaceMethod("dimnames", c("SummarizedExperiment", "list"),
@@ -606,16 +648,16 @@ setMethod("show", "SummarizedExperiment",
     coolcat("assays(%d): %s\n", nms)
 
     ## rownames()
-    dimnames <- dimnames(object)
-    dlen <- sapply(dimnames, length)
-    if (dlen[[1]]) coolcat("rownames(%d): %s\n", dimnames[[1]])
+    rownames <- rownames(object)
+    if (!is.null(rownames)) coolcat("rownames(%d): %s\n", rownames)
     else cat("rownames: NULL\n")
 
     ## rowData`()
     coolcat("rowData names(%d): %s\n", names(rowData(object, use.names=FALSE)))
 
     ## colnames()
-    if (dlen[[2]]) coolcat("colnames(%d): %s\n", dimnames[[2]])
+    colnames <- colnames(object)
+    if (!is.null(colnames)) coolcat("colnames(%d): %s\n", colnames)
     else cat("colnames: NULL\n")
 
     ## colData()
