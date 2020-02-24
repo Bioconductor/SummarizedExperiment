@@ -193,10 +193,20 @@ setGeneric("assays<-", signature=c("x", "value"),
 {
     if (length(assays) == 0L)
         return(TRUE)
+    ## Like DelayedArray:::simplify_NULL_dimnames() but first replaces list
+    ## elements that are equal to character(0) with NULLs.
+    normalize_dimnames <- function(dn) {
+        empty_idx <- which(lengths(dn) == 0L)
+        if (length(empty_idx) == length(dn))
+            return(NULL)
+        dn[empty_idx] <- list(NULL)
+        dn
+    }
+    x_dimnames <- normalize_dimnames(x_dimnames)
     ok <- vapply(seq_along(assays),
         function(i) {
-            a_dimnames <- dimnames(getListElement(assays, i))
-            a_dimnames <- DelayedArray:::simplify_NULL_dimnames(a_dimnames[1:2])
+            a <- getListElement(assays, i)
+            a_dimnames <- normalize_dimnames(dimnames(a))
             identical(a_dimnames, x_dimnames)
         },
         logical(1)
@@ -221,9 +231,9 @@ setGeneric("assays<-", signature=c("x", "value"),
             what <- "dimnames"
         }
         stop(wmsg("please use 'assay(x, withDimnames=FALSE)) <- value' ",
-                  "or 'assays(x, withDimnames=FALSE)) <- value' when ",
-                  "the ", what, " on the supplied assay(s) are not identical ",
-                  "to the ", what, " on ", class(x), " object 'x'"))
+                  "or 'assays(x, withDimnames=FALSE)) <- value' when the ",
+                  what, " on the supplied assay(s) are not identical to ",
+                  "the ", what, " on ", class(x), " object 'x'"))
     }
     x <- BiocGenerics:::replaceSlots(x, assays=value, check=FALSE)
     ## validObject(x) should NOT be called below because it would then
