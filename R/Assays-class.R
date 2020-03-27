@@ -169,82 +169,45 @@ setMethod("dim", "Assays",
 
 ### 2D-Subsetting
 
+### Subset each assay in Assays object 'x' along its first 2 dimensions.
+### If not missing, 'i' and/or 'j' are assumed to be valid subscripts that
+### can be used to subset an ordinary matrix or array.
 .extract_Assays_subset <- function(x, i, j)
 {
-    ## need to expand Rle's for subsetting standard matrix
-    if (!missing(i) && !missing(j)) {
-        fun <- function(x) {
-            switch(length(dim(x)),
-                   stop("'[' on assays() with 1 dimension not supported"),
-                   x[i, j, drop=FALSE],
-                   x[i, j, , drop=FALSE],
-                   x[i, j, , , drop=FALSE],
-                   stop("'[' on assays() with >4 dimensions not supported"))
-        }
-    } else if (!missing(i)) {
-        fun <- function(x) {
-            switch(length(dim(x)),
-                   stop("'[' on assays() with 1 dimension not supported"),
-                   x[i, , drop=FALSE],
-                   x[i, , , drop=FALSE],
-                   x[i, , , , drop=FALSE],
-                   stop("'[' on assays() with >4 dimensions not supported"))
-        }
-    } else if (!missing(j)) {
-        fun <- function(x) {
-            switch(length(dim(x)),
-                   stop("'[' on assays() with 1 dimension not supported"),
-                   x[, j, drop=FALSE],
-                   x[, j, , drop=FALSE],
-                   x[, j, , , drop=FALSE],
-                   stop("'[' on assays() with >4 dimensions not supported"))
-        }
+    subscripts12 <- list(if (missing(i)) quote(expr=) else i,
+                         if (missing(j)) quote(expr=) else j)
+    extract_assay_subset <- function(a) {
+        ndim <- length(dim(a))
+        stopifnot(ndim >= 2L)  # should never happen
+        more_subscripts <- rep.int(list(quote(expr=)), ndim - 2L)
+        args <- c(list(a), subscripts12, more_subscripts, list(drop=FALSE))
+        do.call(`[`, args)
     }
     assays <- as(x, "SimpleList", strict=FALSE)
-    as(endoapply(assays, fun), class(x))
+    as(endoapply(assays, extract_assay_subset), class(x))
 }
 
 setMethod("[", "Assays",
     function(x, i, j, ..., drop=TRUE) .extract_Assays_subset(x, i, j)
 )
 
+### Subassign each assay in Assays object 'x' along its first 2 dimensions.
+### If not missing, 'i' and/or 'j' are assumed to be valid subscripts that
+### can be used to subassign an ordinary matrix or array.
 .replace_Assays_subset <- function(x, i, j, value)
 {
-    ## need to expand Rle's for subsetting standard matrix
-    if (!missing(i) && !missing(j)) {
-        fun <- function(x, value) {
-            switch(length(dim(x)),
-                   stop("'[<-' on assays() with 1 dimension not supported"),
-                   x[i, j] <- value,
-                   x[i, j, ] <- value,
-                   x[i, j, , ] <- value,
-                   stop("'[<-' on assays() with >4 dimensions not supported"))
-            x
-        }
-    } else if (!missing(i)) {
-        fun <- function(x, value) {
-            switch(length(dim(x)),
-                   stop("'[<-' on assays() with 1 dimension not supported"),
-                   x[i, ] <- value,
-                   x[i, , ] <- value,
-                   x[i, , , ] <- value,
-                   stop("'[<-' on assays() with >4 dimensions not supported"))
-            x
-        }
-    } else if (!missing(j)) {
-        fun <- function(x, value) {
-            switch(length(dim(x)),
-                   stop("'[<-' on assays() with 1 dimension not supported"),
-                   x[, j] <- value,
-                   x[, j, ] <- value,
-                   x[, j, , ] <- value,
-                   stop("'[<-' on assays() with >4 dimensions not supported"))
-            x
-        }
+    subscripts12 <- list(if (missing(i)) quote(expr=) else i,
+                         if (missing(j)) quote(expr=) else j)
+    replace_assay_subset <- function(a, v) {
+        ndim <- length(dim(a))
+        stopifnot(ndim >= 2L)  # should never happen
+        more_subscripts <- rep.int(list(quote(expr=)), ndim - 2L)
+        args <- c(list(a), subscripts12, more_subscripts, list(value=v))
+        do.call(`[<-`, args)
     }
-    a <- as(x, "SimpleList", strict=FALSE)
-    v <- as(value, "SimpleList", strict=FALSE)
-    as(mendoapply(fun, x=a, value=v), class(x))
+    assays <- as(x, "SimpleList", strict=FALSE)
+    values <- as(value, "SimpleList", strict=FALSE)
+    as(mendoapply(replace_assay_subset, assays, values), class(x))
 }
 
 setReplaceMethod("[", "Assays",

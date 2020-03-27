@@ -4,16 +4,15 @@
 ###
 
 
+setClassUnion("Assays_OR_NULL", c("Assays", "NULL"))
+
 setClass("SummarizedExperiment",
     contains="Vector",
     representation(
-        colData="DataFrame",              # columns and their annotations
-        assays="Assays",                  # Data -- e.g., list of matricies
+        colData="DataFrame",            # columns and their annotations
+        assays="Assays_OR_NULL",        # Data -- e.g., list of matrices
         NAMES="character_OR_NULL",
         elementMetadata="DataFrame"
-    ),
-    prototype(
-        assays=Assays()
     )
 )
 
@@ -22,7 +21,7 @@ setClass("SummarizedExperiment",
 ### the S4Vectors package for what slots should or should not be considered
 ### "vertical".
 setMethod("vertical_slot_names", "SummarizedExperiment",
-    function(x) c("NAMES", callNextMethod())
+    function(x) c("assays", "NAMES", callNextMethod())
 )
 
 
@@ -81,13 +80,19 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 new_SummarizedExperiment <- function(assays, names, rowData, colData,
                                      metadata)
 {
-    if (!is(assays, "Assays"))
+    if (length(assays) == 0L) {
+        assays <- NULL
+    } else if (!is(assays, "Assays")) {
         assays <- Assays(assays)
+    }
     if (is.null(rowData)) {
-        if (is.null(names))
-            nrow <- nrow(assays)
-        else
+        if (!is.null(names)) {
             nrow <- length(names)
+        } else if (!is.null(assays)) {
+            nrow <- nrow(assays)
+        } else {
+            nrow <- 0L
+        }
         rowData <- S4Vectors:::make_zero_col_DataFrame(nrow)
     } else {
         rownames(rowData) <- NULL
@@ -392,6 +397,7 @@ setReplaceMethod("dimnames", c("SummarizedExperiment", "NULL"),
     idx
 }
 
+### TODO: Refactor this to use extractROWS().
 setMethod("[", c("SummarizedExperiment", "ANY", "ANY"),
     function(x, i, j, ..., drop=TRUE)
 {
@@ -465,6 +471,7 @@ setMethod("[", c("SummarizedExperiment", "ANY", "ANY"),
     ans
 })
 
+### TODO: Refactor this to use replaceROWS().
 setReplaceMethod("[",
     c("SummarizedExperiment", "ANY", "ANY", "SummarizedExperiment"),
     function(x, i, j, ..., value)
@@ -578,23 +585,6 @@ setReplaceMethod("[",
         stop(msg)
     ans
 })
-
-setMethod("extractROWS", "SummarizedExperiment",
-    function(x, i)
-    {
-        i <- normalizeSingleBracketSubscript(i, x)
-        x[i, ]
-    }
-)
-
-setMethod("replaceROWS", "SummarizedExperiment",
-    function(x, i, value)
-    {
-        i <- normalizeSingleBracketSubscript(i, x)
-        x[i, ] <- value
-        x
-    }
-)
 
 setMethod("subset", "SummarizedExperiment",
     function(x, subset, select, ...)

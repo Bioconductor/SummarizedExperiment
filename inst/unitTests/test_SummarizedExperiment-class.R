@@ -394,12 +394,5 @@ test_SummarizedExperiment_assays_4d <- function()
     assays(se1[1, ], withDimnames=FALSE)[[1]] <-
         1 + assays(se1[1, ], withDimnames=FALSE)[[1]]
     checkIdentical(A1, assays(se1, withDimnames=FALSE)[[1]])
-
-    ## [, [<- don't support more than 4 dimensions
-    a <- array(0, c(3, 3, 3, 3, 3),
-               list(LETTERS[1:3], letters[1:3], NULL, NULL, NULL))
-    assays <- SimpleList(a=a)
-    se <- SummarizedExperiment(assays)
-    checkException(se[1, ], silent=TRUE)
 }
 

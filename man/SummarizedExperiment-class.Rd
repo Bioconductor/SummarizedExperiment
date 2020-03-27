@@ -1,7 +1,10 @@
 \name{SummarizedExperiment-class}
 \docType{class}
 
-% Class
+% Classes
+\alias{class:Assays_OR_NULL}
+\alias{Assays_OR_NULL-class}
+\alias{Assays_OR_NULL}
 \alias{class:SummarizedExperiment}
 \alias{SummarizedExperiment-class}
 
@@ -45,8 +48,6 @@
 \alias{[,SummarizedExperiment,ANY-method}
 \alias{[,SummarizedExperiment,ANY,ANY,ANY-method}
 \alias{[<-,SummarizedExperiment,ANY,ANY,SummarizedExperiment-method}
-\alias{extractROWS,SummarizedExperiment,ANY-method}
-\alias{replaceROWS,SummarizedExperiment-method}
 \alias{subset,SummarizedExperiment-method}
 
 % Quick colData access

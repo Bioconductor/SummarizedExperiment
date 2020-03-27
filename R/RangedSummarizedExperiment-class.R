@@ -60,21 +60,17 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 .new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
                                             metadata)
 {
-    elementMetadata <- S4Vectors:::make_zero_col_DataFrame(length(rowRanges))
-    if (!is(assays, "Assays"))
+    if (length(assays) == 0L) {
+        assays <- NULL
+    } else if (!is(assays, "Assays")) {
         assays <- Assays(assays)
+    }
+    elementMetadata <- S4Vectors:::make_zero_col_DataFrame(length(rowRanges))
     new("RangedSummarizedExperiment", rowRanges=rowRanges,
                                       colData=colData,
                                       assays=assays,
                                       elementMetadata=elementMetadata,
                                       metadata=as.list(metadata))
-}
-
-.get_colnames_from_assays <- function(assays)
-{
-    if (length(assays) == 0L)
-        return(NULL)
-    colnames(assays[[1L]])
 }
 
 .get_rownames_from_assays <- function(assays)
@@ -84,21 +80,30 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
     rownames(assays[[1L]])
 }
 
+.get_colnames_from_assays <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(NULL)
+    colnames(assays[[1L]])
+}
+
 SummarizedExperiment <- function(assays=SimpleList(),
                                  rowData=NULL, rowRanges=GRangesList(),
                                  colData=DataFrame(),
                                  metadata=list())
 {
-    assays <- normarg_assays(assays)
-    if (missing(colData) && 0L != length(assays)) {
-        assay <- assays[[1]]
-        nms <- colnames(assay)
-        colData <- DataFrame(x=seq_len(ncol(assay)), row.names=nms)[, FALSE]
-    } else if (!missing(colData)) {
+    if (!is.null(assays))
+        assays <- normarg_assays(assays)
+
+    if (!missing(colData)) {
         if (!is(colData, "DataFrame"))
             colData <- as(colData, "DataFrame")
         if (is.null(rownames(colData)))
             rownames(colData) <- .get_colnames_from_assays(assays)
+    } else if (length(assays) != 0L) {
+        a1 <- assays[[1L]]
+        nms <- colnames(a1)
+        colData <- DataFrame(x=seq_len(ncol(a1)), row.names=nms)[, FALSE]
     }
 
     if (is.null(rowData)) {
@@ -125,8 +130,6 @@ SummarizedExperiment <- function(assays=SimpleList(),
                 ans_rownames <- .get_rownames_from_assays(assays)
         }
     }
-
-    assays <- Assays(assays)
 
     if (missing(rowRanges) && !is(rowData, "GenomicRanges_OR_GRangesList")) {
         new_SummarizedExperiment(assays, ans_rownames, rowData, colData,

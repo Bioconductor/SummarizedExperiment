@@ -18,6 +18,7 @@ import(DelayedArray)
 
 exportClasses(
     Assays, SimpleAssays, ShallowData, ShallowSimpleListAssays,
+    Assays_OR_NULL,
     SummarizedExperiment,
     RangedSummarizedExperiment
 )
@@ -51,7 +52,6 @@ exportMethods(
     mcols, "mcols<-",
     elementMetadata, "elementMetadata<-",
     values, "values<-",
-    extractROWS, replaceROWS,
     subset,
     pcompare,
 
