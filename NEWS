@@ -1,3 +1,43 @@
+CHANGES IN VERSION 1.18.0
+-------------------------
+
+NEW FEATURES
+
+    o SummarizedExperiment objects with assays of > 4 dimensions are now
+      fully supported.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o By default the assays() and assay() setters now reject inconsistent
+      dimnames.
+      By default the dimnames on the supplied assay(s) must be identical to
+      the dimnames on the SummarizedExperiment object. The user now must use
+      'withDimnames=FALSE' if it's not the case or they get an error.
+      This is for symmetry with the behavior of the assays() and assay()
+      getters (see issue #35). Unfortunately this change is likely to break
+      existing code but at least the fix is easy.
+
+    o dimnames() now returns NULL instead of list(NULL, NULL) on a
+      SummarizedExperiment object with no dimnames. This is consistent
+      with matrix objects.
+
+    o Swap positions of arguments '...' and 'withDimnames' in assays()
+      setter and getter. So now it's:
+    
+          assays(x, withDimnames=TRUE, ...)
+          assays(x, withDimnames=TRUE, ...) <- value
+
+    o Add 'withDimnames' argument to the assay() getter/setter. So now it's:
+    
+          assay(x, i, withDimnames=TRUE, ...)
+          assay(x, i, withDimnames=TRUE, ...) <- value
+    
+      Note that before this change, the user was able to explicitly set
+      'withDimnames' when calling assay() but since this was not a formal
+      argument it was forwarded to assays() via the ellipsis. Having it as
+      a formal argument makes it easier to discover and allows tab completion.
+
+
 CHANGES IN VERSION 1.16.0
 -------------------------
 
