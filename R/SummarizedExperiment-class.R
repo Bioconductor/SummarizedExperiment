@@ -7,7 +7,7 @@
 setClassUnion("Assays_OR_NULL", c("Assays", "NULL"))
 
 setClass("SummarizedExperiment",
-    contains="Vector",
+    contains=c("DataTable", "Vector"),
     representation(
         colData="DataFrame",            # columns and their annotations
         assays="Assays_OR_NULL",        # Data -- e.g., list of matrices
