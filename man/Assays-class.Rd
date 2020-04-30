@@ -4,6 +4,7 @@
 \alias{class:Assays}
 \alias{Assays-class}
 \alias{Assays}
+\alias{updateObject,Assays-method}
 \alias{length,Assays-method}
 \alias{names,Assays-method}
 \alias{names<-,Assays-method}
@@ -17,7 +18,6 @@
 \alias{cbind,Assays-method}
 \alias{arbind,Matrix-method}
 \alias{acbind,Matrix-method}
-\alias{updateObject,Assays-method}
 
 \alias{class:SimpleAssays}
 \alias{SimpleAssays-class}
