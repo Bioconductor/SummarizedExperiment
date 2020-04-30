@@ -68,49 +68,96 @@ setValidity2("Assays", .valid.Assays)
 
 ### Constructor
 
-normarg_assays <- function(assays)
+### Always return a SimpleList object by default. Will return a NULL only
+### if 'as.null.if.zero.assay' is set to TRUE and no assays are supplied.
+normarg_assays <- function(assays, as.null.if.zero.assay=FALSE)
 {
+    if (!isTRUEorFALSE(as.null.if.zero.assay))
+        stop(wmsg("'as.null.if.zero.assay' must be TRUE or FALSE"))
+
+    if (is.null(assays)) {
+        if (as.null.if.zero.assay)
+            return(NULL)
+        return(SimpleList())
+    }
+
+    ## The truth is that the assays can be any array-like objects
+    ## with at least 2 dimensions, not just matrix-like objects.
+    error_msg <- c("'assays' must be a list or SimpleList of ",
+                   "matrix-like elements, or a matrix-like object, ",
+                   "or a NULL (see '?SummarizedExperiment')")
+
+    if (is(assays, "Assays"))
+        stop(wmsg(error_msg))
+
     assays_dim <- dim(assays)
     ## Some objects like SplitDataFrameList have a "dim" method that
     ## returns a non-MULL object (a matrix!) even though they don't have
     ## an array-like semantic.
-    if (length(assays_dim) >= 2L && !is.matrix(assays_dim))
+    if (!is.matrix(assays_dim) && length(assays_dim) >= 2L)
         #return(SimpleList(assays))  # broken on a data frame
         return(new2("SimpleList", listData=list(assays), check=FALSE))
 
-    if (is.list(assays))
-        #return(do.call(SimpleList, assays)) # broken on list of data frames
-        return(new2("SimpleList", listData=assays, check=FALSE))
-
-    if (is(assays, "SimpleList"))
-        return(assays)
-
-    ## As a last resort, we try to coerce 'assays' to SimpleList but only if
-    ## it's already a List (we raise an error if it's not).
-    if (!is(assays, "List"))
-        ### The truth is that the assays can be any array-like objects with
-        ### at least 2 dimensions, not just matrix-like objects.
-        stop(wmsg("'assays' must be a list or SimpleList of matrix-like ",
-                  "elements, or a matrix-like object ",
-                  "(see '?SummarizedExperiment')"))
-
-    as(assays, "SimpleList")  # could fail
+    if (!is(assays, "SimpleList")) {
+        if (is.list(assays)) {
+            #assays <- do.call(SimpleList, assays) # broken on a list of
+                                                   # data frames
+            assays <- new2("SimpleList", listData=assays, check=FALSE)
+        } else if (is(assays, "List")) {
+            assays <- as(assays, "SimpleList")  # could fail
+        } else {
+            stop(wmsg(error_msg))
+        }
+    }
+    if (length(assays) == 0L && as.null.if.zero.assay)
+        return(NULL)
+    assays
 }
 
-Assays <- function(assays=SimpleList())
+### Always return a SimpleAssays object by default. Will return a NULL only
+### if 'as.null.if.zero.assay' is set to TRUE and no assays are supplied.
+Assays <- function(assays=SimpleList(), as.null.if.zero.assay=FALSE)
 {
-    assays <- normarg_assays(assays)
+    if (!isTRUEorFALSE(as.null.if.zero.assay))
+        stop(wmsg("'as.null.if.zero.assay' must be TRUE or FALSE"))
     ## Starting with SummarizedExperiment 1.15.4, we wrap the user-supplied
     ## assays in a SimpleAssays object instead of a ShallowSimpleListAssays
     ## object. Note that there are probably hundreds (if not thousands) of
     ## serialized SummarizedExperiment objects around that use
     ## ShallowSimpleListAssays. These objects should keep working as before!
-    ans <- as(assays, "SimpleAssays")
-    #ans <- as(assays, "ShallowSimpleListAssays")
-    #ans <- as(assays, "AssaysInEnv")  # a *broken* alternative
-    validObject(ans)
-    ans
+    if (!is(assays, "SimpleAssays")) {
+        if (is(assays, "Assays")) {
+            ## Will turn any Assays derivative (e.g. ShallowSimpleListAssays)
+            ## into a SimpleAssays object.
+            assays <- as(as(assays, "SimpleList"), "SimpleAssays")
+        } else {
+            assays <- normarg_assays(assays, as.null.if.zero.assay)
+            if (is.null(assays))
+                return(NULL)
+            assays <- as(assays, "SimpleAssays")
+            validObject(assays)
+        }
+    }
+    if (length(assays) == 0L && as.null.if.zero.assay)
+        return(NULL)
+    assays
 }
+
+### updateObject
+
+.updateObject_Assays <- function(object, ..., verbose=FALSE)
+{
+    assays <- as(object, "SimpleList", strict=FALSE)
+    assays <- endoapply(assays,
+        function(assay)
+            updateObject(assay, ..., verbose=verbose)
+    )
+    if (length(assays) == 0L)
+        return(NULL)
+    as(assays, "SimpleAssays")
+}
+
+setMethod("updateObject", "Assays", .updateObject_Assays)
 
 ### Accessors
 
@@ -283,18 +330,6 @@ setMethod("cbind", "Assays",
 ### to make IRanges depend on the Matrix package.
 setMethod("arbind", "Matrix", function(...) rbind(...))
 setMethod("acbind", "Matrix", function(...) cbind(...))
-
-### updateObject
-
-.updateObject_Assays <- function(object, ..., verbose=FALSE)
-{
-    assays <- as(object, "SimpleList", strict=FALSE)
-    as(endoapply(assays,
-           function(assay) updateObject(assay, ..., verbose=verbose)),
-       class(object))
-}
-
-setMethod("updateObject", "Assays", .updateObject_Assays)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

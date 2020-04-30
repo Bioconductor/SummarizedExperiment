@@ -80,11 +80,7 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 new_SummarizedExperiment <- function(assays, names, rowData, colData,
                                      metadata)
 {
-    if (length(assays) == 0L) {
-        assays <- NULL
-    } else if (!is(assays, "Assays")) {
-        assays <- Assays(assays)
-    }
+    assays <- Assays(assays, as.null.if.zero.assay=TRUE)
     if (is.null(rowData)) {
         if (!is.null(names)) {
             nrow <- length(names)
@@ -131,6 +127,7 @@ setGeneric("rowData", signature="x",
     function(x, use.names=TRUE, ...) standardGeneric("rowData")
 )
 
+### Fix old DataFrame instances on-the-fly (mcols() does it).
 setMethod("rowData", "SummarizedExperiment",
     function(x, use.names=TRUE, ...) mcols(x, use.names=use.names, ...)
 )
@@ -144,7 +141,10 @@ setReplaceMethod("rowData", "SummarizedExperiment",
 
 setGeneric("colData", function(x, ...) standardGeneric("colData"))
 
-setMethod("colData", "SummarizedExperiment", function(x, ...) x@colData)
+### Fix old DataFrame instances on-the-fly.
+setMethod("colData", "SummarizedExperiment",
+    function(x, ...) updateObject(x@colData, check=FALSE)
+)
 
 setGeneric("colData<-",
     function(x, ..., value) standardGeneric("colData<-"))
@@ -154,6 +154,7 @@ setReplaceMethod("colData", c("SummarizedExperiment", "DataFrame"),
 {
     if (nrow(value) != ncol(x))
         stop("nrow of supplied 'colData' must equal ncol of object")
+    x <- updateObject(x, check=FALSE)
     BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
 
@@ -161,6 +162,7 @@ setReplaceMethod("colData", c("SummarizedExperiment", "NULL"),
     function(x, ..., value)
 {
     value <- new2("DFrame", nrows=ncol(x), rownames=colnames(x), check=FALSE)
+    x <- updateObject(x, check=FALSE)
     BiocGenerics:::replaceSlots(x, colData=value, check=FALSE)
 })
 
@@ -226,11 +228,11 @@ setGeneric("assays<-", signature=c("x", "value"),
 {
     if (!isTRUEorFALSE(withDimnames))
         stop(wmsg("'withDimnames' must be TRUE or FALSE"))
+    value <- normarg_assays(value, as.null.if.zero.assay=TRUE)
     ## By default the dimnames on the supplied assays must be identical to
     ## the dimnames on 'x'. The user must use 'withDimnames=FALSE' if it's
     ## not the case. This is for symetry with the behavior of the getter.
     ## See https://github.com/Bioconductor/SummarizedExperiment/issues/35
-    value <- Assays(value)
     if (withDimnames && !.assays_have_identical_dimnames(value, dimnames(x))) {
         if (length(dim(value)) > 2L) {
             what <- "rownames and colnames"
@@ -242,7 +244,8 @@ setGeneric("assays<-", signature=c("x", "value"),
                   what, " on the supplied assay(s) are not identical to ",
                   "the ", what, " on ", class(x), " object 'x'"))
     }
-    x <- BiocGenerics:::replaceSlots(x, assays=value, check=FALSE)
+    new_assays <- Assays(value, as.null.if.zero.assay=TRUE)
+    x <- BiocGenerics:::replaceSlots(x, assays=new_assays, check=FALSE)
     ## validObject(x) should NOT be called below because it would then
     ## fully re-validate objects that derive from SummarizedExperiment
     ## (e.g. DESeqDataSet objects) after the user sets the assays slot with

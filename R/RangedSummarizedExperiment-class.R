@@ -60,11 +60,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 .new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
                                             metadata)
 {
-    if (length(assays) == 0L) {
-        assays <- NULL
-    } else if (!is(assays, "Assays")) {
-        assays <- Assays(assays)
-    }
+    assays <- Assays(assays, as.null.if.zero.assay=TRUE)
     elementMetadata <- S4Vectors:::make_zero_col_DataFrame(length(rowRanges))
     new("RangedSummarizedExperiment", rowRanges=rowRanges,
                                       colData=colData,
@@ -92,8 +88,7 @@ SummarizedExperiment <- function(assays=SimpleList(),
                                  colData=DataFrame(),
                                  metadata=list())
 {
-    if (!is.null(assays))
-        assays <- normarg_assays(assays)
+    assays <- normarg_assays(assays, as.null.if.zero.assay=TRUE)
 
     if (!missing(colData)) {
         if (!is(colData, "DataFrame"))
@@ -206,8 +201,11 @@ setReplaceMethod("rowRanges", c("RangedSummarizedExperiment", "NULL"),
 .SummarizedExperiment.rowRanges.replace <-
     function(x, ..., value)
 {
-    if (!is(x, "RangedSummarizedExperiment"))
+    if (is(x, "RangedSummarizedExperiment")) {
+        x <- updateObject(x, check=FALSE)
+    } else {
         x <- as(x, "RangedSummarizedExperiment")
+    }
     x <- BiocGenerics:::replaceSlots(x, ...,
              rowRanges=value,
              elementMetadata=S4Vectors:::make_zero_col_DataFrame(length(value)),
