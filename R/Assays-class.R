@@ -7,11 +7,16 @@
 ###   (b) Lossless back and forth coercion from/to SimpleList. The coercion
 ###       method from SimpleList doesn't need (and should not) validate the
 ###       returned object.
-###   (c) length, names, names<-, getListElement, setListElement, dim,
-###       [, [<-, rbind, cbind
+###   (c) The following methods, split in 2 groups:
+###       - List-like methods:   length, names, names<-, getListElement, and
+###                              setListElement
+###       - Matrix-like methods: dim, [, [<-, rbind, cbind
 ###
 ### An Assays concrete subclass needs to implement (b) (required) plus
-### optionally any of the methods in (c).
+### optionally any of the methods in (c). The reason they are optionals
+### is that default methods are provided and they work on any Assays
+### derivative as long as lossless back and forth coercion from/to
+### SimpleList works.
 ###
 ### IMPORTANT
 ### ---------
@@ -41,15 +46,17 @@
 ### Assays class
 ###
 
-setClass("Assays")
+setClass("Assays", contains="RectangularData", representation("VIRTUAL"))
 
 ### Validity
 
 .valid.Assays <- function(x)
 {
-    assays <- as(x, "SimpleList", strict=FALSE)
+    assays <- try(as(x, "SimpleList"), silent=TRUE)
+    if (inherits(assays, "try-error"))
+        return("'as(x, \"SimpleList\")' must work")
     if (!is(assays, "SimpleList"))
-        return("'assays' must be a SimpleList object")
+        return("'as(x, \"SimpleList\")' must return a SimpleList object")
     if (length(assays) == 0L)
         return(NULL)
 
@@ -147,7 +154,7 @@ Assays <- function(assays=SimpleList(), as.null.if.zero.assay=FALSE)
 
 .updateObject_Assays <- function(object, ..., verbose=FALSE)
 {
-    assays <- as(object, "SimpleList", strict=FALSE)
+    assays <- as(object, "SimpleList")
     assays <- endoapply(assays,
         function(assay)
             updateObject(assay, ..., verbose=verbose)
@@ -230,7 +237,7 @@ setMethod("dim", "Assays",
         args <- c(list(a), subscripts12, more_subscripts, list(drop=FALSE))
         do.call(`[`, args)
     }
-    assays <- as(x, "SimpleList", strict=FALSE)
+    assays <- as(x, "SimpleList")
     as(endoapply(assays, extract_assay_subset), class(x))
 }
 
@@ -252,8 +259,8 @@ setMethod("[", "Assays",
         args <- c(list(a), subscripts12, more_subscripts, list(value=v))
         do.call(`[<-`, args)
     }
-    assays <- as(x, "SimpleList", strict=FALSE)
-    values <- as(value, "SimpleList", strict=FALSE)
+    assays <- as(x, "SimpleList")
+    values <- as(value, "SimpleList")
     as(mendoapply(replace_assay_subset, assays, values), class(x))
 }
 
