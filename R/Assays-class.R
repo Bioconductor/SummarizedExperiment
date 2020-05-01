@@ -217,7 +217,7 @@ setMethod("dim", "Assays",
     {
         if (length(x) == 0L)
             return(c(0L, 0L))
-        dim(getListElement(x, 1L))
+        dim(getListElement(x, 1L))[1:2]
     }
 )
 
