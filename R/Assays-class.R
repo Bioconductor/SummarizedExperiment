@@ -360,6 +360,13 @@ setAs("SimpleList", "SimpleAssays",
 
 setAs("SimpleAssays", "SimpleList", function(from) from@data)
 
+setAs("list", "SimpleAssays",
+      function(from) as(as(from, "SimpleList"),"SimpleAssays")
+)
+
+setAs("SimpleAssays", "list",
+      function(from) as(as(from, "SimpleList"),"list")
+)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### ShallowSimpleListAssays class
