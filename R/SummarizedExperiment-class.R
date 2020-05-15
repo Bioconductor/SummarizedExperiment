@@ -184,8 +184,8 @@ setMethod("assays", "SummarizedExperiment",
             function(a) {
                 a_dimnames <- dimnames(a)
                 a_dimnames[1:2] <- x_dimnames
-                dimnames(a) <- DelayedArray:::simplify_NULL_dimnames(a_dimnames)
-                a
+                a_dimnames <- DelayedArray:::simplify_NULL_dimnames(a_dimnames)
+                DelayedArray:::set_dimnames(a, a_dimnames)
             }
         )
     }
