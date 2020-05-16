@@ -75,7 +75,7 @@
   assays, each represented by a matrix-like object of numeric or other mode.
 
   RangedSummarizedExperiment is a subclass of \link{SummarizedExperiment} and,
-  as such, all the methods documented in \code{?\link{SummarizedExperiment}}
+  as such, all the methods documented in \code{class?SummarizedExperiment}
   also work on a RangedSummarizedExperiment object. The methods documented
   below are additional methods that are specific to RangedSummarizedExperiment
   objects.
@@ -127,8 +127,8 @@ rowRanges(x, ...) <- value
     SummarizedExperiment object. The length of the
     \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}
     must equal the number of rows of the matrices in \code{assays}.
-    If \code{rowRanges} is missing, a \link{SummarizedExperiment}
-    instance is returned.}
+    If \code{rowRanges} is missing, a SummarizedExperiment instance
+    is returned.}
 
   \item{colData}{An optional \link{DataFrame} describing the
     samples. Row names, if present, become the column names of the
@@ -138,9 +138,8 @@ rowRanges(x, ...) <- value
     describing the overall experiment.}
 
   \item{x}{A RangedSummarizedExperiment object. The \code{rowRanges} setter
-    will also accept a \link{SummarizedExperiment} object and will first
-    coerce it to RangedSummarizedExperiment before it sets \code{value} on
-    it.}
+    will also accept a SummarizedExperiment object and will first coerce it
+    to RangedSummarizedExperiment before it sets \code{value} on it.}
 
   \item{...}{Further arguments to be passed to or from other methods.}
 
@@ -175,7 +174,7 @@ rowRanges(x, ...) <- value
 \section{Constructor}{
 
   RangedSummarizedExperiment instances are constructed using the
-  \code{SummarizedExperiment} function with arguments outlined above.
+  \code{SummarizedExperiment()} function with arguments outlined above.
 
 }
 
