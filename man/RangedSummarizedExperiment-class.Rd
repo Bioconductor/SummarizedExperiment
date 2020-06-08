@@ -6,6 +6,8 @@
 \alias{RangedSummarizedExperiment-class}
 \alias{RangedSummarizedExperiment}
 
+\alias{parallel_slot_names,RangedSummarizedExperiment-method}
+
 % Constructor
 \alias{SummarizedExperiment}
 

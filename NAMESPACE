@@ -49,6 +49,7 @@ exportMethods(
 
     ## Generics defined in S4Vectors:
     "metadata<-",
+    parallel_slot_names, vertical_slot_names, horizontal_slot_names,
     mcols, "mcols<-",
     elementMetadata, "elementMetadata<-",
     values, "values<-",

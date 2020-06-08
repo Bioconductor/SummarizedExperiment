@@ -8,6 +8,10 @@
 \alias{class:SummarizedExperiment}
 \alias{SummarizedExperiment-class}
 
+\alias{parallel_slot_names,SummarizedExperiment-method}
+\alias{vertical_slot_names,SummarizedExperiment-method}
+\alias{horizontal_slot_names,SummarizedExperiment-method}
+
 % Accessors
 \alias{length,SummarizedExperiment-method}
 \alias{names,SummarizedExperiment-method}

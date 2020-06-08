@@ -16,12 +16,26 @@ setClass("SummarizedExperiment",
     )
 )
 
-### Combine the new "vertical slots" with those of the parent class. Make
-### sure to put the new vertical slots **first**. See R/bindROWS.R file in
-### the S4Vectors package for what slots should or should not be considered
-### "vertical".
-setMethod("vertical_slot_names", "SummarizedExperiment",
+### Combine the new "parallel slots" with those of the parent class. Make
+### sure to put the new parallel slots **first**. See R/Vector-class.R file
+### in the S4Vectors package for what slots should or should not be considered
+### "parallel".
+setMethod("parallel_slot_names", "SummarizedExperiment",
     function(x) c("assays", "NAMES", callNextMethod())
+)
+
+setMethod("vertical_slot_names", "SummarizedExperiment",
+    function(x) parallel_slot_names(x)
+)
+
+### Like parallel_slot_names() methods, horizontal_slot_names() methods for
+### SummarizedExperiment derivatives should be defined in an incremental
+### fashion, that is, they should only explicitly list the new "horizontal
+### slots" (i.e. the horizontal slots that they add to their parent class).
+### See R/RectangularData-class.R file in the S4Vectors package for what
+### slots should or should not be considered "horizontal".
+setMethod("horizontal_slot_names", "SummarizedExperiment",
+    function(x) "colData"
 )
 
 
