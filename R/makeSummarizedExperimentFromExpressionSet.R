@@ -232,6 +232,7 @@ setAs("RangedSummarizedExperiment", "ExpressionSet",
         assayData[["exprs"]] <- assayData[[exprs]]
         rm(list=exprs, envir=assayData)
     }
+    lockEnvironment(assayData, bindings = TRUE)
 
     featureData <- .from_rowRanges_to_FeatureData(rowRanges(from))
     phenoData <- .from_DataFrame_to_AnnotatedDataFrame(colData(from))

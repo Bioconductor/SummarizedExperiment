@@ -141,6 +141,18 @@ test_GenomicRanges_SummarizedExperiment_coercion <- function()
                        sampleNames(eset5))
 }
 
+test_GenomicRanges_SummarizedExperiment_coercion_lockedEnvironment <- function()
+{
+    ## https://github.com/Bioconductor/SummarizedExperiment/issues/43
+    se = SummarizedExperiment(list(exprs = matrix(1:10, 5)))
+    es1 = es2 = as(se, "ExpressionSet")
+    original <- exprs(es2)
+    checkIdentical(original, exprs(es2))
+    exprs(es1)[1, 1] = 2
+    checkTrue(!identical(original, exprs(es1)))
+    checkIdentical(original, exprs(es2))
+}
+    
 test_GenomicRanges_SummarizedExperiment_coercion_mappingFunctions <- function()
 {
     ## naiveRangeMapper
