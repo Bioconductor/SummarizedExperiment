@@ -881,7 +881,7 @@ setMethod("identicalVals", c("GenomicRanges", "GenomicRanges"),
 ###
 
 setMethod("realize", "SummarizedExperiment",
-    function(x, BACKEND=getRealizationBackend())
+    function(x, BACKEND=getAutoRealizationBackend())
     {
         for (i in seq_along(assays(x))) {
             ## We drop the dimnames of the individual assays for 2 reasons:

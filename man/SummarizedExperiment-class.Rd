@@ -129,7 +129,7 @@ colData(x, ...) <- value
 \S4method{rbind}{SummarizedExperiment}(..., deparse.level=1)
 
 ## On-disk realization
-\S4method{realize}{SummarizedExperiment}(x, BACKEND=getRealizationBackend())
+\S4method{realize}{SummarizedExperiment}(x, BACKEND=getAutoRealizationBackend())
 }
 
 \arguments{
@@ -484,7 +484,7 @@ dimnames(cmb2)
 ## ---------------------------------------------------------------------
 ## ON-DISK REALIZATION
 ## ---------------------------------------------------------------------
-setRealizationBackend("HDF5Array")
+setAutoRealizationBackend("HDF5Array")
 cmb3 <- realize(cmb2)
 assay(cmb3, withDimnames=FALSE)  # an HDF5Matrix object
 }
