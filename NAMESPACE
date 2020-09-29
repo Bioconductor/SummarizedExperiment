@@ -4,6 +4,7 @@ importFrom(stats, setNames)
 importFrom(tools, file_path_as_absolute)
 importClassFrom(Matrix, Matrix)  # for the "acbind" and "arbind" methods
 import(BiocGenerics)
+importFrom(MatrixGenerics, rowRanges)
 import(S4Vectors)
 import(IRanges)
 import(GenomeInfoDb)

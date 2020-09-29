@@ -175,7 +175,7 @@ setAs("SummarizedExperiment", "RangedSummarizedExperiment",
 ### Accessors
 ###
 
-### The rowRanges() generic is defined in the DelayedArray package.
+### The rowRanges() generic is defined in the MatrixGenerics package.
 setMethod("rowRanges", "SummarizedExperiment",
     function(x, ...) NULL
 )
