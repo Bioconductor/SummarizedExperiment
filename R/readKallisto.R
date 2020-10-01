@@ -70,6 +70,9 @@ readKallisto <-
              what=KALLISTO_ASSAYS,
              as=c("SummarizedExperiment", "list", "matrix"))
 {
+    msg <- c("readKallisto() is deprecated. Please use tximeta() from ",
+             "the tximeta package instead.")
+    .Deprecated(msg=c("  ", wmsg(msg)))
     as <- match.arg(as)
     if (missing(what))
         what <- what[1]

@@ -8,6 +8,9 @@
 }
 
 \description{
+  WARNING: \code{readKallisto()} is deprecated. Please use \code{tximeta()}
+  from the \pkg{tximeta} package instead.
+
   \code{readKallisto} inputs several kallisto output files into a single
   \code{SummarizedExperiment} instance, with rows corresponding to
   estimated transcript abundance and columns to
@@ -88,6 +91,7 @@ readKallistoBootstrap(file, i, j)
 }
 
 \examples{
+\dontrun{
 outputs <- system.file(package="SummarizedExperiment", "extdata",
     "kallisto")
 files <- dir(outputs, pattern="abundance.tsv", full=TRUE, recursive=TRUE)
@@ -115,6 +119,7 @@ xx[ridx, cidx]
 
 ## selective input of rows (transcripts) and/or bootstraps
 readKallistoBootstrap(files[1], i=c(ridx, rev(ridx)), j=cidx)
+}
 }
 
 \keyword{file}
