@@ -1,3 +1,26 @@
+CHANGES IN VERSION 1.20.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o SummarizedExperiment now depends on the MatrixGenerics package.
+
+    o DelayedArray was moved from Depends to Imports.
+
+DEPRECATED AND DEFUNCT
+
+    o Deprecated readKallisto().
+
+BUG FIXES
+
+    o Avoid triggering copies of the assays in assays() getter.
+
+    o Fix long-standing bug in dim() method for Assays objects.
+
+    o Fix assays(x) <- SimpleList(). Before that fix this operation was turning
+      SummarizedExperiment object (or derivative) 'x' into an invalid object.
+
+
 CHANGES IN VERSION 1.18.0
 -------------------------
 
