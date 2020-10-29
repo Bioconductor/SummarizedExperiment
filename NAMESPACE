@@ -103,7 +103,8 @@ export(
     colData, "colData<-",
     assayNames, "assayNames<-",
     assays, "assays<-",
-    assay, "assay<-"
+    assay, "assay<-",
+    mergeRows
 )
 
 ### Exactly the same list as above.
