@@ -417,11 +417,11 @@ colData(x, ...) <- value
       \code{colnames(x)}. Any differences in the column names between input
       objects are ignored.
 
-      Data in \code{assays} are combined by name matching. If an input object
-      does not contain a named assay, the corresponding entries of the combined
-      assay will be set to \code{NA}. If all assay names are NULL, matching is
-      done by position. A mixture of named and unnamed assays will throw an
-      error.
+      Data in \code{assays} are combined by matching the names of the assays.
+      If one input object does not contain a named assay present in other input
+      objects, the corresponding assay entries in the returned object will be
+      set to \code{NA}. If all assay names are NULL, matching is done by
+      position. A mixture of named and unnamed assays will throw an error.
 
       If \code{delayed=TRUE}, assay matrices are wrapped in
       \code{\link{DelayedArray}}s to avoid any extra memory allocation during
