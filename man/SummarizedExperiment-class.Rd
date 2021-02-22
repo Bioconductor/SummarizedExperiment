@@ -359,8 +359,8 @@ colData(x, ...) <- value
 
 \section{Combining}{
 
-  In the code snippets below, \code{...} are SummarizedExperiment objects
-  to be combined.
+  In the code snippets below, \code{x}, \code{y} and \code{...} are
+  SummarizedExperiment objects to be combined.
 
   \describe{
 
@@ -391,6 +391,43 @@ colData(x, ...) <- value
       Data in \code{assays} are combined by name matching; if all assay
       names are NULL matching is by position. A mixture of names and NULL
       throws an error.
+
+      \code{metadata} from all objects are combined into a \code{list}
+      with no name checking.
+    }
+
+    \item{\code{combineRows(x, y, ..., use.names=TRUE, delayed=TRUE)}:}{
+      \code{combineRows} acts much like more flexible \code{rbind}, returning a
+      SummarizedExperiment with features equal to the concatenation of features
+      across all input objects. Unlike \code{rbind}, it permits differences in
+      the number and identity of the columns, differences in the available
+      \code{\link{rowData}} fields, and even differences in the available
+      \code{\link{assays}} among the objects being combined.
+
+      If \code{use.names=TRUE}, each input object must have non-\code{NULL},
+      non-duplicated column names. These names do not have to be the same, or
+      even shared, across the input objects. The column names of the returned
+      \code{SummarizedExperiment} will be a union of the column names across
+      all input objects. If a column is not present in an input, the
+      corresponding assay and \code{colData} entries will be filled with
+      \code{NA}s in the combined SummarizedExperiment.
+
+      If \code{use.names=FALSE}, all objects must have the same number of
+      columns. The column names of the returned object is set to
+      \code{colnames(x)}. Any differences in the column names between input
+      objects are ignored.
+
+      Data in \code{assays} are combined by name matching. If an input object
+      does not contain a named assay, the corresponding entries of the combined
+      assay will be set to \code{NA}. If all assay names are NULL, matching is
+      done by position. A mixture of named and unnamed assays will throw an
+      error.
+
+      If \code{delayed=TRUE}, assay matrices are wrapped in
+      \code{\link{DelayedArray}}s to avoid any extra memory allocation during
+      the matrix \code{rbind}ing. Otherwise, the matrices are combined as-is;
+      note that this may still return \code{DelayedMatrix}s if the inputs were
+      also \code{DelayedMatrix} objects.
 
       \code{metadata} from all objects are combined into a \code{list}
       with no name checking.
