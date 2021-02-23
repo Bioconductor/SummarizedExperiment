@@ -32,43 +32,29 @@ setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=T
         mappings <- NULL
     }
 
-    # Assembling the SE.
-    SummarizedExperiment(
-        assays=.unsplit_assays(all.se, mappings, delayed=delayed),
+    args <- list(
+        assays=combine_assays_by_row(all.se, mappings, delayed=delayed),
         colData=com.cd,
-        rowData=com.rd,
         metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
-    )
+    ) 
+    
+    com.rr <- combine_granges_from_se(all.se)
+    if (!is.null(com.rr)) {
+        mcols(com.rr) <- com.rd
+        args$rowRanges <- com.rr
+    } else {
+        args$rowData <- com.rd
+    }
+
+    # Assembling the SE.
+    do.call(SummarizedExperiment, args)
 })
 
-.unsplit_assays <- function(all.se, mappings, delayed) {
+combine_assays_by_row <- function(all.se, mappings, delayed) {
     all.assays <- lapply(all.se, assays, withDimnames=FALSE)
     each.assay.names <- lapply(all.assays, names)
     no.assay.names <- vapply(each.assay.names, is.null, TRUE)
     
-    create_dummy <- function(nr, nc) {
-        if (!delayed) {
-            array(c(nr, nc), data=NA)
-        } else {
-            ConstantArray(c(nr, nc), value=NA)
-        }
-    }
-
-    inflate_existing <- function(mat, i) {
-        if (delayed) {
-            mat <- DelayedArray(mat)
-        }
-        if (!is.null(i)) {
-            absent <- is.na(i)
-            if (any(absent)) {
-                i[absent] <- ncol(mat)+1L
-                mat <- cbind(mat, create_dummy(nrow(mat), 1L))
-            }
-            mat <- mat[,i,drop=FALSE]
-        }
-        mat
-    }
-
     if (any(no.assay.names)) {
         if (!all(no.assay.names)) {
             stop("named and unnamed assays cannot be mixed")
@@ -78,34 +64,27 @@ setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=T
             stop("all SummarizedExperiments should have the same number of unnamed assays")
         }
         for (s in seq_along(all.se)) {
-            cur.assays <- all.assays[[s]]
-            i <- mappings[[s]]
-
-            # Filling in all missing columns.
-            for (a in seq_len(n.assays)) {
-                mat <- inflate_existing(cur.assays[[a]], i)
-                cur.assays[[a]] <- mat
-            }
-            all.assays[[s]] <- cur.assays
+            all.assays[[s]] <- lapply(all.assays[[s]], FUN=inflate_matrix_by_column, 
+                                      j=mappings[[s]], delayed=delayed)
         }
     } else {
         all.assay.names <- Reduce(union, each.assay.names)
         for (s in seq_along(all.se)) {
             cur.se <- all.se[[s]]
             cur.assays <- all.assays[[s]]
-            i <- mappings[[s]]
+            j <- mappings[[s]]
 
             # Filling in all missing assay names and columns.
             for (a in all.assay.names) {
                 if (a %in% names(cur.assays)) {
-                    mat <- inflate_existing(cur.assays[[a]], i)
+                    mat <- inflate_matrix_by_column(cur.assays[[a]], j, delayed=delayed)
                 } else {
-                    if (is.null(i)) {
+                    if (is.null(j)) {
                         nc <- ncol(cur.se)
                     } else {
-                        nc <- length(i)
+                        nc <- length(j)
                     }
-                    mat <- create_dummy(nrow(cur.se), nc)
+                    mat <- create_dummy_matrix(nrow(cur.se), nc, delayed=delayed)
                 }
                 cur.assays[[a]] <- mat
             }
@@ -119,36 +98,51 @@ setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=T
     as(combined, "SimpleList") 
 }
 
-setMethod("combineRows", "RangedSummarizedExperiment", function(x, y, ..., use.names=TRUE, delayed=TRUE) {
-    out <- callNextMethod()
+create_dummy_matrix <- function(nr, nc, delayed) {
+    if (!delayed) {
+        array(c(nr, nc), data=NA)
+    } else {
+        ConstantArray(c(nr, nc), value=NA)
+    }
+}
 
-    all.se <- list(x, y, ...)
-    final.rd <- vector("list", length(all.se))
+inflate_matrix_by_column <- function(mat, j, delayed) {
+    if (delayed) {
+        mat <- DelayedArray(mat)
+    }
+    if (!is.null(j)) {
+        absent <- is.na(j)
+        if (any(absent)) {
+            j[absent] <- ncol(mat)+1L
+            mat <- cbind(mat, create_dummy_matrix(nrow(mat), 1L, delayed))
+        }
+        mat <- mat[,j,drop=FALSE]
+    }
+    mat
+}
+
+combine_granges_from_se <- function(all.se) {
+    has.ranges <- vapply(all.se, is, class2="RangedSummarizedExperiment", FUN.VALUE=TRUE)
+    if (!any(has.ranges)) {
+        return(NULL)
+    }
+
+    as.grl <- !all(has.ranges)
+    final.rr <- vector("list", length(all.se))
     for (s in seq_along(all.se)) {
         cur.se <- all.se[[s]]
-        rr <- rowRanges(cur.se)
-        mcols(rr) <- NULL
-        final.rd[[s]] <- rr
-    }
-
-    # Filling in the empties. We promote everyone to a GRL if any of the
-    # individual entries are GRLs.
-    has.grl <- any(vapply(final.rd, FUN=is, class2="GRangesList", FUN.VALUE=TRUE))
-    for (e in which(vapply(final.rd, is.null, FUN.VALUE=TRUE))) {
-        cur.se <- all.se[[e]]
-        if (has.grl) {
-            empty <- GRangesList(rep(list(GRanges()), nrow(cur.se)))
+        if (is(cur.se, "RangedSummarizedExperiment")) {
+            rr <- rowRanges(cur.se)
+            mcols(rr) <- NULL
+            if (as.grl) {
+                rr <- as(rr, "GRangesList")
+            }
         } else {
-            # TODO: a better convention for missing intervals?
-            empty <- GRanges(rep("unknown:1-0", nrow(cur.se))) 
+            rr <- GRangesList(rep(list(GRanges()), nrow(cur.se)))
+            rownames(rr) <- rownames(cur.se)
         }
-        mcols(empty) <- rowData(cur.se)
-        names(empty) <- rownames(cur.se)
-        final.rd[[e]] <- empty
+        final.rr[[s]] <- rr
     }
 
-    rr <- do.call(c, final.rd)
-    mcols(rr) <- rowData(out)
-    rowRanges(out) <- rr
-    out 
-})
+    do.call(c, final.rr)
+}

@@ -429,6 +429,21 @@ colData(x, ...) <- value
       note that this may still return \code{DelayedMatrix}s if the inputs were
       also \code{DelayedMatrix} objects.
 
+      If any input is a \code{RangedSummarizedExperiment}, the returned object
+      will also be a \code{RangedSummarizedExperiment}. The \code{rowRanges} of
+      the returned object is set to the concatenation of the \code{rowRanges}
+      of all inputs. If any input is a \code{SummarizedExperiment}, the
+      returned \code{rowRanges} is converted into a \code{GRangesList} and the
+      entries corresponding to the rows of the \code{SummarizedExperiment} are
+      set to zero-length \code{GRanges}. If all inputs are
+      \code{SummarizedExperiment} objects, a \code{SummarizedExperiment} is
+      also returned.
+
+      \code{rowData} are combined using \code{\link{combineRows}} for
+      \code{DataFrame} objects. It is not necessary for all input objects to
+      have the same fields in their \code{rowData}; missing fields are filled
+      with \code{NA}s for the corresponding rows in the returned object.
+
       \code{metadata} from all objects are combined into a \code{list}
       with no name checking.
     }

@@ -90,3 +90,28 @@ test_combineRows_assays <- function() {
     checkIdentical(colnames(out), letters[c(1:10, 15:24)])
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
 }
+
+test_combineRows_ranges <- function() {
+    se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
+    se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
+    rownames(se) <- paste0("GENE_", 1:100)
+    rownames(se2) <- paste0("SPIKE_", 1:100)
+
+    out <- combineRows(se, se2, use.names=FALSE)
+    checkIdentical(as.character(class(out)), "SummarizedExperiment")
+    checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
+
+    rowRanges(se) <- GRanges("chrA", IRanges(1, 1:100))
+    rowRanges(se2) <- GRanges("chrB", IRanges(1, 1:100))
+    suppressWarnings(out <- combineRows(se, se2, use.names=FALSE))
+    checkIdentical(rowRanges(out), suppressWarnings(c(rowRanges(se), rowRanges(se2))))
+
+    rowRanges(se2) <- NULL
+    suppressWarnings(out <- combineRows(se, se2, use.names=FALSE))
+    checkTrue(is(rowRanges(out), "GRangesList"))
+    checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
+
+    # Order doesn't matter.
+    suppressWarnings(out <- combineRows(se2, se, use.names=FALSE))
+    checkTrue(is(rowRanges(out), "GRangesList"))
+}
