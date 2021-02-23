@@ -66,6 +66,8 @@
 % Combine
 \alias{rbind,SummarizedExperiment-method}
 \alias{cbind,SummarizedExperiment-method}
+\alias{combineRows}
+\alias{combineRows,SummarizedExperiment-method}
 
 % On-disk realization
 \alias{realize,SummarizedExperiment-method}
@@ -397,7 +399,7 @@ colData(x, ...) <- value
     }
 
     \item{\code{combineRows(x, y, ..., use.names=TRUE, delayed=TRUE)}:}{
-      \code{combineRows} acts much like more flexible \code{rbind}, returning a
+      \code{combineRows} acts like more flexible \code{rbind}, returning a
       SummarizedExperiment with features equal to the concatenation of features
       across all input objects. Unlike \code{rbind}, it permits differences in
       the number and identity of the columns, differences in the available
