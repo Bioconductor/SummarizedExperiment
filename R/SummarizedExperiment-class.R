@@ -13,6 +13,9 @@ setClass("SummarizedExperiment",
         assays="Assays_OR_NULL",        # Data -- e.g., list of matrices
         NAMES="character_OR_NULL",
         elementMetadata="DataFrame"
+    ),
+    prototype(
+        elementMetadata=new("DFrame")
     )
 )
 
