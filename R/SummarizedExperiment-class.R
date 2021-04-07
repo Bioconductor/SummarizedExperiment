@@ -15,6 +15,7 @@ setClass("SummarizedExperiment",
         elementMetadata="DataFrame"
     ),
     prototype(
+        colData=new("DFrame"),
         elementMetadata=new("DFrame")
     )
 )
