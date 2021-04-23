@@ -67,7 +67,9 @@
 \alias{rbind,SummarizedExperiment-method}
 \alias{cbind,SummarizedExperiment-method}
 \alias{combineRows}
-\alias{combineRows,SummarizedExperiment-method}
+\alias{combineRows,SummarizedExperiment,SummarizedExperiment-method}
+\alias{combineRows,SummarizedExperiment,missing-method}
+\alias{combineRows,missing,SummarizedExperiment-method}
 
 % On-disk realization
 \alias{realize,SummarizedExperiment-method}
