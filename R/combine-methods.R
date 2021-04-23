@@ -1,7 +1,7 @@
 # Contains methods for combineRows and combineCols. These serve as more
 # fault-tolerant relaxed counterparts to rbind and cbind, respectively.
 
-setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=TRUE, delayed=TRUE) {
+setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=TRUE, delayed=TRUE, fill=NA) {
     all.se <- list(x, y, ...)
 
     # Combining the rowData.
@@ -16,13 +16,13 @@ setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=T
     # SE to the columns of the final object.
     all.cd <- lapply(all.se, colData)
     tryCatch({
-        com.cd <- do.call(combineCols, c(all.cd, list(use.names=use.names)))
+        com.cd <- do.call(combineUniqueCols, c(all.cd, list(use.names=use.names)))
     }, error=function(e) {
         stop(paste0("failed to combine colData of SummarizedExperiment objects:\n  ", conditionMessage(e)))
     })
 
     if (use.names) {
-        # If combineCols succeeded, all SE's should have valid row names.
+        # If combineUniqueCols succeeded, all SE's should have valid column names.
         all.names <- rownames(com.cd)
         mappings <- vector("list", length(all.se))
         for (i in seq_along(mappings)) {
@@ -33,7 +33,7 @@ setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=T
     }
 
     args <- list(
-        assays=combine_assays_by_row(all.se, mappings, delayed=delayed),
+        assays=combine_assays_by_row(all.se, mappings, delayed=delayed, fill=fill),
         colData=com.cd,
         metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
     ) 
@@ -50,7 +50,7 @@ setMethod("combineRows", "SummarizedExperiment", function(x, y, ..., use.names=T
     do.call(SummarizedExperiment, args)
 })
 
-combine_assays_by_row <- function(all.se, mappings, delayed) {
+combine_assays_by_row <- function(all.se, mappings, delayed, fill) {
     all.assays <- lapply(all.se, assays, withDimnames=FALSE)
     each.assay.names <- lapply(all.assays, names)
     no.assay.names <- vapply(each.assay.names, is.null, TRUE)
@@ -65,7 +65,7 @@ combine_assays_by_row <- function(all.se, mappings, delayed) {
         }
         for (s in seq_along(all.se)) {
             all.assays[[s]] <- lapply(all.assays[[s]], FUN=inflate_matrix_by_column, 
-                                      j=mappings[[s]], delayed=delayed)
+                                      j=mappings[[s]], delayed=delayed, fill=fill)
         }
     } else {
         all.assay.names <- Reduce(union, each.assay.names)
@@ -77,14 +77,14 @@ combine_assays_by_row <- function(all.se, mappings, delayed) {
             # Filling in all missing assay names and columns.
             for (a in all.assay.names) {
                 if (a %in% names(cur.assays)) {
-                    mat <- inflate_matrix_by_column(cur.assays[[a]], j, delayed=delayed)
+                    mat <- inflate_matrix_by_column(cur.assays[[a]], j, delayed=delayed, fill=fill)
                 } else {
                     if (is.null(j)) {
                         nc <- ncol(cur.se)
                     } else {
                         nc <- length(j)
                     }
-                    mat <- create_dummy_matrix(nrow(cur.se), nc, delayed=delayed)
+                    mat <- create_dummy_matrix(nrow(cur.se), nc, delayed=delayed, fill=fill)
                 }
                 cur.assays[[a]] <- mat
             }
@@ -98,15 +98,15 @@ combine_assays_by_row <- function(all.se, mappings, delayed) {
     as(combined, "SimpleList") 
 }
 
-create_dummy_matrix <- function(nr, nc, delayed) {
+create_dummy_matrix <- function(nr, nc, delayed, fill) {
     if (!delayed) {
-        array(c(nr, nc), data=NA)
+        array(c(nr, nc), data=fill)
     } else {
-        ConstantArray(c(nr, nc), value=NA)
+        ConstantArray(c(nr, nc), value=fill)
     }
 }
 
-inflate_matrix_by_column <- function(mat, j, delayed) {
+inflate_matrix_by_column <- function(mat, j, delayed, fill) {
     if (delayed) {
         mat <- DelayedArray(mat)
     }
@@ -114,7 +114,7 @@ inflate_matrix_by_column <- function(mat, j, delayed) {
         absent <- is.na(j)
         if (any(absent)) {
             j[absent] <- ncol(mat)+1L
-            mat <- cbind(mat, create_dummy_matrix(nrow(mat), 1L, delayed))
+            mat <- cbind(mat, create_dummy_matrix(nrow(mat), 1L, delayed, fill))
         }
         mat <- mat[,j,drop=FALSE]
     }

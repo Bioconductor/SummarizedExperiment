@@ -77,7 +77,7 @@ test_combineRows_assays <- function() {
     rownames(se) <- paste0("GENE_", 1:100)
     rownames(se2) <- paste0("SPIKE_", 1:100)
 
-    # This should fail due to differences in the number of assays.
+    # This should fail due to differences in the number of _unnamed_ assays.
     checkException(combineRows(se, se2), silent=TRUE)
 
     # Either all assays are named, or all are unnamed.

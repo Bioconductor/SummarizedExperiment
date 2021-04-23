@@ -398,7 +398,7 @@ colData(x, ...) <- value
       with no name checking.
     }
 
-    \item{\code{combineRows(x, y, ..., use.names=TRUE, delayed=TRUE)}:}{
+    \item{\code{combineRows(x, y, ..., use.names=TRUE, delayed=TRUE, fill=NA)}:}{
       \code{combineRows} acts like more flexible \code{rbind}, returning a
       SummarizedExperiment with features equal to the concatenation of features
       across all input objects. Unlike \code{rbind}, it permits differences in
@@ -412,7 +412,8 @@ colData(x, ...) <- value
       \code{SummarizedExperiment} will be a union of the column names across
       all input objects. If a column is not present in an input, the
       corresponding assay and \code{colData} entries will be filled with
-      \code{NA}s in the combined SummarizedExperiment.
+      \code{fill} and \code{NA}s, respectively, in the combined
+      SummarizedExperiment.
 
       If \code{use.names=FALSE}, all objects must have the same number of
       columns. The column names of the returned object is set to
@@ -422,7 +423,7 @@ colData(x, ...) <- value
       Data in \code{assays} are combined by matching the names of the assays.
       If one input object does not contain a named assay present in other input
       objects, the corresponding assay entries in the returned object will be
-      set to \code{NA}. If all assay names are NULL, matching is done by
+      set to \code{fill}. If all assay names are NULL, matching is done by
       position. A mixture of named and unnamed assays will throw an error.
 
       If \code{delayed=TRUE}, assay matrices are wrapped in
