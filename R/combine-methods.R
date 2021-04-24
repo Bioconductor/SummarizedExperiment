@@ -1,22 +1,9 @@
 # Contains methods for combineRows and combineCols. These serve as more
 # fault-tolerant relaxed counterparts to rbind and cbind, respectively.
 
-setMethod("combineRows", c("SummarizedExperiment", "SummarizedExperiment"), function(x, y, ..., use.names=TRUE, delayed=TRUE, fill=NA) {
-    all.se <- list(x, y, ...)
-    .combine_rows_se(all.se, use.names=use.names, delayed=delayed, fill=fill)
-}) 
-
-setMethod("combineRows", c("missing", "SummarizedExperiment"), function(x, y, ..., use.names=TRUE, delayed=TRUE, fill=NA) {
-    all.se <- list(y, ...)
-    .combine_rows_se(all.se, use.names=use.names, delayed=delayed, fill=fill)
-}) 
-
-setMethod("combineRows", c("SummarizedExperiment", "missing"), function(x, y, ..., use.names=TRUE, delayed=TRUE, fill=NA) {
+setMethod("combineRows", "SummarizedExperiment", function(x, ..., use.names=TRUE, delayed=TRUE, fill=NA) {
     all.se <- list(x, ...)
-    .combine_rows_se(all.se, use.names=use.names, delayed=delayed, fill=fill)
-}) 
 
-.combine_rows_se <- function(all.se, use.names, delayed, fill) {
     # Combining the rowData.
     all.rd <- lapply(all.se, rowData) 
     tryCatch({
@@ -61,7 +48,7 @@ setMethod("combineRows", c("SummarizedExperiment", "missing"), function(x, y, ..
 
     # Assembling the SE.
     do.call(SummarizedExperiment, args)
-}
+})
 
 combine_assays_by_row <- function(all.se, mappings, delayed, fill) {
     all.assays <- lapply(all.se, assays, withDimnames=FALSE)

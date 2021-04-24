@@ -67,9 +67,7 @@
 \alias{rbind,SummarizedExperiment-method}
 \alias{cbind,SummarizedExperiment-method}
 \alias{combineRows}
-\alias{combineRows,SummarizedExperiment,SummarizedExperiment-method}
-\alias{combineRows,SummarizedExperiment,missing-method}
-\alias{combineRows,missing,SummarizedExperiment-method}
+\alias{combineRows,SummarizedExperiment-method}
 
 % On-disk realization
 \alias{realize,SummarizedExperiment-method}
@@ -400,7 +398,7 @@ colData(x, ...) <- value
       with no name checking.
     }
 
-    \item{\code{combineRows(x, y, ..., use.names=TRUE, delayed=TRUE, fill=NA)}:}{
+    \item{\code{combineRows(x, ..., use.names=TRUE, delayed=TRUE, fill=NA)}:}{
       \code{combineRows} acts like more flexible \code{rbind}, returning a
       SummarizedExperiment with features equal to the concatenation of features
       across all input objects. Unlike \code{rbind}, it permits differences in

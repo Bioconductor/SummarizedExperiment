@@ -23,8 +23,7 @@ test_combineRows_unnamed <- function() {
     checkIdentical(as.matrix(assay(stuff, 2)), rbind(matrix(NA, nrow(se), ncol(se)), assay(se2, 2)))
 
     # Unary methods work as expected.
-    checkIdentical(se, combineRows(x=se, delayed=FALSE, use.names=FALSE))
-    checkIdentical(se, combineRows(y=se, delayed=FALSE, use.names=FALSE))
+    checkIdentical(se, combineRows(se, delayed=FALSE, use.names=FALSE))
 }
 
 test_combineRows_named <- function() {
@@ -71,8 +70,7 @@ test_combineRows_named <- function() {
     checkIdentical(mat, ref)
 
     # Unary methods work as expected.
-    checkIdentical(se, combineRows(x=se, delayed=FALSE))
-    checkIdentical(se, combineRows(y=se, delayed=FALSE))
+    checkIdentical(se, combineRows(se, delayed=FALSE))
 }
 
 test_combineRows_assays <- function() {
