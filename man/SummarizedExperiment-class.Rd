@@ -499,10 +499,10 @@ colData(x, ...) <- value
       \code{GRanges}. If all inputs are \code{SummarizedExperiment} objects, a
       \code{SummarizedExperiment} is also returned.
 
-      \code{colData} are combined using \code{\link{combineCols}} for
+      \code{colData} are combined using \code{\link{combineRows}} for
       \code{DataFrame} objects. It is not necessary for all input objects to
-      have the same fields in their \code{rowData}; missing fields are filled
-      with \code{NA}s for the corresponding rows in the returned object.
+      have the same fields in their \code{colData}; missing fields are filled
+      with \code{NA}s for the corresponding columns in the returned object.
 
       \code{metadata} from all objects are combined into a \code{list}
       with no name checking.
