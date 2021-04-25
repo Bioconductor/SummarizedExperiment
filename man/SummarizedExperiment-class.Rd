@@ -68,6 +68,8 @@
 \alias{cbind,SummarizedExperiment-method}
 \alias{combineRows}
 \alias{combineRows,SummarizedExperiment-method}
+\alias{combineCols}
+\alias{combineCols,SummarizedExperiment-method}
 
 % On-disk realization
 \alias{realize,SummarizedExperiment-method}
@@ -451,6 +453,60 @@ colData(x, ...) <- value
       with no name checking.
     }
 
+    \item{\code{combineCols(x, ..., use.names=TRUE, delayed=TRUE, fill=NA)}:}{
+      \code{combineCols} acts like more flexible \code{cbind}, returning a
+      SummarizedExperiment with columns equal to the concatenation of columns 
+      across all input objects. Unlike \code{cbind}, it permits differences in
+      the number and identity of the rows, differences in the available
+      \code{\link{colData}} fields, and even differences in the available
+      \code{\link{assays}} among the objects being combined.
+
+      If \code{use.names=TRUE}, each input object must have non-\code{NULL},
+      non-duplicated row names. These names do not have to be the same, or
+      even shared, across the input objects. The row names of the returned
+      \code{SummarizedExperiment} will be a union of the row names across
+      all input objects. If a row is not present in an input, the
+      corresponding assay and \code{rowData} entries will be filled with
+      \code{fill} and \code{NA}s, respectively, in the combined
+      SummarizedExperiment.
+
+      If \code{use.names=FALSE}, all objects must have the same number of rows.
+      The row names of the returned object is set to \code{rownames(x)}. Any
+      differences in the row names between input objects are ignored.
+
+      Data in \code{assays} are combined by matching the names of the assays.
+      If one input object does not contain a named assay present in other input
+      objects, the corresponding assay entries in the returned object will be
+      set to \code{fill}. If all assay names are NULL, matching is done by
+      position. A mixture of named and unnamed assays will throw an error.
+
+      If \code{delayed=TRUE}, assay matrices are wrapped in
+      \code{\link{DelayedArray}}s to avoid any extra memory allocation during
+      the matrix \code{rbind}ing. Otherwise, the matrices are combined as-is;
+      note that this may still return \code{DelayedMatrix}s if the inputs were
+      also \code{DelayedMatrix} objects.
+
+      If any input is a \code{RangedSummarizedExperiment}, the returned object
+      will also be a \code{RangedSummarizedExperiment}. The \code{rowRanges} of
+      the returned object is set to a merge of the \code{rowRanges} of all
+      inputs, where the coordinates for each row are taken from the input
+      object that contains that row. Any conflicting ranges for shared rows
+      will raise a warning and all \code{rowRanges} information from the
+      offending \code{RangedSummarizedExperiment} will be ignored. If any
+      input is a \code{SummarizedExperiment}, the returned \code{rowRanges} is
+      converted into a \code{GRangesList} and the entries corresponding to the
+      unique rows of the \code{SummarizedExperiment} are set to zero-length
+      \code{GRanges}. If all inputs are \code{SummarizedExperiment} objects, a
+      \code{SummarizedExperiment} is also returned.
+
+      \code{colData} are combined using \code{\link{combineCols}} for
+      \code{DataFrame} objects. It is not necessary for all input objects to
+      have the same fields in their \code{rowData}; missing fields are filled
+      with \code{NA}s for the corresponding rows in the returned object.
+
+      \code{metadata} from all objects are combined into a \code{list}
+      with no name checking.
+    }
   }
 
 }

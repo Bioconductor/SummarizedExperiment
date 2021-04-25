@@ -1,7 +1,7 @@
 # Contains methods for combineRows and combineCols. These serve as more
 # fault-tolerant relaxed counterparts to rbind and cbind, respectively.
 
-setMethod("combineRows", "SummarizedExperiment", function(x, ..., use.names=TRUE, delayed=TRUE, fill=NA) {
+setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, fill=NA, use.names=TRUE) {
     all.se <- list(x, ...)
 
     # Combining the rowData.
@@ -33,13 +33,14 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., use.names=TRUE
     }
 
     args <- list(
-        assays=combine_assays_by_row(all.se, mappings, delayed=delayed, fill=fill),
+        assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=TRUE),
         colData=com.cd,
         metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
     ) 
-    
-    com.rr <- combine_granges_from_se(all.se)
-    if (!is.null(com.rr)) {
+
+    extracted <- extract_granges_from_se(all.se)
+    if (!is.null(extracted)) {
+        com.rr <- do.call(c, extracted$ranges)
         mcols(com.rr) <- com.rd
         args$rowRanges <- com.rr
     } else {
@@ -50,11 +51,17 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., use.names=TRUE
     do.call(SummarizedExperiment, args)
 })
 
-combine_assays_by_row <- function(all.se, mappings, delayed, fill) {
+combine_assays_by <- function(all.se, mappings, delayed, fill, by.row) {
     all.assays <- lapply(all.se, assays, withDimnames=FALSE)
     each.assay.names <- lapply(all.assays, names)
     no.assay.names <- vapply(each.assay.names, is.null, TRUE)
-    
+
+    if (by.row) { 
+        INFLATE <- inflate_matrix_by_column
+    } else {
+        INFLATE <- inflate_matrix_by_row
+    }
+
     if (any(no.assay.names)) {
         if (!all(no.assay.names)) {
             stop("named and unnamed assays cannot be mixed")
@@ -63,28 +70,33 @@ combine_assays_by_row <- function(all.se, mappings, delayed, fill) {
         if (length(n.assays)!=1L) {
             stop("all SummarizedExperiments should have the same number of unnamed assays")
         }
+
         for (s in seq_along(all.se)) {
-            all.assays[[s]] <- lapply(all.assays[[s]], FUN=inflate_matrix_by_column, 
-                                      j=mappings[[s]], delayed=delayed, fill=fill)
+            all.assays[[s]] <- lapply(all.assays[[s]], FUN=INFLATE,
+                                      idx=mappings[[s]], delayed=delayed, fill=fill)
         }
     } else {
         all.assay.names <- Reduce(union, each.assay.names)
         for (s in seq_along(all.se)) {
             cur.se <- all.se[[s]]
             cur.assays <- all.assays[[s]]
-            j <- mappings[[s]]
+            idx <- mappings[[s]]
 
             # Filling in all missing assay names and columns.
             for (a in all.assay.names) {
                 if (a %in% names(cur.assays)) {
-                    mat <- inflate_matrix_by_column(cur.assays[[a]], j, delayed=delayed, fill=fill)
+                    mat <- INFLATE(cur.assays[[a]], idx, delayed=delayed, fill=fill)
                 } else {
-                    if (is.null(j)) {
-                        nc <- ncol(cur.se)
-                    } else {
-                        nc <- length(j)
+                    nr <- nrow(cur.se)
+                    nc <- ncol(cur.se)
+                    if (!is.null(idx)) {
+                        if (by.row) {
+                            nc <- length(idx)
+                        } else {
+                            nr <- length(idx)
+                        }
                     }
-                    mat <- create_dummy_matrix(nrow(cur.se), nc, delayed=delayed, fill=fill)
+                    mat <- create_dummy_matrix(nr, nc, delayed=delayed, fill=fill)
                 }
                 cur.assays[[a]] <- mat
             }
@@ -92,9 +104,14 @@ combine_assays_by_row <- function(all.se, mappings, delayed, fill) {
         }
     }
 
-    # Re-use assay rbind'ing machinery.
+    # Re-use assay r/cbind'ing machinery.
     all.assays <- lapply(all.assays, Assays)
-    combined <- do.call(rbind, all.assays)
+    if (by.row) {
+        combined <- do.call(rbind, all.assays)
+    } else {
+        combined <- do.call(cbind, all.assays)
+    }
+
     as(combined, "SimpleList") 
 }
 
@@ -106,43 +123,168 @@ create_dummy_matrix <- function(nr, nc, delayed, fill) {
     }
 }
 
-inflate_matrix_by_column <- function(mat, j, delayed, fill) {
+inflate_matrix_by_column <- function(mat, idx, delayed, fill) {
     if (delayed) {
         mat <- DelayedArray(mat)
     }
-    if (!is.null(j)) {
-        absent <- is.na(j)
+    if (!is.null(idx)) {
+        absent <- is.na(idx)
         if (any(absent)) {
-            j[absent] <- ncol(mat)+1L
+            idx[absent] <- ncol(mat)+1L
             mat <- cbind(mat, create_dummy_matrix(nrow(mat), 1L, delayed, fill))
         }
-        mat <- mat[,j,drop=FALSE]
+        mat <- mat[,idx,drop=FALSE]
     }
     mat
 }
 
-combine_granges_from_se <- function(all.se) {
+inflate_matrix_by_row <- function(mat, idx, delayed, fill) {
+    if (delayed) {
+        mat <- DelayedArray(mat)
+    }
+    if (!is.null(idx)) {
+        absent <- is.na(idx)
+        if (any(absent)) {
+            idx[absent] <- nrow(mat)+1L
+            mat <- rbind(mat, create_dummy_matrix(1L, ncol(mat), delayed, fill))
+        }
+        mat <- mat[idx,,drop=FALSE]
+    }
+    mat
+}
+
+extract_granges_from_se <- function(all.se) {
     has.ranges <- vapply(all.se, is, class2="RangedSummarizedExperiment", FUN.VALUE=TRUE)
     if (!any(has.ranges)) {
         return(NULL)
     }
 
-    as.grl <- !all(has.ranges)
     final.rr <- vector("list", length(all.se))
     for (s in seq_along(all.se)) {
         cur.se <- all.se[[s]]
         if (is(cur.se, "RangedSummarizedExperiment")) {
             rr <- rowRanges(cur.se)
             mcols(rr) <- NULL
-            if (as.grl) {
-                rr <- as(rr, "GRangesList")
-            }
+            names(rr) <- rownames(cur.se)
         } else {
-            rr <- GRangesList(rep(list(GRanges()), nrow(cur.se)))
-            rownames(rr) <- rownames(cur.se)
+            levels <- rownames(cur.se)
+            if (is.null(levels)) {
+                levels <- seq_len(nrow(cur.se))
+            }
+            rr <- splitAsList(GRanges(), factor(character(0), levels))
+            if (is.null(rownames(cur.se))) {
+                names(rr) <- NULL
+            }
         }
         final.rr[[s]] <- rr
     }
 
-    do.call(c, final.rr)
+    # Coercing everyone to a GRL if anyone is a GRL.
+    is.grl <- vapply(final.rr, function(x) is(x, "GRangesList"), TRUE)
+    if (any(is.grl)) {
+        final.rr <- lapply(final.rr, function(x) as(x, "GRangesList"))
+    }
+
+    list(present=has.ranges, ranges=final.rr)
+}
+
+setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, fill=NA, use.names=TRUE) {
+    all.se <- list(x, ...)
+
+    # Combining the rowData. This constructs mappings of the rows for each
+    # SE to the columns of the final object.
+    all.rd <- lapply(all.se, rowData)
+    tryCatch({
+        com.rd <- do.call(combineUniqueCols, c(all.rd, list(use.names=use.names)))
+    }, error=function(e) {
+        stop(paste0("failed to combine rowData of SummarizedExperiment objects:\n  ", conditionMessage(e)))
+    })
+
+    # Combining the colData.
+    all.cd <- lapply(all.se, colData) 
+    tryCatch({
+        com.cd <- do.call(combineRows, all.cd)
+    }, error=function(e) {
+        stop(paste0("failed to combine colData of SummarizedExperiment objects:\n  ", conditionMessage(e)))
+    })
+
+    if (use.names) {
+        # If combineUniqueCols succeeded for the rowData, all SE's should have valid row names.
+        all.names <- rownames(com.rd)
+        mappings <- vector("list", length(all.se))
+        for (i in seq_along(mappings)) {
+            mappings[[i]] <- match(all.names, rownames(all.rd[[i]]))
+        }
+    } else {
+        mappings <- NULL
+    }
+
+    args <- list(
+        assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=FALSE),
+        colData=com.cd,
+        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
+    ) 
+
+    com.rr <- merge_granges_from_se(all.se, mappings)
+    if (!is.null(com.rr)) {
+        mcols(com.rr) <- com.rd
+        names(com.rr) <- rownames(com.rd)
+        args$rowRanges <- com.rr
+    } else {
+        args$rowData <- com.rd
+    }
+
+    # Assembling the SE.
+    do.call(SummarizedExperiment, args)
+})
+
+merge_granges_from_se <- function(all.se, mappings) {
+    extracted <- extract_granges_from_se(all.se)
+    if (is.null(extracted)) {
+        return(NULL)
+    }
+
+    if (!is.null(mappings)) {
+        # We concatenate everything to automatically merge the seqinfo. 
+        temp.rr <- do.call(c, extracted$ranges)
+        names(temp.rr) <- NULL
+        nentries <- lengths(extracted$ranges)
+        starts <- cumsum(c(0L, nentries))
+
+        # We then take the top set to use as a container for the filling process.
+        com.rr <- temp.rr[seq_along(mappings[[1]])]
+        filled <- logical(length(com.rr))
+
+        for (i in which(extracted$present)) {
+            idx <- mappings[[i]]
+            candidates <- temp.rr[starts[i] + seq_len(nentries[i])]
+
+            available <- which(!is.na(idx))
+            new.rr <- candidates[idx[available]]
+            old.rr <- com.rr[available]
+
+            existing <- filled[available]
+            if (!identical(new.rr[existing], old.rr[existing])) {
+                warning(wmsg("different 'rowRanges' for shared rows across SummarizedExperiment objects, ",
+                             "ignoring 'rowRanges' for ", class(all.se[[i]])[1], " ", i))
+                next
+            }
+
+            com.rr[available[!existing]] <- new.rr[!existing]
+            filled[available[!existing]] <- TRUE
+        }
+
+        if (!all(filled)) {
+            com.rr[!filled] <- GRangesList(GRanges())
+        }
+    } else {
+        useful.rr <- extracted$ranges[extracted$present]
+        if (length(unique(useful.rr)) > 1) {
+            warning(wmsg("'rowRanges' are not identical across input objects, ",
+                          "using 'rowRanges' from the first object only"))
+        }
+        com.rr <- useful.rr[[1]]
+    }
+
+    com.rr
 }
