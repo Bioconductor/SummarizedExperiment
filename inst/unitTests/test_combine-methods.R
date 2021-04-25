@@ -97,16 +97,67 @@ test_combineRows_assays <- function() {
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
 }
 
-test_combineRows_ranges <- function() {
+test_combineRows_ranges_named <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     rownames(se) <- paste0("GENE_", 1:100)
     rownames(se2) <- paste0("SPIKE_", 1:100)
 
+    # Returns a vanilla SE.
     out <- combineRows(se, se2, use.names=FALSE)
     checkIdentical(as.character(class(out)), "SummarizedExperiment")
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
 
+    # Returns a GRanges.
+    replace <- GRanges("chrA", IRanges(1, 1:100))
+    names(replace) <- rownames(se)
+    rowRanges(se) <- replace
+
+    replace2 <- GRanges("chrB", IRanges(1, 1:100))
+    names(replace2) <- rownames(se2)
+    rowRanges(se2) <- replace2
+
+    suppressWarnings(out <- combineRows(se, se2, use.names=FALSE))
+    checkIdentical(rowRanges(out), suppressWarnings(c(replace, replace2)))
+
+    # Testing different objects.
+    se3 <- se2
+    rowRanges(se3) <- NULL
+    rownames(se3) <- rownames(se2)
+    suppressWarnings(out <- combineRows(se, se3, use.names=FALSE))
+    checkTrue(is(rowRanges(out), "GRangesList"))
+    checkIdentical(unname(lengths(rowRanges(out))), rep(c(1L, 0L), c(nrow(se), nrow(se3))))
+
+    se4 <- se2
+    rowRanges(se4) <- as(rowRanges(se4), "GRangesList")
+    suppressWarnings(out <- combineRows(se, se4, use.names=FALSE))
+    expected <- suppressWarnings(as(c(replace, replace2), "GRangesList"))
+    checkIdentical(rowRanges(out), expected)
+
+    # Order doesn't affect conversion to GRL.
+    suppressWarnings(out <- combineRows(se4, se, use.names=FALSE))
+    expected <- suppressWarnings(as(c(replace2, replace), "GRangesList"))
+    checkIdentical(rowRanges(out), expected)
+
+    suppressWarnings(combined <- rowRanges(combineRows(se, se3, se4, use.names=FALSE)))
+    checkIdentical(unname(lengths(combined)), rep(c(1L, 0L, 1L), c(nrow(se), nrow(se3), nrow(se4))))
+    suppressWarnings(combined <- rowRanges(combineRows(se3, se, se4, use.names=FALSE)))
+    checkIdentical(unname(lengths(combined)), rep(c(0L, 1L, 1L), c(nrow(se3), nrow(se), nrow(se4))))
+}
+
+test_combineRows_ranges_unnamed <- function() {
+    # Repeating the same suite of tests for SEs without rownames.
+    # This checks the correctness of some edge-case behaviors.
+
+    se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
+    se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
+
+    # Returns a vanilla SE.
+    out <- combineRows(se, se2, use.names=FALSE)
+    checkIdentical(as.character(class(out)), "SummarizedExperiment")
+    checkIdentical(nrow(out), nrow(se) + nrow(se2))
+
+    # Returns a GRanges.
     rowRanges(se) <- GRanges("chrA", IRanges(1, 1:100))
     rowRanges(se2) <- GRanges("chrB", IRanges(1, 1:100))
     suppressWarnings(out <- combineRows(se, se2, use.names=FALSE))
@@ -117,22 +168,21 @@ test_combineRows_ranges <- function() {
     rowRanges(se3) <- NULL
     suppressWarnings(out <- combineRows(se, se3, use.names=FALSE))
     checkTrue(is(rowRanges(out), "GRangesList"))
-    checkIdentical(rownames(out), c(rownames(se), rownames(se3)))
+    checkIdentical(unname(lengths(rowRanges(out))), rep(c(1L, 0L), c(nrow(se), nrow(se3))))
 
     se4 <- se2
     rowRanges(se4) <- as(rowRanges(se4), "GRangesList")
     suppressWarnings(out <- combineRows(se, se4, use.names=FALSE))
-    checkTrue(is(rowRanges(out), "GRangesList"))
-    checkIdentical(unname(lengths(rowRanges(out))), rep(1L, 200))
-
-    # Order doesn't affect conversion to GRL.
-    suppressWarnings(out <- combineRows(se3, se, use.names=FALSE))
-    checkTrue(is(rowRanges(out), "GRangesList"))
+    expected <- suppressWarnings(as(c(rowRanges(se), rowRanges(se2)), "GRangesList"))
+    checkIdentical(rowRanges(out), expected)
 
     suppressWarnings(combined <- rowRanges(combineRows(se, se3, se4, use.names=FALSE)))
     checkIdentical(unname(lengths(combined)), rep(c(1L, 0L, 1L), c(nrow(se), nrow(se3), nrow(se4))))
-    suppressWarnings(combined <- rowRanges(combineRows(se3, se, se4, use.names=FALSE)))
-    checkIdentical(unname(lengths(combined)), rep(c(0L, 1L, 1L), c(nrow(se3), nrow(se), nrow(se4))))
+
+    # Handles partial row names.
+    rownames(se) <- paste0("GENE_", 1:100)
+    suppressWarnings(out <- combineRows(se, se2, use.names=FALSE))
+    checkIdentical(rownames(out), c(rownames(se), character(nrow(se2))))
 }
 
 test_combineCols_unnamed <- function() {
@@ -236,7 +286,7 @@ test_combineCols_assays <- function() {
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
 }
 
-test_combineCols_ranges <- function() {
+test_combineCols_ranges_named <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     rownames(se) <- paste0("GENE_", 1:100)
@@ -252,42 +302,94 @@ test_combineCols_ranges <- function() {
     checkIdentical(rownames(out), union(rownames(se), rownames(se2))) 
 
     # Checking that an RSE is returned.
-    seqinfo <- Seqinfo(seqlengths=c(chrA=1000))
-    rowRanges(se) <- GRanges("chrA", IRanges(1, 1:100), seqinfo=seqinfo)
-    rowRanges(se2) <- GRanges("chrA", IRanges(1, 21:120), seqinfo=seqinfo)
+    ref <- GRanges("chrA", IRanges(1, 1:120), seqinfo=Seqinfo(seqlengths=c(chrA=1000)))
+    names(ref) <- paste0("GENE_", 1:120)
+    rowRanges(se) <- ref[1:100]
+    rowRanges(se2) <- ref[21:120]
 
     suppressWarnings(out <- combineCols(se, se2, use.names=FALSE)) # should have a warning here due to differences in values.
     checkIdentical(as.character(class(out)), "RangedSummarizedExperiment")
     checkIdentical(rowRanges(out), rowRanges(se)) 
 
-    rownames(se) <- paste0("GENE_", 1:100) # adding back the names.
-    rownames(se2) <- paste0("GENE_", 21:120)
     out <- combineCols(se, se2)
-    ref <- GRanges("chrA", IRanges(1, 1:120), seqinfo=seqinfo)
-    names(ref) <- paste0("GENE_", 1:120)
     checkIdentical(rowRanges(out), ref)
 
-    # Checking that mixtures of objects work.
+    # Checking that it works with mixtures of object classes in rowRanges.
     se3 <- se2
     rowRanges(se3) <- NULL
-    rownames(se3) <- paste0("GENE_", 21:120)
+    rownames(se3) <- rownames(se2)
 
     out <- combineCols(se, se3)
     checkTrue(is(rowRanges(out), "GRangesList"))
     checkIdentical(rownames(out), paste0("GENE_", 1:120)) 
     checkIdentical(unname(lengths(rowRanges(out))), rep(1:0, c(100, 20))) 
 
-    suppressWarnings(out <- combineCols(se3, se, use.names=FALSE)) # flipping the order.
-    checkTrue(is(rowRanges(out), "GRangesList"))
+    out2 <- combineCols(se3, se) # flipping the order.
+    checkIdentical(rownames(out2), paste0("GENE_", c(21:120, 1:20)))
+    checkIdentical(unname(lengths(rowRanges(out2))), rep(c(1L,0L,1L), c(80, 20, 20)))
 
-    se4 <- tail(se2, 20)
+    out3 <- combineCols(se, se2, se3) 
+    checkIdentical(rowRanges(out3), ref) # avoid unnecessary conversion to a GRL.
+
+    se4 <- se2
     rowRanges(se4) <- as(rowRanges(se4), "GRangesList")
     out <- combineCols(se, se4)
-    checkTrue(is(rowRanges(out), "GRangesList"))
-    checkIdentical(rownames(out), paste0("GENE_", 1:120)) 
-    checkIdentical(unname(lengths(rowRanges(out))), rep(1L, 120))
+    checkIdentical(rowRanges(out), as(ref, "GRangesList"))
 
+    # Checking that we get the same object class, regardless of ordering of inputs.
     checkIdentical(rowRanges(out), rowRanges(combineCols(se, se3, se4)))
-    checkIdentical(rowRanges(out), rowRanges(combineCols(se3, se, se4))[rownames(out)]) # ignoring the ordering for this check.
+    checkIdentical(rowRanges(out), rowRanges(combineCols(se3, se, se4))[rownames(out)]) 
     checkIdentical(rowRanges(out), rowRanges(combineCols(se3, se4, se))[rownames(out)])
+
+    # Handles conflicting features correctly.
+    se5 <- se2
+    strand(rowRanges(se5)[1]) <- "+"
+    suppressWarnings(out <- combineCols(se, se5)) # this should emit a warning.
+    checkTrue(is(rowRanges(out), "GRangesList"))
+    checkIdentical(unname(lengths(rowRanges(out))), rep(1:0, c(100, 20))) 
+}
+
+test_combineCols_ranges_unnamed <- function() {
+    # Repeating the same suite of tests for SEs without rownames.
+    # This checks the correctness of some edge-case behaviors.
+
+    se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
+    se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
+
+    # Checking that an SE is returned.
+    out <- combineCols(se, se2, use.names=FALSE)
+    checkIdentical(as.character(class(out)), "SummarizedExperiment")
+    checkIdentical(nrow(out), nrow(se)) 
+    checkException(combineCols(se, se2), silent=TRUE)
+
+    # Checking that an RSE is returned.
+    ref <- GRanges("chrA", IRanges(1, 1:120), seqinfo=Seqinfo(seqlengths=c(chrA=1000)))
+    rowRanges(se) <- ref[1:100]
+    rowRanges(se2) <- ref[21:120]
+
+    suppressWarnings(out <- combineCols(se, se2, use.names=FALSE)) # should have a warning here due to differences in values.
+    checkIdentical(as.character(class(out)), "RangedSummarizedExperiment")
+    checkIdentical(rowRanges(out), rowRanges(se)) 
+
+    # Checking that mixtures of objects work.
+    se3 <- se2
+    rowRanges(se3) <- NULL
+
+    out <- combineCols(se, se3, use.names=FALSE) # no warning.
+    checkIdentical(rowRanges(out), rowRanges(se)) 
+    out2 <- combineCols(se3, se, use.names=FALSE)
+    checkIdentical(rowRanges(out2), rowRanges(se)) 
+
+    se4 <- se2
+    rowRanges(se4) <- as(rowRanges(se4), "GRangesList")
+    suppressWarnings(out <- combineCols(se, se4, use.names=FALSE)) # has warning.
+    checkIdentical(rowRanges(out), as(rowRanges(se), "GRangesList"))
+
+    se5 <- se
+    rowRanges(se5) <- as(rowRanges(se5), "GRangesList")
+    out <- combineCols(se, se5, use.names=FALSE) # no warning.
+    checkIdentical(rowRanges(out), as(rowRanges(se), "GRangesList"))
+
+    multi.com <- suppressWarnings(combineCols(se, se3, se4, use.names=FALSE))
+    checkIdentical(rowRanges(out), rowRanges(multi.com))
 }

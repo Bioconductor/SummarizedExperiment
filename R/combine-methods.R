@@ -38,9 +38,35 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
         metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
     ) 
 
+    # Finally, filling in the rowRanges. Rows for SummarizedExperiment
+    # inputs are filled in with empty GRangesList objects.
     extracted <- extract_granges_from_se(all.se)
+
     if (!is.null(extracted)) {
-        com.rr <- do.call(c, extracted$ranges)
+        filled.ranges <- FALSE
+        for (i in seq_along(extracted)) {
+            if (is.null(extracted[[i]])) {
+                filled.ranges <- TRUE
+                cur.se <- all.se[[i]]
+                levels <- rownames(cur.se)
+                if (is.null(levels)) {
+                    levels <- seq_len(nrow(cur.se))
+                }
+                rr <- splitAsList(GRanges(), factor(character(0), levels))
+                if (is.null(rownames(cur.se))) {
+                    names(rr) <- NULL
+                }
+                extracted[[i]] <- rr
+            }
+        }
+
+        if (filled.ranges) {
+            for (s in seq_along(extracted)) {
+                extracted[[s]] <- as(extracted[[s]], "GRangesList")
+            }
+        }
+
+        com.rr <- do.call(c, extracted)
         mcols(com.rr) <- com.rd
         args$rowRanges <- com.rr
     } else {
@@ -160,32 +186,25 @@ extract_granges_from_se <- function(all.se) {
     }
 
     final.rr <- vector("list", length(all.se))
-    for (s in seq_along(all.se)) {
+    for (s in which(has.ranges)) {
         cur.se <- all.se[[s]]
-        if (is(cur.se, "RangedSummarizedExperiment")) {
-            rr <- rowRanges(cur.se)
-            mcols(rr) <- NULL
-            names(rr) <- rownames(cur.se)
-        } else {
-            levels <- rownames(cur.se)
-            if (is.null(levels)) {
-                levels <- seq_len(nrow(cur.se))
-            }
-            rr <- splitAsList(GRanges(), factor(character(0), levels))
-            if (is.null(rownames(cur.se))) {
-                names(rr) <- NULL
-            }
-        }
+        rr <- rowRanges(cur.se)
+        mcols(rr) <- NULL
+        names(rr) <- rownames(cur.se)
         final.rr[[s]] <- rr
     }
 
-    # Coercing everyone to a GRL if anyone is a GRL.
-    is.grl <- vapply(final.rr, function(x) is(x, "GRangesList"), TRUE)
+    # Coercing everyone to a GRL if anyone is a GRL. Note that we don't fill in
+    # NULLs with GRLs yet, to give a chance for the caller to decide how to
+    # handle them (e.g., fill in combineRows or merge in combineCols).
+    is.grl <- vapply(final.rr[has.ranges], function(x) is(x, "GRangesList"), TRUE)
     if (any(is.grl)) {
-        final.rr <- lapply(final.rr, function(x) as(x, "GRangesList"))
+        for (s in which(has.ranges)) {
+            final.rr[[s]] <- as(final.rr[[s]], "GRangesList")
+        }
     }
 
-    list(present=has.ranges, ranges=final.rr)
+    final.rr
 }
 
 setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, fill=NA, use.names=TRUE) {
@@ -244,19 +263,25 @@ merge_granges_from_se <- function(all.se, mappings) {
         return(NULL)
     }
 
+    has.ranges <- which(!vapply(extracted, is.null, FALSE))
+    extracted.ranges <- extracted[has.ranges]
+
     if (!is.null(mappings)) {
-        # We concatenate everything to automatically merge the seqinfo. 
-        temp.rr <- do.call(c, extracted$ranges)
+        # We concatenate everything to automatically merge the seqinfo. We
+        # then create a container for the filling process.
+        temp.rr <- do.call(c, extracted.ranges)
         names(temp.rr) <- NULL
-        nentries <- lengths(extracted$ranges)
+        nentries <- lengths(extracted.ranges)
         starts <- cumsum(c(0L, nentries))
 
-        # We then take the top set to use as a container for the filling process.
-        com.rr <- temp.rr[seq_along(mappings[[1]])]
+        com.rr <- temp.rr
+        if (length(temp.rr) > 0) {
+            com.rr <- temp.rr[rep(1L, length(mappings[[1]]))]
+        }
         filled <- logical(length(com.rr))
 
-        for (i in which(extracted$present)) {
-            idx <- mappings[[i]]
+        for (i in seq_along(extracted.ranges)) {
+            idx <- mappings[[has.ranges[i]]]
             candidates <- temp.rr[starts[i] + seq_len(nentries[i])]
 
             available <- which(!is.na(idx))
@@ -275,15 +300,15 @@ merge_granges_from_se <- function(all.se, mappings) {
         }
 
         if (!all(filled)) {
+            com.rr <- as(com.rr, "GRangesList")
             com.rr[!filled] <- GRangesList(GRanges())
         }
     } else {
-        useful.rr <- extracted$ranges[extracted$present]
-        if (length(unique(useful.rr)) > 1) {
+        if (length(unique(extracted.ranges)) > 1) {
             warning(wmsg("'rowRanges' are not identical across input objects, ",
                           "using 'rowRanges' from the first object only"))
         }
-        com.rr <- useful.rr[[1]]
+        com.rr <- extracted.ranges[[1]]
     }
 
     com.rr
