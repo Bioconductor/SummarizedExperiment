@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.22.0
+-------------------------
+
+NEW FEATURES
+
+    o Add combineRows() and combineCols() methods for SummarizedExperiment
+      objects and derivatives. These are more flexible versions of rbind()
+      and cbind() that don't require the objects to combine to have the same
+      columns or rows. Contributed by Aaron Lun.
+
+
 CHANGES IN VERSION 1.20.0
 -------------------------
 

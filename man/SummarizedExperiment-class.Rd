@@ -529,7 +529,7 @@ colData(x, ...) <- value
 
 }
 
-\author{Martin Morgan, \url{mtmorgan@fhcrc.org}}
+\author{Martin Morgan; \code{combineRows} and \code{combinecols} by Aaron Lun}
 
 \seealso{
   \itemize{
