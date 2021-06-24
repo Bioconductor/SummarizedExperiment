@@ -49,6 +49,7 @@ exportMethods(
     updateObject,
 
     ## Generics defined in S4Vectors:
+    showAsCell,
     "metadata<-",
     parallel_slot_names, vertical_slot_names, horizontal_slot_names,
     mcols, "mcols<-",

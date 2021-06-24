@@ -62,6 +62,7 @@
 
 % Display
 \alias{show,SummarizedExperiment-method}
+\alias{showAsCell,SummarizedExperiment-method}
 
 % Combine
 \alias{rbind,SummarizedExperiment-method}

@@ -689,6 +689,10 @@ setMethod("show", "SummarizedExperiment",
     coolcat("colData names(%d): %s\n", names(colData(object)))
 })
 
+setMethod("showAsCell", "SummarizedExperiment",
+    function(object) rep.int("####", NROW(object))
+)
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Combine
