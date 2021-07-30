@@ -20,7 +20,10 @@ BiocStyle::markdown()
 
 The `SummarizedExperiment` class is used to store rectangular matrices of
 experimental results, which are commonly produced by sequencing and microarray
-experiments.  Each object stores observations of one or more samples, along
+experiments. Note that `SummarizedExperiment` can simultaneously manage several
+experimental results or `assays` as long as they be of the same dimensions.
+
+Each object stores observations of one or more samples, along
 with additional meta-data describing both the observations (features) and
 samples (phenotypes).
 
