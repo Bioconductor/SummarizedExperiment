@@ -143,8 +143,8 @@ SummarizedExperiment <- function(assays=SimpleList(),
         } else {
             what <- "rownames and colnames"
         }
-        stop(wmsg("the ", what, " of the supplied assay(s) ",
-                  "must be identical to those of the constructed ",
+        stop(wmsg("the ", what, " of the supplied assay(s) must be NULL ",
+                  "or identical to those of the constructed ",
                   class(ans), " object"))
     }
     ans
