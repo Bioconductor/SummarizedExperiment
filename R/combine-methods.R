@@ -5,7 +5,7 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     all.se <- list(x, ...)
 
     # Combining the rowData.
-    all.rd <- lapply(all.se, rowData) 
+    all.rd <- lapply(all.se, rowData)
     tryCatch({
         com.rd <- do.call(combineRows, all.rd)
     }, error=function(e) {
@@ -36,7 +36,7 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=TRUE),
         colData=com.cd,
         metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
-    ) 
+    )
 
     # Finally, filling in the rowRanges. Rows for SummarizedExperiment
     # inputs are filled in with empty GRangesList objects.
@@ -82,7 +82,7 @@ combine_assays_by <- function(all.se, mappings, delayed, fill, by.row) {
     each.assay.names <- lapply(all.assays, names)
     no.assay.names <- vapply(each.assay.names, is.null, TRUE)
 
-    if (by.row) { 
+    if (by.row) {
         INFLATE <- inflate_matrix_by_column
     } else {
         INFLATE <- inflate_matrix_by_row
@@ -138,7 +138,15 @@ combine_assays_by <- function(all.se, mappings, delayed, fill, by.row) {
         combined <- do.call(cbind, all.assays)
     }
 
-    as(combined, "SimpleList") 
+    combined <- as(combined, "SimpleList")
+
+    # Prevent the SummarizedExperiment() constructor function from choking
+    # on the rownames or colnames of the combined assays.
+    if (by.row) {
+        endoapply(combined, `colnames<-`, NULL)
+    } else {
+        endoapply(combined, `rownames<-`, NULL)
+    }
 }
 
 create_dummy_matrix <- function(nr, nc, delayed, fill) {
@@ -220,7 +228,7 @@ setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     })
 
     # Combining the colData.
-    all.cd <- lapply(all.se, colData) 
+    all.cd <- lapply(all.se, colData)
     tryCatch({
         com.cd <- do.call(combineRows, all.cd)
     }, error=function(e) {
@@ -242,7 +250,7 @@ setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=FALSE),
         colData=com.cd,
         metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
-    ) 
+    )
 
     com.rr <- merge_granges_from_se(all.se, mappings)
     if (!is.null(com.rr)) {

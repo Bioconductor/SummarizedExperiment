@@ -98,7 +98,7 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 new_SummarizedExperiment <- function(assays, names, rowData, colData,
                                      metadata)
 {
-    assays <- Assays(assays, as.null.if.zero.assay=TRUE)
+    assays <- Assays(assays, as.null.if.no.assay=TRUE)
     if (is.null(rowData)) {
         if (!is.null(names)) {
             nrow <- length(names)
@@ -214,27 +214,52 @@ setGeneric("assays<-", signature=c("x", "value"),
     function(x, withDimnames=TRUE, ..., value) standardGeneric("assays<-"),
 )
 
-### For assays with more than 2 dimensions, **only** the first 2 dimnames
-### components (i.e. rownames and colnames) are compared with 'x_dimnames'.
-.assays_have_identical_dimnames <- function(assays, x_dimnames)
+### For assays with more than 2 dimensions, **only** the first 2
+### dimnames components (i.e. rownames and colnames) are compared
+### with 'expected_dimnames'.
+### If 'strict' is FALSE, then a NULL on either side of the comparison
+### is enough for the comparison to be considered succesful.
+assays_have_expected_dimnames <- function(assays, expected_dimnames,
+                                          strict=TRUE)
 {
     if (length(assays) == 0L)
         return(TRUE)
-    ## Like DelayedArray:::simplify_NULL_dimnames() but first replaces list
-    ## elements that are equal to character(0) with NULLs.
-    normalize_dimnames <- function(dn) {
-        empty_idx <- which(lengths(dn) == 0L)
-        if (length(empty_idx) == length(dn))
-            return(NULL)
-        dn[empty_idx] <- list(NULL)
-        dn
+    ## Returns the rownames and colnames in a list of length 2. Also list
+    ## elements in the returned list that are equal to character(0) are
+    ## replaced with NULLs. This is to accommodate the fact that, unlike
+    ## an ordinary vector or data.frame, an ordinary matrix or array object
+    ## will never hold a character(0) along a dimension of zero extend.
+    get_rownames_and_colnames <- function(dn) {
+        if (is.null(dn))
+            return(vector("list", length=2L))
+        ans <- dn[1:2]
+        if (length(ans[[1L]]) == 0L)
+            ans[1L] <- list(NULL)
+        if (length(ans[[2L]]) == 0L)
+            ans[2L] <- list(NULL)
+        ans
     }
-    x_dimnames <- normalize_dimnames(x_dimnames)
+    expected_dimnames <- get_rownames_and_colnames(expected_dimnames)
+    if (!strict) {
+        expected_rownames_is_NULL <- is.null(expected_dimnames[[1L]])
+        expected_colnames_is_NULL <- is.null(expected_dimnames[[2L]])
+        if (expected_rownames_is_NULL && expected_colnames_is_NULL)
+            return(TRUE)
+    }
     ok <- vapply(seq_along(assays),
         function(i) {
             a <- getListElement(assays, i)
-            a_dimnames <- normalize_dimnames(dimnames(a))
-            identical(a_dimnames, x_dimnames)
+            a_dimnames <- get_rownames_and_colnames(dimnames(a))
+            if (!strict) {
+                ok1 <- is.null(a_dimnames[[1L]]) ||
+                       expected_rownames_is_NULL ||
+                       identical(a_dimnames[[1L]], expected_dimnames[[1L]])
+                ok2 <- is.null(a_dimnames[[2L]]) ||
+                       expected_colnames_is_NULL ||
+                       identical(a_dimnames[[2L]], expected_dimnames[[2L]])
+                return(ok1 && ok2)
+            }
+            identical(a_dimnames, expected_dimnames)
         },
         logical(1)
     )
@@ -246,23 +271,18 @@ setGeneric("assays<-", signature=c("x", "value"),
 {
     if (!isTRUEorFALSE(withDimnames))
         stop(wmsg("'withDimnames' must be TRUE or FALSE"))
-    value <- normarg_assays(value, as.null.if.zero.assay=TRUE)
+    value <- normarg_assays(value, as.null.if.no.assay=TRUE)
     ## By default the dimnames on the supplied assays must be identical to
     ## the dimnames on 'x'. The user must use 'withDimnames=FALSE' if it's
     ## not the case. This is for symetry with the behavior of the getter.
     ## See https://github.com/Bioconductor/SummarizedExperiment/issues/35
-    if (withDimnames && !.assays_have_identical_dimnames(value, dimnames(x))) {
-        if (length(dim(value)) > 2L) {
-            what <- "rownames and colnames"
-        } else {
-            what <- "dimnames"
-        }
+    if (withDimnames && !assays_have_expected_dimnames(value, dimnames(x)))
         stop(wmsg("please use 'assay(x, withDimnames=FALSE)) <- value' ",
-                  "or 'assays(x, withDimnames=FALSE)) <- value' when the ",
-                  what, " on the supplied assay(s) are not identical to ",
-                  "the ", what, " on ", class(x), " object 'x'"))
-    }
-    new_assays <- Assays(value, as.null.if.zero.assay=TRUE)
+                  "or 'assays(x, withDimnames=FALSE)) <- value' when ",
+                  "the rownames or colnames of the supplied assay(s) ",
+                  "are not identical to those of the receiving ",
+                  class(x), " object 'x'"))
+    new_assays <- Assays(value, as.null.if.no.assay=TRUE)
     x <- BiocGenerics:::replaceSlots(x, assays=new_assays, check=FALSE)
     ## validObject(x) should NOT be called below because it would then
     ## fully re-validate objects that derive from SummarizedExperiment

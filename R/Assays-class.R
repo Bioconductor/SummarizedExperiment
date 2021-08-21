@@ -76,14 +76,14 @@ setValidity2("Assays", .valid.Assays)
 ### Constructor
 
 ### Always return a SimpleList object by default. Will return a NULL only
-### if 'as.null.if.zero.assay' is set to TRUE and no assays are supplied.
-normarg_assays <- function(assays, as.null.if.zero.assay=FALSE)
+### if 'as.null.if.no.assay' is set to TRUE and no assays are supplied.
+normarg_assays <- function(assays, as.null.if.no.assay=FALSE)
 {
-    if (!isTRUEorFALSE(as.null.if.zero.assay))
-        stop(wmsg("'as.null.if.zero.assay' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(as.null.if.no.assay))
+        stop(wmsg("'as.null.if.no.assay' must be TRUE or FALSE"))
 
     if (is.null(assays)) {
-        if (as.null.if.zero.assay)
+        if (as.null.if.no.assay)
             return(NULL)
         return(SimpleList())
     }
@@ -98,8 +98,8 @@ normarg_assays <- function(assays, as.null.if.zero.assay=FALSE)
         stop(wmsg(error_msg))
 
     assays_dim <- dim(assays)
-    ## Some objects like SplitDataFrameList have a "dim" method that
-    ## returns a non-MULL object (a matrix!) even though they don't have
+    ## Some objects like SplitDataFrameList have a dim() method that
+    ## returns a non-NULL object (a matrix!) even though they don't have
     ## an array-like semantic.
     if (!is.matrix(assays_dim) && length(assays_dim) >= 2L)
         #return(SimpleList(assays))  # broken on a data frame
@@ -116,17 +116,17 @@ normarg_assays <- function(assays, as.null.if.zero.assay=FALSE)
             stop(wmsg(error_msg))
         }
     }
-    if (length(assays) == 0L && as.null.if.zero.assay)
+    if (length(assays) == 0L && as.null.if.no.assay)
         return(NULL)
     assays
 }
 
 ### Always return a SimpleAssays object by default. Will return a NULL only
-### if 'as.null.if.zero.assay' is set to TRUE and no assays are supplied.
-Assays <- function(assays=SimpleList(), as.null.if.zero.assay=FALSE)
+### if 'as.null.if.no.assay' is set to TRUE and no assays are supplied.
+Assays <- function(assays=SimpleList(), as.null.if.no.assay=FALSE)
 {
-    if (!isTRUEorFALSE(as.null.if.zero.assay))
-        stop(wmsg("'as.null.if.zero.assay' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(as.null.if.no.assay))
+        stop(wmsg("'as.null.if.no.assay' must be TRUE or FALSE"))
     ## Starting with SummarizedExperiment 1.15.4, we wrap the user-supplied
     ## assays in a SimpleAssays object instead of a ShallowSimpleListAssays
     ## object. Note that there are probably hundreds (if not thousands) of
@@ -138,14 +138,14 @@ Assays <- function(assays=SimpleList(), as.null.if.zero.assay=FALSE)
             ## into a SimpleAssays object.
             assays <- as(as(assays, "SimpleList"), "SimpleAssays")
         } else {
-            assays <- normarg_assays(assays, as.null.if.zero.assay)
+            assays <- normarg_assays(assays, as.null.if.no.assay)
             if (is.null(assays))
                 return(NULL)
             assays <- as(assays, "SimpleAssays")
             validObject(assays)
         }
     }
-    if (length(assays) == 0L && as.null.if.zero.assay)
+    if (length(assays) == 0L && as.null.if.no.assay)
         return(NULL)
     assays
 }

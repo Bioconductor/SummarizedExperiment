@@ -60,7 +60,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 .new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
                                             metadata)
 {
-    assays <- Assays(assays, as.null.if.zero.assay=TRUE)
+    assays <- Assays(assays, as.null.if.no.assay=TRUE)
     elementMetadata <- S4Vectors:::make_zero_col_DataFrame(length(rowRanges))
     new("RangedSummarizedExperiment", rowRanges=rowRanges,
                                       colData=colData,
@@ -88,7 +88,7 @@ SummarizedExperiment <- function(assays=SimpleList(),
                                  colData=DataFrame(),
                                  metadata=list())
 {
-    assays <- normarg_assays(assays, as.null.if.zero.assay=TRUE)
+    assays <- normarg_assays(assays, as.null.if.no.assay=TRUE)
 
     if (!missing(colData)) {
         if (!is(colData, "DataFrame"))
@@ -127,11 +127,27 @@ SummarizedExperiment <- function(assays=SimpleList(),
     }
 
     if (missing(rowRanges) && !is(rowData, "GenomicRanges_OR_GRangesList")) {
-        new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
-                                 metadata)
+        ans <- new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
+                                        metadata)
     } else {
-        .new_RangedSummarizedExperiment(assays, rowRanges, colData, metadata)
+        ans <- .new_RangedSummarizedExperiment(assays, rowRanges, colData,
+                                               metadata)
     }
+    ans_dimnames <- dimnames(ans)
+    ok <- assays_have_expected_dimnames(ans@assays, ans_dimnames, strict=FALSE)
+    if (!ok) {
+        if (is.null(ans_dimnames[[1L]])) {
+            what <- "colnames"
+        } else if (is.null(ans_dimnames[[2L]])) {
+            what <- "rownames"
+        } else {
+            what <- "rownames and colnames"
+        }
+        stop(wmsg("the ", what, " of the supplied assay(s) ",
+                  "must be identical to those of the constructed ",
+                  class(ans), " object"))
+    }
+    ans
 }
 
 

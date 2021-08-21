@@ -113,17 +113,14 @@ test_SummarizedExperiment_construction_dimnames <- function()
     rownames(m) <- paste0("ROW", 1:4)
     do_tests(m, rowData, colData)
 
-    colnames(m) <- paste0("COL", 1:3)
+    colnames(m) <- letters[1:3]
     do_tests(m, rowData, colData)
 
     dimnames(m) <- NULL
     rownames(rowData) <- LETTERS[1:4]
     do_tests(m, rowData, colData)
 
-    rownames(m) <- paste0("ROW", 1:4)
-    do_tests(m, rowData, colData)
-
-    colnames(m) <- paste0("COL", 1:3)
+    rownames(m) <- LETTERS[1:4]
     do_tests(m, rowData, colData)
 }
 
@@ -325,10 +322,14 @@ test_SummarizedExperiment_assays_4d <- function()
                                       NULL,
                                       c("t1", "t2", "t3", "t4")))
     B <- array(0, c(3, 2, 6),    list(c("x1", "x2", "x3"),
-                                      c("y1", "oops"),
+                                      c("y1", "y2"),
                                       NULL))
     assays0 <- SimpleList(A=A, B=B)
     checkTrue(validObject(SummarizedExperiment(assays0)))
+
+    dimnames(B)[[2]] <- c("y1", "oops")
+    assays0 <- SimpleList(A=A, B=B)
+    checkException(SummarizedExperiment(assays0))
 
     dimnames(B)[1:2] <- dimnames(A)[1:2]
     C <- array(0, c(3, 2, 4),    list(NULL,
