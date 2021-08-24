@@ -250,16 +250,18 @@ assays_have_expected_dimnames <- function(assays, expected_dimnames,
         function(i) {
             a <- getListElement(assays, i)
             a_dimnames <- get_rownames_and_colnames(dimnames(a))
-            if (!strict) {
+            if (strict) {
+                ok1 <- identical(a_dimnames[[1L]], expected_dimnames[[1L]])
+                ok2 <- identical(a_dimnames[[2L]], expected_dimnames[[2L]])
+            } else {
                 ok1 <- is.null(a_dimnames[[1L]]) ||
                        expected_rownames_is_NULL ||
                        identical(a_dimnames[[1L]], expected_dimnames[[1L]])
                 ok2 <- is.null(a_dimnames[[2L]]) ||
                        expected_colnames_is_NULL ||
                        identical(a_dimnames[[2L]], expected_dimnames[[2L]])
-                return(ok1 && ok2)
             }
-            identical(a_dimnames, expected_dimnames)
+            ok1 && ok2
         },
         logical(1)
     )
