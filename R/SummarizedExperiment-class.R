@@ -250,16 +250,28 @@ assays_have_expected_dimnames <- function(assays, expected_dimnames,
         function(i) {
             a <- getListElement(assays, i)
             a_dimnames <- get_rownames_and_colnames(dimnames(a))
+            a_rownames <- a_dimnames[[1L]]
+            a_colnames <- a_dimnames[[2L]]
             if (strict) {
-                ok1 <- identical(a_dimnames[[1L]], expected_dimnames[[1L]])
-                ok2 <- identical(a_dimnames[[2L]], expected_dimnames[[2L]])
+                ok1 <- identical(a_rownames, expected_dimnames[[1L]])
+                ok2 <- identical(a_colnames, expected_dimnames[[2L]])
             } else {
-                ok1 <- is.null(a_dimnames[[1L]]) ||
+                ## Comparing the rownames/colnames with 'identical(x, y)'
+                ## would cause something like
+                ##   m <- matrix(1:12, ncol=3,
+                ##               dimnames=list(NULL, c(A="a", B="b", C="c")))
+                ##   SummarizedExperiment(m)
+                ## to fail (because of the names on 'colnames(m)'). So we
+                ## use less stringent 'length(x) == length(y) && all(x == y)'
+                ## instead.
+                ok1 <- is.null(a_rownames) ||
                        expected_rownames_is_NULL ||
-                       identical(a_dimnames[[1L]], expected_dimnames[[1L]])
-                ok2 <- is.null(a_dimnames[[2L]]) ||
+                       (length(a_rownames) == length(expected_dimnames[[1L]])
+                        && all(a_rownames == expected_dimnames[[1L]]))
+                ok2 <- is.null(a_colnames) ||
                        expected_colnames_is_NULL ||
-                       identical(a_dimnames[[2L]], expected_dimnames[[2L]])
+                       (length(a_colnames) == length(expected_dimnames[[2L]])
+                        && all(a_colnames == expected_dimnames[[2L]]))
             }
             ok1 && ok2
         },
