@@ -227,7 +227,7 @@ colData(x, ...) <- value
   data types derived from a sequencing experiment. The structure is
   rectangular like a \code{matrix}, but with additional annotations on
   the rows and columns, and with the possibility to manage several
-  assays simultaneously.
+  assays simultaneously so long as they be of the same dimensions.
 
   The rows of a SummarizedExperiment object represent features
   of interest. Information about these features is stored in a
