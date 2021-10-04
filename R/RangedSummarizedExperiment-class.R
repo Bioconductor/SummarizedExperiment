@@ -86,8 +86,12 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 SummarizedExperiment <- function(assays=SimpleList(),
                                  rowData=NULL, rowRanges=GRangesList(),
                                  colData=DataFrame(),
-                                 metadata=list())
+                                 metadata=list(),
+                                 checkDimnames=TRUE)
 {
+    if (!isTRUEorFALSE(checkDimnames))
+        stop(wmsg("'checkDimnames' must be TRUE or FALSE"))
+
     assays <- normarg_assays(assays, as.null.if.no.assay=TRUE)
 
     if (!missing(colData)) {
@@ -133,6 +137,8 @@ SummarizedExperiment <- function(assays=SimpleList(),
         ans <- .new_RangedSummarizedExperiment(assays, rowRanges, colData,
                                                metadata)
     }
+    if (!checkDimnames)
+        return(ans)
     ans_dimnames <- dimnames(ans)
     ok <- assays_have_expected_dimnames(ans@assays, ans_dimnames, strict=FALSE)
     if (!ok) {
@@ -144,8 +150,8 @@ SummarizedExperiment <- function(assays=SimpleList(),
             what <- "rownames and colnames"
         }
         stop(wmsg("the ", what, " of the supplied assay(s) must be NULL ",
-                  "or identical to those of the constructed ",
-                  class(ans), " object"))
+                  "or identical to those of the ", class(ans), " object ",
+                  "(or derivative) to construct"))
     }
     ans
 }

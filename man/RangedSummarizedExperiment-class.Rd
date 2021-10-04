@@ -90,7 +90,8 @@
 SummarizedExperiment(assays=SimpleList(),
                      rowData=NULL, rowRanges=GRangesList(),
                      colData=DataFrame(),
-                     metadata=list())
+                     metadata=list(),
+                     checkDimnames=TRUE)
 
 ## Accessors
 
@@ -138,6 +139,12 @@ rowRanges(x, ...) <- value
 
   \item{metadata}{An optional \code{list} of arbitrary content
     describing the overall experiment.}
+
+  \item{checkDimnames}{By default the rownames and colnames of the supplied
+    assay(s) are checked for consistency with those of the SummarizedExperiment
+    object (or derivative) to construct. More precisely, the rownames and
+    colnames of each assay must be NULL or identical to those of the object.
+    Use \code{checkDimnames=FALSE} to skip this check.}
 
   \item{x}{A RangedSummarizedExperiment object. The \code{rowRanges} setter
     will also accept a SummarizedExperiment object and will first coerce it
