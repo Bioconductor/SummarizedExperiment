@@ -1,3 +1,21 @@
+CHANGES IN VERSION 1.24.0
+-------------------------
+
+NEW FEATURES
+
+    o Add 'checkDimnames' argument to SummarizedExperiment() constructor
+      function
+
+    o Add showAsCell() method for SummarizedExperiment objects.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Check the assay dimnames at SummarizedExperiment construction time:
+      The SummarizedExperiment() constructor function now raises an error
+      if one of the supplied assays has rownames and/or colnames that don't
+      match those of the SummarizedExperiment object to construct.
+
+
 CHANGES IN VERSION 1.22.0
 -------------------------
 
