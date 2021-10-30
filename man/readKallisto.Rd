@@ -8,8 +8,8 @@
 }
 
 \description{
-  WARNING: \code{readKallisto()} is deprecated. Please use \code{tximeta()}
-  from the \pkg{tximeta} package instead.
+  WARNING: \code{readKallisto()} is defunct in BioC 3.15. Please use
+  \code{tximeta()} from the \pkg{tximeta} package instead.
 
   \code{readKallisto} inputs several kallisto output files into a single
   \code{SummarizedExperiment} instance, with rows corresponding to
