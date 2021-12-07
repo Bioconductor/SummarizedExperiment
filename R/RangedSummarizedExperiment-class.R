@@ -256,13 +256,6 @@ setReplaceMethod("names", "RangedSummarizedExperiment",
     BiocGenerics:::replaceSlots(x, rowRanges=rowRanges, check=FALSE)
 })
 
-setMethod("dimnames", "RangedSummarizedExperiment",
-    function(x)
-{
-    ans <- list(names(x), rownames(colData(x)))
-    DelayedArray:::simplify_NULL_dimnames(ans)
-})
-
 setReplaceMethod("dimnames", c("RangedSummarizedExperiment", "list"),
     function(x, value)
 {

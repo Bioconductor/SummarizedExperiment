@@ -26,7 +26,6 @@
 \alias{rowRanges<-,SummarizedExperiment,GRangesList-method}
 \alias{names,RangedSummarizedExperiment-method}
 \alias{names<-,RangedSummarizedExperiment-method}
-\alias{dimnames,RangedSummarizedExperiment-method}
 \alias{dimnames<-,RangedSummarizedExperiment,list-method}
 
 % GenomicRanges compatibility methods

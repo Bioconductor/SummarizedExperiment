@@ -31,7 +31,7 @@ exportClasses(
 
 exportMethods(
     length, names, "names<-",
-    dim, dimnames, "dimnames<-",
+    dim, "dimnames<-",
     "[", "[<-", "[[", "[[<-", "$", "$<-",
     as.data.frame,
     coerce,
@@ -41,6 +41,8 @@ exportMethods(
     Compare,
 
     ## Generics defined in BiocGenerics:
+    nrow, ncol,
+    rownames, colnames,
     cbind, rbind,
     duplicated, match,
     is.unsorted, order, rank, sort,

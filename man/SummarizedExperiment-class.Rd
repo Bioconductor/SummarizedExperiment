@@ -42,8 +42,10 @@
 \alias{assayNames,SummarizedExperiment-method}
 \alias{assayNames<-}
 \alias{assayNames<-,SummarizedExperiment,character-method}
-\alias{dim,SummarizedExperiment-method}
-\alias{dimnames,SummarizedExperiment-method}
+\alias{nrow,SummarizedExperiment-method}
+\alias{ncol,SummarizedExperiment-method}
+\alias{rownames,SummarizedExperiment-method}
+\alias{colnames,SummarizedExperiment-method}
 \alias{dimnames<-,SummarizedExperiment,list-method}
 \alias{dimnames<-,SummarizedExperiment,NULL-method}
 

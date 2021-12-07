@@ -405,19 +405,11 @@ setReplaceMethod("assayNames", c("SummarizedExperiment", "character"),
     x
 })
 
-## cannonical location for dim, dimnames
-setMethod("dim", "SummarizedExperiment",
-    function(x)
-{
-    c(length(x), nrow(colData(x)))
-})
+setMethod("nrow", "SummarizedExperiment", function(x) length(x))
+setMethod("ncol", "SummarizedExperiment", function(x) nrow(colData(x)))
 
-setMethod("dimnames", "SummarizedExperiment",
-    function(x)
-{
-    ans <- list(names(x), rownames(colData(x)))
-    DelayedArray:::simplify_NULL_dimnames(ans)
-})
+setMethod("rownames", "SummarizedExperiment", function(x) names(x))
+setMethod("colnames", "SummarizedExperiment", function(x) rownames(colData(x)))
 
 setReplaceMethod("dimnames", c("SummarizedExperiment", "list"),
     function(x, value)
