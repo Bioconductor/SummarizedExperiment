@@ -8,7 +8,7 @@ biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
 URL: https://bioconductor.org/packages/SummarizedExperiment
 BugReports: https://github.com/Bioconductor/SummarizedExperiment/issues
-Version: 1.27.0
+Version: 1.27.1
 License: Artistic-2.0
 Encoding: UTF-8
 Author: Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès
