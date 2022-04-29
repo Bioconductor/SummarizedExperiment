@@ -132,29 +132,31 @@ colData(x, ...) <- value
 
 ## Combining
 
-\S4method{cbind}{SummarizedExperiment}(..., deparse.level=1)
 \S4method{rbind}{SummarizedExperiment}(..., deparse.level=1)
+\S4method{cbind}{SummarizedExperiment}(..., deparse.level=1)
+\S4method{combineRows}{SummarizedExperiment}(x, ..., delayed=TRUE, fill=NA, use.names=TRUE)
+\S4method{combineCols}{SummarizedExperiment}(x, ..., delayed=TRUE, fill=NA, use.names=TRUE)
 
 ## On-disk realization
 \S4method{realize}{SummarizedExperiment}(x, BACKEND=getAutoRealizationBackend())
 }
 
 \arguments{
-
-  \item{x}{A SummarizedExperiment object.}
-
+  \item{x}{
+    A SummarizedExperiment object.
+  }
   \item{...}{
     For \code{assay}, arguments in \code{...} are forwarded to \code{assays}.
 
-    For \code{cbind}, \code{rbind}, \code{...} contains SummarizedExperiment
+    For \code{rbind}, \code{cbind}, \code{...} contains SummarizedExperiment
     objects to be combined.
 
     For other accessors, ignored.
   }
-
-  \item{value}{An object of a class specified in the S4 method
-    signature or as outlined in \sQuote{Details}.}
-
+  \item{value}{
+    An object of a class specified in the S4 method
+    signature or as outlined in \sQuote{Details}.
+  }
   \item{i, j}{
     For \code{assay}, \code{assay<-}, \code{i} is an integer or
     numeric scalar; see \sQuote{Details} for additional constraints.
@@ -169,13 +171,13 @@ colData(x, ...) <- value
     \code{character(1)} or \code{integer(1)}) into a column of
     \code{colData}.
   }
-
-  \item{name}{A symbol representing the name of a column of
-    \code{colData}.}
-
-  \item{withDimnames}{A \code{logical(1)}, indicating whether the
-    dimnames of the SummarizedExperiment object should be applied (i.e.
-    copied) to the extracted assays. More precisely, setting
+  \item{name}{
+    A symbol representing the name of a column of \code{colData}.
+  }
+  \item{withDimnames}{
+    A \code{logical(1)}, indicating whether the dimnames of the
+    SummarizedExperiment object should be applied (i.e. copied)
+    to the extracted assays. More precisely, setting
     \code{withDimnames=FALSE} in the \emph{getter} returns the
     assays \emph{as-is} whereas setting \code{withDimnames=FALSE}
     return them with possibly modified dimnames.
@@ -191,8 +193,8 @@ colData(x, ...) <- value
     if \code{withDimnames=TRUE} is used or if \code{withDimnames} is
     not specified.
   }
-
-  \item{use.names}{Like \code{\link[S4Vectors]{mcols}(x)}, by default
+  \item{use.names}{
+    For \code{rowData}: Like \code{\link[S4Vectors]{mcols}(x)}, by default
     \code{rowData(x)} propagates the rownames of \code{x} to the returned
     \link[S4Vectors]{DataFrame} object (note that for a SummarizedExperiment
     object, the rownames are also the names i.e. \code{rownames(x)} is
@@ -201,26 +203,37 @@ colData(x, ...) <- value
     object with no rownames. Use this when \code{rowData(x)} fails,
     which can happen when the rownames contain NAs (because the rownames
     of a SummarizedExperiment object can contain NAs, but the rownames of
-    a \link[S4Vectors]{DataFrame} object cannot).}
+    a \link[S4Vectors]{DataFrame} object cannot).
 
-  \item{drop}{A \code{logical(1)}, ignored by these methods.}
-
-  \item{deparse.level}{See \code{?base::\link[base]{cbind}} for a description of
-    this argument.}
-
-  \item{subset}{An expression which, when evaluated in the
-    context of \code{rowData(x)}, is a logical vector indicating
-    elements or rows to keep: missing values are taken as false.}
-
-  \item{select}{An expression which, when evaluated in the
-    context of \code{colData(x)}, is a logical vector indicating
-    elements or rows to keep: missing values are taken as false.}
-
-  \item{BACKEND}{\code{NULL} (the default), or a single string specifying the
+    For \code{combineRows} and \code{combineCols}: See Combining section
+    below.
+  }
+  \item{drop}{
+    A \code{logical(1)}, ignored by these methods.
+  }
+  \item{deparse.level}{
+    See \code{?base::\link[base]{cbind}} for a description of this argument.
+  }
+  \item{subset}{
+    An expression which, when evaluated in the context of \code{rowData(x)},
+    is a logical vector indicating elements or rows to keep: missing values
+    are taken as false.
+  }
+  \item{select}{
+    An expression which, when evaluated in the context of \code{colData(x)},
+    is a logical vector indicating elements or rows to keep: missing
+    values are taken as false.
+  }
+  \item{delayed, fill}{
+    See \code{combineRows} and \code{combineCols} in Combining section
+    below.
+  }
+  \item{BACKEND}{
+    \code{NULL} (the default), or a single string specifying the
     name of the backend. When the backend is set to \code{NULL},
-    each element of \code{assays(x)} is realized in memory as an ordinary array
-    by just calling \code{as.array} on it.}
-
+    each element of \code{assays(x)} is realized in memory as an
+    ordinary array by just calling \code{as.array} on it.
+  }
 }
 
 \details{
@@ -371,12 +384,12 @@ colData(x, ...) <- value
 
   \describe{
 
-    \item{\code{cbind(...)}:}{
-      \code{cbind} combines objects with the same features of interest
-      but different samples (columns in \code{assays}).
-      The colnames in \code{colData(SummarizedExperiment)} must match or
+    \item{\code{rbind(...)}:}{
+      \code{rbind} combines objects with the same samples
+      but different features of interest (rows in \code{assays}).
+      The colnames in \code{rowData(SummarizedExperiment)} must match or
       an error is thrown.
-      Duplicate columns of \code{rowData(SummarizedExperiment)} must
+      Duplicate columns of \code{colData(SummarizedExperiment)} must
       contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
@@ -387,12 +400,12 @@ colData(x, ...) <- value
       with no name checking.
     }
 
-    \item{\code{rbind(...)}:}{
-      \code{rbind} combines objects with the same samples
-      but different features of interest (rows in \code{assays}).
-      The colnames in \code{rowData(SummarizedExperiment)} must match or
+    \item{\code{cbind(...)}:}{
+      \code{cbind} combines objects with the same features of interest
+      but different samples (columns in \code{assays}).
+      The colnames in \code{colData(SummarizedExperiment)} must match or
       an error is thrown.
-      Duplicate columns of \code{colData(SummarizedExperiment)} must
+      Duplicate columns of \code{rowData(SummarizedExperiment)} must
       contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
@@ -458,7 +471,7 @@ colData(x, ...) <- value
 
     \item{\code{combineCols(x, ..., use.names=TRUE, delayed=TRUE, fill=NA)}:}{
       \code{combineCols} acts like more flexible \code{cbind}, returning a
-      SummarizedExperiment with columns equal to the concatenation of columns 
+      SummarizedExperiment with columns equal to the concatenation of columns
       across all input objects. Unlike \code{cbind}, it permits differences in
       the number and identity of the rows, differences in the available
       \code{\link{colData}} fields, and even differences in the available
@@ -577,15 +590,6 @@ colData(se0)
 se0[, se0$Treatment == "ChIP"]
 subset(se0, select = Treatment == "ChIP")
 
-## cbind() combines objects with the same features of interest
-## but different samples:
-se1 <- se0
-se2 <- se1[,1:3]
-colnames(se2) <- letters[seq_len(ncol(se2))]
-cmb1 <- cbind(se1, se2)
-dim(cmb1)
-dimnames(cmb1)
-
 ## rbind() combines objects with the same samples but different
 ## features of interest:
 se1 <- se0
@@ -594,6 +598,15 @@ rownames(se2) <- letters[seq_len(nrow(se2))]
 cmb2 <- rbind(se1, se2)
 dim(cmb2)
 dimnames(cmb2)
+
+## cbind() combines objects with the same features of interest
+## but different samples:
+se1 <- se0
+se2 <- se1[,1:3]
+colnames(se2) <- letters[seq_len(ncol(se2))]
+cmb1 <- cbind(se1, se2)
+dim(cmb1)
+dimnames(cmb1)
 
 ## ---------------------------------------------------------------------
 ## ON-DISK REALIZATION
