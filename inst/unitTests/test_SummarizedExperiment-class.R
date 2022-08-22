@@ -31,7 +31,7 @@ test_SummarizedExperiment_construction <- function()
 
     ## substance
     for (i in seq_along(se0List)) {
-        se0 <- se0List[[i]] 
+        se0 <- se0List[[i]]
         checkTrue(validObject(se0))
         checkIdentical(SimpleList(m=mList[[i]]), assays(se0))
         checkIdentical(rowDataList[[i]], rowData(se0))
@@ -122,12 +122,49 @@ test_SummarizedExperiment_construction_dimnames <- function()
 
     rownames(m) <- LETTERS[1:4]
     do_tests(m, rowData, colData)
+
+    ## Empty strings in the dimnames are supported.
+    dimnames(m) <- list(c("A", "", "", "D"), c("a", "b", ""))
+    rowData <- DataFrame(row.names=rownames(m))
+    colData <- DataFrame(row.names=colnames(m))
+    do_tests(m, rowData, colData)
+
+    ## NAs in the dimnames.
+    ## WARNINGS:
+    ## - NAs in the **rownames** are tolerated but will cause problems
+    ##   downstream e.g. they break the rowData() getter unless
+    ##   'use.names=FALSE' is used.
+    ## - NAs in the **colnames** are not and cannot be supported at the moment!
+    ##   Right now they break the SummarizedExperiment() constructor in an ugly
+    ##   way (error message not super helpful):
+    ##       > SummarizedExperiment(m)
+    ##       Error in DataFrame(x = seq_len(ncol(a1)), row.names = nms) :
+    ##         missing values in 'row.names'
+    ##   This should be improved.
+    ## - At the root of these problems is the fact that at the moment
+    ##   DataFrame objects do not support NAs in their rownames (this is
+    ##   a of BioC 3.16).
+    ## Bottom line: NAs in the dimnames of a SummarizedExperiment object
+    ## should be avoided at all cost. One way to deal with them is to
+    ## replace them with empty strings (""). It's not clear whether the
+    ## SummarizedExperiment() constructor should automatically take care
+    ## of that (with a warning), or if it should just fail with an informative
+    ## error message asking the user to "fix" the dimnames on the assay
+    ## **before** calling the constructor. One possible downside of the latter
+    ## is that there is no guarantee that the dimnames of an assay can be
+    ## modified in general (think on-disk assay), and, even if they are, doing
+    ## so could be costly (e.g. trigger a copy of a huge object). But if the
+    ## SummarizedExperiment() constructor were to take care of the fix, it
+    ## wouldn't need to modify the dimnames of the supplied assay.
+    rownames(m)[c(1L, 3L)] <- NA
+    se <- SummarizedExperiment(m)
+    checkTrue(validObject(se))
 }
 
 test_SummarizedExperiment_getters <- function()
 {
     for (i in seq_along(se0List)) {
-        se0 <- se0List[[i]] 
+        se0 <- se0List[[i]]
 
         ## dim, dimnames
         checkIdentical(c(nrow(mList[[i]]), nrow(colData0)), dim(se0))
@@ -166,7 +203,7 @@ test_SummarizedExperiment_getters <- function()
 test_SummarizedExperiment_setters <- function()
 {
     for (i in seq_along(se0List)) {
-        se0 <- se0List[[i]] 
+        se0 <- se0List[[i]]
 
         ## row / col / metadata<-
         se1 <- se0
@@ -223,12 +260,23 @@ test_SummarizedExperiment_setters <- function()
         dimnames(se1) <- NULL
         checkIdentical(NULL, dimnames(se1))
     }
+
+    ## With empty strings in the dimnames.
+    m <- matrix(1:12, nrow=4, dimnames=list(c(a="A", b="B", c="", d="D"),
+                                            c(X="x", Y="y", Z="")))
+    se <- se0 <- SummarizedExperiment(m)
+
+    assay(se) <- m  # should be a no-op
+    checkIdentical(se0, se)
+
+    dimnames(se) <- dimnames(m)  # should be a no-op
+    checkIdentical(se0, se)
 }
 
 test_SummarizedExperiment_subset <- function()
 {
     for (i in seq_along(se0List)) {
-        se0 <- se0List[[i]] 
+        se0 <- se0List[[i]]
 
         ## numeric
         se1 <- se0[2:3,]
@@ -275,16 +323,16 @@ test_SummarizedExperiment_subset <- function()
 
     ## 0 columns
     se <- SummarizedExperiment(matrix(integer(0), nrow=5))
-    checkIdentical(dim(se[1:5, ]), c(5L, 0L)) 
-    ## 0 rows 
+    checkIdentical(dim(se[1:5, ]), c(5L, 0L))
+    ## 0 rows
     se <- SummarizedExperiment(colData=DataFrame(samples=1:10))
-    checkIdentical(dim(se[ ,1:5]), c(0L, 5L)) 
+    checkIdentical(dim(se[ ,1:5]), c(0L, 5L))
 }
 
 test_SummarizedExperiment_subsetassign <- function()
 {
     for (i in seq_along(se0List)) {
-        se0 <- se0List[[i]] 
+        se0 <- se0List[[i]]
         dimnames(se0) <- list(LETTERS[seq_len(nrow(se0))],
                                letters[seq_len(ncol(se0))])
         ## rows

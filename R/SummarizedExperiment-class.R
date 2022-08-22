@@ -214,6 +214,8 @@ setGeneric("assays<-", signature=c("x", "value"),
     function(x, withDimnames=TRUE, ..., value) standardGeneric("assays<-"),
 )
 
+### 'expected_dimnames' must be a NULL or a list of length 2 where each
+### list element is a character vector or a NULL.
 ### For assays with more than 2 dimensions, **only** the first 2
 ### dimnames components (i.e. rownames and colnames) are compared
 ### with 'expected_dimnames'.
@@ -229,49 +231,48 @@ assays_have_expected_dimnames <- function(assays, expected_dimnames,
     ## replaced with NULLs. This is to accommodate the fact that, unlike
     ## an ordinary vector or data.frame, an ordinary matrix or array object
     ## will never hold a character(0) along a dimension of zero extend.
-    get_rownames_and_colnames <- function(dn) {
+    get_normalized_rownames_and_colnames <- function(dn) {
         if (is.null(dn))
             return(vector("list", length=2L))
-        ans <- dn[1:2]
-        if (length(ans[[1L]]) == 0L)
-            ans[1L] <- list(NULL)
-        if (length(ans[[2L]]) == 0L)
-            ans[2L] <- list(NULL)
-        ans
+        rownames <- dn[[1L]]
+        colnames <- dn[[2L]]
+        ## We use as.character() to drop the names on the rownames/colnames
+        ## below. Also in the unlikely (but possible in theory) situation
+        ## where an assay uses unconventional representation of the
+        ## rownames/colnames (e.g. factor?), this will make sure that
+        ## the rownames/colnames are returned in a character vector.
+        if (length(rownames) == 0L) {
+            rownames <- NULL
+        } else {
+            rownames <- as.character(rownames)
+        }
+        if (length(colnames) == 0L) {
+            colnames <- NULL
+        } else {
+            colnames <- as.character(colnames)
+        }
+        list(rownames, colnames)
     }
-    expected_dimnames <- get_rownames_and_colnames(expected_dimnames)
+    expected_dimnames <- get_normalized_rownames_and_colnames(expected_dimnames)
+    expected_rownames <- expected_dimnames[[1L]]
+    expected_colnames <- expected_dimnames[[2L]]
     if (!strict) {
-        expected_rownames_is_NULL <- is.null(expected_dimnames[[1L]])
-        expected_colnames_is_NULL <- is.null(expected_dimnames[[2L]])
+        expected_rownames_is_NULL <- is.null(expected_rownames)
+        expected_colnames_is_NULL <- is.null(expected_colnames)
         if (expected_rownames_is_NULL && expected_colnames_is_NULL)
             return(TRUE)
     }
     ok <- vapply(seq_along(assays),
         function(i) {
             a <- getListElement(assays, i)
-            a_dimnames <- get_rownames_and_colnames(dimnames(a))
+            a_dimnames <- get_normalized_rownames_and_colnames(dimnames(a))
             a_rownames <- a_dimnames[[1L]]
             a_colnames <- a_dimnames[[2L]]
-            if (strict) {
-                ok1 <- identical(a_rownames, expected_dimnames[[1L]])
-                ok2 <- identical(a_colnames, expected_dimnames[[2L]])
-            } else {
-                ## Comparing the rownames/colnames with 'identical(x, y)'
-                ## would cause something like
-                ##   m <- matrix(1:12, ncol=3,
-                ##               dimnames=list(NULL, c(A="a", B="b", C="c")))
-                ##   SummarizedExperiment(m)
-                ## to fail (because of the names on 'colnames(m)'). So we
-                ## use less stringent 'length(x) == length(y) && all(x == y)'
-                ## instead.
-                ok1 <- is.null(a_rownames) ||
-                       expected_rownames_is_NULL ||
-                       (length(a_rownames) == length(expected_dimnames[[1L]])
-                        && all(a_rownames == expected_dimnames[[1L]]))
-                ok2 <- is.null(a_colnames) ||
-                       expected_colnames_is_NULL ||
-                       (length(a_colnames) == length(expected_dimnames[[2L]])
-                        && all(a_colnames == expected_dimnames[[2L]]))
+            ok1 <- identical(a_rownames, expected_rownames)
+            ok2 <- identical(a_colnames, expected_colnames)
+            if (!strict) {
+                ok1 <- ok1 || is.null(a_rownames) || expected_rownames_is_NULL
+                ok2 <- ok2 || is.null(a_colnames) || expected_colnames_is_NULL
             }
             ok1 && ok2
         },

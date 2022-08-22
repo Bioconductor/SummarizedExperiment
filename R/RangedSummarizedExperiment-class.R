@@ -69,18 +69,30 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
                                       metadata=as.list(metadata))
 }
 
-.get_rownames_from_assays <- function(assays)
+### We use as.character() in .get_rownames_from_first_assay() and
+### .get_colnames_from_first_assay() below to drop the names on the
+### rownames/colnames. Also in the unlikely (but possible in theory)
+### situation where an assay uses unconventional representation of the
+### rownames/colnames (e.g. factor?), this will make sure that the
+### rownames/colnames are returned in a character vector.
+.get_rownames_from_first_assay <- function(assays)
 {
     if (length(assays) == 0L)
         return(NULL)
-    rownames(assays[[1L]])
+    rownames <- rownames(assays[[1L]])
+    if (!is.null(rownames))
+        rownames <- as.character(rownames)
+    rownames
 }
 
-.get_colnames_from_assays <- function(assays)
+.get_colnames_from_first_assay <- function(assays)
 {
     if (length(assays) == 0L)
         return(NULL)
-    colnames(assays[[1L]])
+    colnames <- colnames(assays[[1L]])
+    if (!is.null(colnames))
+        colnames <- as.character(colnames)
+    colnames
 }
 
 SummarizedExperiment <- function(assays=SimpleList(),
@@ -98,7 +110,7 @@ SummarizedExperiment <- function(assays=SimpleList(),
         if (!is(colData, "DataFrame"))
             colData <- as(colData, "DataFrame")
         if (is.null(rownames(colData)))
-            rownames(colData) <- .get_colnames_from_assays(assays)
+            rownames(colData) <- .get_colnames_from_first_assay(assays)
     } else if (length(assays) != 0L) {
         a1 <- assays[[1L]]
         nms <- colnames(a1)
@@ -107,10 +119,10 @@ SummarizedExperiment <- function(assays=SimpleList(),
 
     if (is.null(rowData)) {
         if (missing(rowRanges)) {
-            ans_rownames <- .get_rownames_from_assays(assays)
+            ans_rownames <- .get_rownames_from_first_assay(assays)
         } else {
             if (is.null(names(rowRanges)))
-                names(rowRanges) <- .get_rownames_from_assays(assays)
+                names(rowRanges) <- .get_rownames_from_first_assay(assays)
             ans_rownames <- names(rowRanges)
         }
     } else {
@@ -119,14 +131,14 @@ SummarizedExperiment <- function(assays=SimpleList(),
         if (is(rowData, "GenomicRanges_OR_GRangesList")) {
             rowRanges <- rowData
             if (is.null(names(rowRanges)))
-                names(rowRanges) <- .get_rownames_from_assays(assays)
+                names(rowRanges) <- .get_rownames_from_first_assay(assays)
             ans_rownames <- names(rowRanges)
         } else {
             if (!is(rowData, "DataFrame"))
                 rowData <- as(rowData, "DataFrame")
             ans_rownames <- rownames(rowData)
             if (is.null(ans_rownames))
-                ans_rownames <- .get_rownames_from_assays(assays)
+                ans_rownames <- .get_rownames_from_first_assay(assays)
         }
     }
 
