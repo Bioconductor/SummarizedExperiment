@@ -35,7 +35,8 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     args <- list(
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=TRUE),
         colData=com.cd,
-        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
+        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE),
+        checkDimnames=FALSE
     )
 
     # Finally, filling in the rowRanges. Rows for SummarizedExperiment
@@ -137,16 +138,7 @@ combine_assays_by <- function(all.se, mappings, delayed, fill, by.row) {
     } else {
         combined <- do.call(cbind, all.assays)
     }
-
-    combined <- as(combined, "SimpleList")
-
-    # Prevent the SummarizedExperiment() constructor function from choking
-    # on the rownames or colnames of the combined assays.
-    if (by.row) {
-        endoapply(combined, `colnames<-`, NULL)
-    } else {
-        endoapply(combined, `rownames<-`, NULL)
-    }
+    as(combined, "SimpleList")
 }
 
 create_dummy_matrix <- function(nr, nc, delayed, fill) {
@@ -249,7 +241,8 @@ setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     args <- list(
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=FALSE),
         colData=com.cd,
-        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE)
+        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE),
+        checkDimnames=FALSE
     )
 
     com.rr <- merge_granges_from_se(all.se, mappings)
