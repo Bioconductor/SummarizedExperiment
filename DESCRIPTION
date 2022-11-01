@@ -11,8 +11,12 @@ BugReports: https://github.com/Bioconductor/SummarizedExperiment/issues
 Version: 1.27.3
 License: Artistic-2.0
 Encoding: UTF-8
-Author: Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès
-Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
+Authors@R: c(
+	person("Martin", "Morgan", role="aut"),
+	person("Valerie", "Obenchain", role="aut"),
+	person("Jim", "Hester", role="aut"),
+	person("Hervé", "Pagès", role=c("aut", "cre"),
+		email="hpages.on.github@gmail.com"))
 Depends: R (>= 4.0.0), methods, MatrixGenerics (>= 1.1.3),
 	GenomicRanges (>= 1.41.5), Biobase
 Imports: utils, stats, tools, Matrix,

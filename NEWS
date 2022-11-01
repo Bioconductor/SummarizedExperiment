@@ -1,3 +1,34 @@
+CHANGES IN VERSION 1.28.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o SummarizedExperiment objects now accept NAs in their rownames.
+      Important notes:
+      - NAs in the **rownames** are now tolerated but will cause problems
+        downstream e.g. they break the rowData() getter unless 'use.names=FALSE'
+        is used.
+      - NAs in the **colnames** are not and cannot be supported at the moment!
+        Right now they break the SummarizedExperiment() constructor in an ugly
+        way (error message not super helpful):
+            > SummarizedExperiment(m)
+            Error in DataFrame(x = seq_len(ncol(a1)), row.names = nms) :
+              missing values in 'row.names'
+        This will need to be improved.
+      - At the root of these problems is the fact that at the moment DataFrame
+        objects do NOT support NAs in their rownames.
+      Bottom line: NAs in the dimnames of a SummarizedExperiment object should
+      be avoided at all cost. One way to deal with them is to replace them with
+      empty strings ("").
+      See commit 71872cc03b7c0195fb80d1d09409243f049ebb3f.
+
+    o Small tweak to combineRows/combineCols: combineRows() and combineCols()
+      no longer need to "fix" the dimnames that end up on the combined assays
+      of the returned SummarizedExperiment object. So the assay dimnames are
+      now returned as-is.
+      See commit 1d6610eb168330f32433273e4fe49da173dcd33b.
+
+
 CHANGES IN VERSION 1.26.0
 -------------------------
 
