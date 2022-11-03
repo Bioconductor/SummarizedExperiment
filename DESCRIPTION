@@ -8,7 +8,7 @@ biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
 URL: https://bioconductor.org/packages/SummarizedExperiment
 BugReports: https://github.com/Bioconductor/SummarizedExperiment/issues
-Version: 1.29.0
+Version: 1.29.1
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -32,11 +32,10 @@ Collate: Assays-class.R
 	intra-range-methods.R
 	inter-range-methods.R
 	coverage-methods.R
-    combine-methods.R
+	combine-methods.R
 	findOverlaps-methods.R
 	nearest-methods.R
 	makeSummarizedExperimentFromExpressionSet.R
 	makeSummarizedExperimentFromDataFrame.R
 	makeSummarizedExperimentFromLoom.R
-	readKallisto.R
 	zzz.R

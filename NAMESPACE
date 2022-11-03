@@ -90,8 +90,7 @@ export(
     makeSummarizedExperimentFromExpressionSet,
     makeSummarizedExperimentFromDataFrame,
     makeSummarizedExperimentFromLoom,
-    naiveRangeMapper, probeRangeMapper, geneRangeMapper,
-    readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS
+    naiveRangeMapper, probeRangeMapper, geneRangeMapper
 )
 
 
