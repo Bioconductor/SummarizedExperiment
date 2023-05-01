@@ -202,8 +202,8 @@ setMethod("assays", "SummarizedExperiment",
             function(a) {
                 a_dimnames <- dimnames(a)
                 a_dimnames[1:2] <- x_dimnames
-                a_dimnames <- DelayedArray:::simplify_NULL_dimnames(a_dimnames)
-                DelayedArray:::set_dimnames(a, a_dimnames)
+                a_dimnames <- S4Arrays:::simplify_NULL_dimnames(a_dimnames)
+                S4Arrays:::set_dimnames(a, a_dimnames)
             }
         )
     }
@@ -930,7 +930,7 @@ setMethod("realize", "SummarizedExperiment",
             ##      on disk doesn't store the dimnames in the HDF5 file at the
             ##      moment.
             a <- assay(x, i, withDimnames=FALSE)
-            a <- DelayedArray:::set_dimnames(a, NULL)
+            a <- S4Arrays:::set_dimnames(a, NULL)
             assay(x, i, withDimnames=FALSE) <- realize(a, BACKEND=BACKEND)
         }
         x

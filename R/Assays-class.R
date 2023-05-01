@@ -47,6 +47,13 @@
 ###
 
 setClass("Assays", contains="RectangularData", representation("VIRTUAL"))
+### Should Assays contain Vector? The length would be the 3rd dimension
+### i.e. the nb of assays (1st and 2nd dimensions being the nb of rows
+### and cols). That would seem like the right thing to do.
+#setClass("Assays",
+#    contains=c("RectangularData", "Vector"),
+#    representation("VIRTUAL")
+#)
 
 ### Validity
 
