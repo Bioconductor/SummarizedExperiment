@@ -246,6 +246,19 @@ roi <- GRanges(seqnames="1", ranges=100000:1100000)
 subsetByOverlaps(se, roi)
 ```
 
+# Interactive visualization
+
+The `r BiocStyle::Biocpkg("iSEE")` package provides functions for creating an interactive user interface based on the `r BiocStyle::CRANpkg("shiny")` package for exploring data stored in `SummarizedExperiment` objects.
+Information stored in standard components of `SummarizedExperiment` objects -- including assay data, and row and column metadata -- are automatically detected and used to populate the interactive multi-panel user interface.
+Particular attention is given to the `r BiocStyle::Biocpkg("SingleCellExperiment")` extension of the `SummarizedExperiment` class, with visualization of dimensionality reduction results.
+
+Extensions to the `r BiocStyle::Biocpkg("iSEE")` package provide support for more context-dependent functionality:
+
+- `r BiocStyle::Biocpkg("iSEEde")` provides additional panels that facilitate the interactive visualization of differential expression results, including the `DESeqDataSet` extension of `SummarizedExperiment` implemented in `r BiocStyle::Biocpkg("DESeq2")`.
+- `r BiocStyle::Biocpkg("iSEEpathways")` provides additional panels for the interactive visualization of pathway analysis results.
+- `r BiocStyle::Biocpkg("iSEEhub")` provides functionality to import data sets stored in the Bioconductor `r BiocStyle::Biocpkg("ExperimentHub")`.
+- `r BiocStyle::Biocpkg("iSEEhub")` provides functionality to import data sets from custom sources (local and remote).
+
 # Session information
 
 ```{r}
