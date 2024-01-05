@@ -179,8 +179,12 @@ colData(x, ...) <- value
     SummarizedExperiment object should be applied (i.e. copied)
     to the extracted assays. More precisely, setting
     \code{withDimnames=FALSE} in the \emph{getter} returns the
-    assays \emph{as-is} whereas setting \code{withDimnames=FALSE}
+    assays \emph{as-is} whereas setting \code{withDimnames=TRUE}
     return them with possibly modified dimnames.
+
+    See "Top-level dimnames vs assay-level dimnames" section in
+    the SummarizedExperiment vignette for more information about
+    this and some examples.
 
     Setting \code{withDimnames=FALSE} in the \emph{setter} (\code{assays<-})
     is required when the dimnames on the supplied assays are not identical

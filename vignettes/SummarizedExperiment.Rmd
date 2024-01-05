@@ -1,7 +1,7 @@
 ---
 title: "_SummarizedExperiment_ for Coordinating Experimental Assays, Samples, and Regions of Interest"
 author: "Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès"
-date: "Revised: 3 May, 2018"
+date: "Revised: 5 Jan, 2023"
 output:
   BiocStyle::html_document:
     toc: true
@@ -184,6 +184,52 @@ a `DataFrame` for the _rowData_ argument:
 
 ```{r constructSE}
 SummarizedExperiment(assays=list(counts=counts), colData=colData)
+```
+
+# Top-level dimnames vs assay-level dimnames
+
+In addition to the dimnames that are set on a `SummarizedExperiment` object
+itself, the individual assays that are stored in the object can have their
+own dimnames or not:
+
+```{r construct_se3}
+a1 <- matrix(runif(24), ncol=6, dimnames=list(letters[1:4], LETTERS[1:6]))
+a2 <- matrix(rpois(24, 0.8), ncol=6)
+a3 <- matrix(101:124, ncol=6, dimnames=list(NULL, LETTERS[1:6]))
+se3 <- SummarizedExperiment(SimpleList(a1, a2, a3))
+```
+
+The dimnames of the `SummarizedExperiment` object (top-level dimnames):
+
+```{r top_level_dimnames}
+dimnames(se3)
+```
+
+When extracting assays from the object, the top-level dimnames are put on
+them by default:
+
+```{r top_level_dimnames_are_propagated}
+assay(se3, 2)  # this is 'a2', but with the top-level dimnames on it
+
+assay(se3, 3)  # this is 'a3', but with the top-level dimnames on it
+```
+
+However if using `withDimnames=FALSE` then the assays are returned
+_as-is_, i.e. with their original dimnames (this is how they are stored
+in the `SummarizedExperiment` object):
+
+```{r assay_level_dimnames}
+assay(se3, 2, withDimnames=FALSE)  # identical to 'a2'
+
+assay(se3, 3, withDimnames=FALSE)  # identical to 'a3'
+
+rownames(se3) <- strrep(letters[1:4], 3)
+
+dimnames(se3)
+
+assay(se3, 1)  # this is 'a1', but with the top-level dimnames on it
+
+assay(se3, 1, withDimnames=FALSE)  # identical to 'a1'
 ```
 
 # Common operations on `SummarizedExperiment`
