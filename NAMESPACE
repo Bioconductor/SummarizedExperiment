@@ -62,8 +62,9 @@ exportMethods(
     pcompare,
 
     ## Generics defined in IRanges:
+    narrow,
     ranges, "ranges<-",
-    shift, narrow, resize, flank, promoters, restrict, trim,
+    shift, resize, flank, promoters, terminators, restrict, trim,
     isDisjoint, disjointBins,
     coverage,
     findOverlaps,

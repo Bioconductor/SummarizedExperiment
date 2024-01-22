@@ -15,7 +15,9 @@
 \alias{flank,RangedSummarizedExperiment-method}
 
 \alias{promoters}
+\alias{terminators}
 \alias{promoters,RangedSummarizedExperiment-method}
+\alias{terminators,RangedSummarizedExperiment-method}
 
 \alias{restrict}
 \alias{restrict,RangedSummarizedExperiment-method}
@@ -42,6 +44,7 @@
       use.names=TRUE, ignore.strand=FALSE)
 
 \S4method{promoters}{RangedSummarizedExperiment}(x, upstream=2000, downstream=200)
+\S4method{terminators}{RangedSummarizedExperiment}(x, upstream=2000, downstream=200)
 
 \S4method{restrict}{RangedSummarizedExperiment}(x, start=NA, end=NA, keep.all.ranges=FALSE,
          use.names=TRUE)
@@ -53,21 +56,10 @@
   \item{x}{
     A \link{RangedSummarizedExperiment} object.
   }
-  \item{shift, use.names}{
-    See \code{?\link{shift}} in the \pkg{IRanges}
-    package.
-  }
-  \item{start, end, width, fix}{
-    See \code{?\link{shift}} in the \pkg{IRanges} package.
-  }
-  \item{ignore.strand, both}{
-    See \code{?\link{shift}} in the \pkg{IRanges} package.
-  }
-  \item{upstream, downstream}{
-    See \code{?\link{shift}} in the \pkg{IRanges} package.
-  }
-  \item{keep.all.ranges}{
-    See \code{?\link{shift}} in the \pkg{IRanges} package.
+  \item{shift, use.names, start, end, width, fix, ignore.strand, both,
+        upstream, downstream, keep.all.ranges}{
+    See \code{?GenomicRanges::\link[GenomicRanges]{shift}} in the
+    \pkg{GenomicRanges} package.
   }
 }
 
@@ -84,9 +76,10 @@
   where \code{f} is the name of the function and \code{...} any additional
   arguments passed to it.
 
-  See \code{?\link{shift}} in the \pkg{IRanges}
-  package for the details of how these transformations operate on a
-  \link[GenomicRanges]{GenomicRanges} or \link[GenomicRanges]{GRangesList}
+  See \code{?GenomicRanges::\link[GenomicRanges]{shift}} in the
+  \pkg{GenomicRanges} package for the details of how these transformations
+  operate on a \link[GenomicRanges]{GenomicRanges} or
+  \link[GenomicRanges]{GRangesList}
   object.
 }
 
@@ -94,8 +87,8 @@
   \itemize{
     \item \link{RangedSummarizedExperiment} objects.
 
-    \item The \link{shift} man page in the
-          \pkg{IRanges} package where \emph{intra range transformations}
+    \item The \code{\link[GenomicRanges]{shift}} man page in the
+          \pkg{GenomicRanges} package where \emph{intra range transformations}
           of a \link[GenomicRanges]{GenomicRanges} or
           \link[GenomicRanges]{GRangesList} object are documented.
   }
@@ -136,9 +129,21 @@ stopifnot(identical(
   flank(rowRanges(rse0), width=20)
 ))
 
-se5 <- restrict(rse0, start=200, end=700, keep.all.ranges=TRUE)
+se5 <- promoters(rse0, upstream=85, downstream=50)
 stopifnot(identical(
   rowRanges(se5),
+  promoters(rowRanges(rse0), upstream=85, downstream=50)
+))
+
+se6 <- terminators(rse0, upstream=85, downstream=50)
+stopifnot(identical(
+  rowRanges(se6),
+  terminators(rowRanges(rse0), upstream=85, downstream=50)
+))
+
+se7 <- restrict(rse0, start=200, end=700, keep.all.ranges=TRUE)
+stopifnot(identical(
+  rowRanges(se7),
   restrict(rowRanges(rse0), start=200, end=700, keep.all.ranges=TRUE)
 ))
 }

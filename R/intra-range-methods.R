@@ -55,6 +55,16 @@ setMethod("promoters", "RangedSummarizedExperiment",
     }
 )
 
+setMethod("terminators", "RangedSummarizedExperiment",
+    function(x, upstream=2000, downstream=200)
+    {
+        x0 <- x
+        x <- rowRanges(x)
+        rowRanges(x0) <- callGeneric()
+        x0
+    }
+)
+
 ### Because 'keep.all.ranges' is FALSE by default, it will break if some
 ### ranges are dropped.
 setMethod("restrict", "RangedSummarizedExperiment",
