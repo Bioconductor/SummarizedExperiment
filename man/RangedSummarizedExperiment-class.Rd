@@ -8,9 +8,6 @@
 
 \alias{parallel_slot_names,RangedSummarizedExperiment-method}
 
-% Constructor
-\alias{SummarizedExperiment}
-
 % Coercion
 \alias{coerce,RangedSummarizedExperiment,SummarizedExperiment-method}
 \alias{coerce,SummarizedExperiment,RangedSummarizedExperiment-method}
@@ -72,13 +69,14 @@
   The RangedSummarizedExperiment class is a matrix-like container where rows
   represent ranges of interest (as a \link{GRanges} or \link{GRangesList}
   object) and columns represent samples (with sample data summarized as a
-  \link{DataFrame}). A RangedSummarizedExperiment contains one or more
+  \link{DataFrame}). A RangedSummarizedExperiment object contains one or more
   assays, each represented by a matrix-like object of numeric or other mode.
 
   RangedSummarizedExperiment is a subclass of \link{SummarizedExperiment} and,
-  as such, all the methods documented in \code{class?SummarizedExperiment}
-  also work on a RangedSummarizedExperiment object. The methods documented
-  below are additional methods that are specific to RangedSummarizedExperiment
+  as such, all the methods documented in \code{?SummarizedExperiment}
+  also work on a RangedSummarizedExperiment object or any
+  \link{SummarizedExperiment} derivative. The methods documented below
+  are additional methods that are specific to RangedSummarizedExperiment
   objects.
 }
 
@@ -86,11 +84,7 @@
 
 ## Constructor
 
-SummarizedExperiment(assays=SimpleList(),
-                     rowData=NULL, rowRanges=GRangesList(),
-                     colData=DataFrame(),
-                     metadata=list(),
-                     checkDimnames=TRUE)
+# See ?SummarizedExperiment for the constructor function.
 
 ## Accessors
 
@@ -107,47 +101,10 @@ rowRanges(x, ...) <- value
 
 \arguments{
 
-  \item{assays}{A \code{list} or \code{SimpleList} of matrix-like elements,
-    or a matrix-like object (e.g. an ordinary matrix, a data frame,
-    a \link[S4Vectors]{DataFrame} object from the \pkg{S4Vectors} package,
-    a \link[Matrix]{sparseMatrix} derivative from the \pkg{Matrix} package,
-    a \link[DelayedArray]{DelayedMatrix} object from the \pkg{DelayedArray}
-    package, etc...).
-    All elements of the list must have the same dimensions, and dimension
-    names (if present) must be consistent across elements and with the row
-    names of \code{rowRanges} and \code{colData}.}
-
-  \item{rowData}{A \link[S4Vectors]{DataFrame} object describing 
-    the rows. Row names, if present, become the row names of the
-    SummarizedExperiment object. The number of rows of the
-    \link[S4Vectors]{DataFrame} must equal the number of rows of the
-    matrices in \code{assays}.}
-
-  \item{rowRanges}{A \link[GenomicRanges]{GRanges} or
-    \link[GenomicRanges]{GRangesList} object describing the ranges of
-    interest. Names, if present, become the row names of the
-    SummarizedExperiment object. The length of the
-    \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}
-    must equal the number of rows of the matrices in \code{assays}.
-    If \code{rowRanges} is missing, a SummarizedExperiment instance
-    is returned.}
-
-  \item{colData}{An optional \link{DataFrame} describing the
-    samples. Row names, if present, become the column names of the
-    RangedSummarizedExperiment.}
-
-  \item{metadata}{An optional \code{list} of arbitrary content
-    describing the overall experiment.}
-
-  \item{checkDimnames}{By default the rownames and colnames of the supplied
-    assay(s) are checked for consistency with those of the SummarizedExperiment
-    object (or derivative) to construct. More precisely, the rownames and
-    colnames of each assay must be NULL or identical to those of the object.
-    Use \code{checkDimnames=FALSE} to skip this check.}
-
-  \item{x}{A RangedSummarizedExperiment object. The \code{rowRanges} setter
-    will also accept a SummarizedExperiment object and will first coerce it
-    to RangedSummarizedExperiment before it sets \code{value} on it.}
+  \item{x}{A RangedSummarizedExperiment object or derivative. The
+    \code{rowRanges} setter will also accept a \link{SummarizedExperiment}
+    \emph{instance} and will first coerce it to RangedSummarizedExperiment
+    before it sets \code{value} on it.}
 
   \item{...}{Further arguments to be passed to or from other methods.}
 
@@ -182,14 +139,16 @@ rowRanges(x, ...) <- value
 \section{Constructor}{
 
   RangedSummarizedExperiment instances are constructed using the
-  \code{SummarizedExperiment()} function with arguments outlined above.
+  \code{SummarizedExperiment()} function documented in
+  \code{?\link{SummarizedExperiment}}.
 
 }
 
 \section{Accessors}{
 
-  In the following code snippets, \code{x} is a RangedSummarizedExperiment
-  object.
+  In the code snippets below, \code{x} is a RangedSummarizedExperiment object
+  or derivative (e.g. a \link[SingleCellExperiment]{SingleCellExperiment}
+  object).
 
   \describe{
 
@@ -234,8 +193,9 @@ rowRanges(x, ...) <- value
 
 \section{Subsetting}{
 
-  In the code snippets below, \code{x} is a RangedSummarizedExperiment
-  object.
+  In the code snippets below, \code{x} is a RangedSummarizedExperiment object
+  or derivative (e.g. a \link[SingleCellExperiment]{SingleCellExperiment}
+  object).
 
   \describe{
 
@@ -256,13 +216,18 @@ rowRanges(x, ...) <- value
   extended in the usual way, using \code{contains="RangedSummarizedExperiment"}
   in the new class definition.
 
+  See the \link[SingleCellExperiment]{SingleCellExperiment} class defined
+  in the \pkg{SingleCellExperiment} package for an example of such extension.
+
 }
 
 \author{Martin Morgan, \url{mtmorgan@fhcrc.org}}
 
 \seealso{
   \itemize{
-    \item \link{SummarizedExperiment-class}
+    \item \link{SummarizedExperiment} for the parent class of
+          RangedSummarizedExperiment and the
+          RangedSummarizedExperiment/SummarizedExperiment constructor function.
 
     \item \link[SummarizedExperiment]{shift},
           \link[SummarizedExperiment]{isDisjoint},
@@ -273,6 +238,12 @@ rowRanges(x, ...) <- value
 
     \item \link[GenomicRanges]{GRanges} objects in the \pkg{GenomicRanges}
           package.
+
+    \item The \link[SingleCellExperiment]{SingleCellExperiment} defined
+          in the \pkg{SingleCellExperiment} package, a subclass of
+          RangedSummarizedExperiment specifically designed to represent
+          single-cell sequencing data.
+
   }
 }
 

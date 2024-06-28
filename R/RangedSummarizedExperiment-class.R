@@ -57,7 +57,7 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
 ### Constructor
 ###
 
-.new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
+new_RangedSummarizedExperiment <- function(assays, rowRanges, colData,
                                             metadata)
 {
     assays <- Assays(assays, as.null.if.no.assay=TRUE)
@@ -67,105 +67,6 @@ setValidity2("RangedSummarizedExperiment", .valid.RangedSummarizedExperiment)
                                       assays=assays,
                                       elementMetadata=elementMetadata,
                                       metadata=as.list(metadata))
-}
-
-### We use as.character() in .get_rownames_from_first_assay() and
-### .get_colnames_from_first_assay() below to drop the names on the
-### rownames/colnames. Also in the unlikely (but possible in theory)
-### situation where an assay uses unconventional representation of the
-### rownames/colnames (e.g. factor?), this will make sure that the
-### rownames/colnames are returned in a character vector.
-.get_rownames_from_first_assay <- function(assays)
-{
-    if (length(assays) == 0L)
-        return(NULL)
-    rownames <- rownames(assays[[1L]])
-    if (!is.null(rownames))
-        rownames <- as.character(rownames)
-    rownames
-}
-
-.get_colnames_from_first_assay <- function(assays)
-{
-    if (length(assays) == 0L)
-        return(NULL)
-    colnames <- colnames(assays[[1L]])
-    if (!is.null(colnames))
-        colnames <- as.character(colnames)
-    colnames
-}
-
-SummarizedExperiment <- function(assays=SimpleList(),
-                                 rowData=NULL, rowRanges=GRangesList(),
-                                 colData=DataFrame(),
-                                 metadata=list(),
-                                 checkDimnames=TRUE)
-{
-    if (!isTRUEorFALSE(checkDimnames))
-        stop(wmsg("'checkDimnames' must be TRUE or FALSE"))
-
-    assays <- normarg_assays(assays, as.null.if.no.assay=TRUE)
-
-    if (!missing(colData)) {
-        if (!is(colData, "DataFrame"))
-            colData <- as(colData, "DataFrame")
-        if (is.null(rownames(colData)))
-            rownames(colData) <- .get_colnames_from_first_assay(assays)
-    } else if (length(assays) != 0L) {
-        a1 <- assays[[1L]]
-        nms <- colnames(a1)
-        colData <- DataFrame(x=seq_len(ncol(a1)), row.names=nms)[, FALSE]
-    }
-
-    if (is.null(rowData)) {
-        if (missing(rowRanges)) {
-            ans_rownames <- .get_rownames_from_first_assay(assays)
-        } else {
-            if (is.null(names(rowRanges)))
-                names(rowRanges) <- .get_rownames_from_first_assay(assays)
-            ans_rownames <- names(rowRanges)
-        }
-    } else {
-        if (!missing(rowRanges))
-            stop("only one of 'rowData' and 'rowRanges' can be specified")
-        if (is(rowData, "GenomicRanges_OR_GRangesList")) {
-            rowRanges <- rowData
-            if (is.null(names(rowRanges)))
-                names(rowRanges) <- .get_rownames_from_first_assay(assays)
-            ans_rownames <- names(rowRanges)
-        } else {
-            if (!is(rowData, "DataFrame"))
-                rowData <- as(rowData, "DataFrame")
-            ans_rownames <- rownames(rowData)
-            if (is.null(ans_rownames))
-                ans_rownames <- .get_rownames_from_first_assay(assays)
-        }
-    }
-
-    if (missing(rowRanges) && !is(rowData, "GenomicRanges_OR_GRangesList")) {
-        ans <- new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
-                                        metadata)
-    } else {
-        ans <- .new_RangedSummarizedExperiment(assays, rowRanges, colData,
-                                               metadata)
-    }
-    if (!checkDimnames)
-        return(ans)
-    ans_dimnames <- dimnames(ans)
-    ok <- assays_have_expected_dimnames(ans@assays, ans_dimnames, strict=FALSE)
-    if (!ok) {
-        if (is.null(ans_dimnames[[1L]])) {
-            what <- "colnames"
-        } else if (is.null(ans_dimnames[[2L]])) {
-            what <- "rownames"
-        } else {
-            what <- "rownames and colnames"
-        }
-        stop(wmsg("the ", what, " of the supplied assay(s) must be NULL ",
-                  "or identical to those of the ", class(ans), " object ",
-                  "(or derivative) to construct"))
-    }
-    ans
 }
 
 
@@ -194,10 +95,10 @@ setAs("RangedSummarizedExperiment", "SummarizedExperiment",
     partitioning <- PartitioningByEnd(integer(length(from)), names=names(from))
     rowRanges <- relist(GRanges(), partitioning)
     mcols(rowRanges) <- mcols(from, use.names=FALSE)
-    .new_RangedSummarizedExperiment(from@assays,
-                                    rowRanges,
-                                    from@colData,
-                                    from@metadata)
+    new_RangedSummarizedExperiment(from@assays,
+                                   rowRanges,
+                                   from@colData,
+                                   from@metadata)
 }
 
 setAs("SummarizedExperiment", "RangedSummarizedExperiment",

@@ -92,34 +92,6 @@ setValidity2("SummarizedExperiment", .valid.SummarizedExperiment)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Low-level constructor (not exported)
-###
-
-new_SummarizedExperiment <- function(assays, names, rowData, colData,
-                                     metadata)
-{
-    assays <- Assays(assays, as.null.if.no.assay=TRUE)
-    if (is.null(rowData)) {
-        if (!is.null(names)) {
-            nrow <- length(names)
-        } else if (!is.null(assays)) {
-            nrow <- nrow(assays)
-        } else {
-            nrow <- 0L
-        }
-        rowData <- S4Vectors:::make_zero_col_DataFrame(nrow)
-    } else {
-        rownames(rowData) <- NULL
-    }
-    new("SummarizedExperiment", NAMES=names,
-                                elementMetadata=rowData,
-                                colData=colData,
-                                assays=assays,
-                                metadata=as.list(metadata))
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Accessors
 ###
 
@@ -221,8 +193,8 @@ setGeneric("assays<-", signature=c("x", "value"),
 ### with 'expected_dimnames'.
 ### If 'strict' is FALSE, then a NULL on either side of the comparison
 ### is enough for the comparison to be considered succesful.
-assays_have_expected_dimnames <- function(assays, expected_dimnames,
-                                          strict=TRUE)
+.assays_have_expected_dimnames <- function(assays, expected_dimnames,
+                                           strict=TRUE)
 {
     if (length(assays) == 0L)
         return(TRUE)
@@ -291,7 +263,7 @@ assays_have_expected_dimnames <- function(assays, expected_dimnames,
     ## the dimnames on 'x'. The user must use 'withDimnames=FALSE' if it's
     ## not the case. This is for symetry with the behavior of the getter.
     ## See https://github.com/Bioconductor/SummarizedExperiment/issues/35
-    if (withDimnames && !assays_have_expected_dimnames(value, dimnames(x)))
+    if (withDimnames && !.assays_have_expected_dimnames(value, dimnames(x)))
         stop(wmsg("please use 'assay(x, withDimnames=FALSE)) <- value' ",
                   "or 'assays(x, withDimnames=FALSE)) <- value' when ",
                   "the rownames or colnames of the supplied assay(s) ",
@@ -427,6 +399,140 @@ setReplaceMethod("dimnames", c("SummarizedExperiment", "NULL"),
     dimnames(x) <- list(NULL, NULL)
     x
 })
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Low-level constructor (not exported)
+###
+
+new_SummarizedExperiment <- function(assays, names, rowData, colData,
+                                     metadata)
+{
+    assays <- Assays(assays, as.null.if.no.assay=TRUE)
+    if (is.null(rowData)) {
+        if (!is.null(names)) {
+            nrow <- length(names)
+        } else if (!is.null(assays)) {
+            nrow <- nrow(assays)
+        } else {
+            nrow <- 0L
+        }
+        rowData <- S4Vectors:::make_zero_col_DataFrame(nrow)
+    } else {
+        rownames(rowData) <- NULL
+    }
+    new("SummarizedExperiment", NAMES=names,
+                                elementMetadata=rowData,
+                                colData=colData,
+                                assays=assays,
+                                metadata=as.list(metadata))
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### High-level SummarizedExperiment/RangedSummarizedExperiment constructor
+###
+
+### We use as.character() in .get_rownames_from_first_assay() and
+### .get_colnames_from_first_assay() below to drop the names on the
+### rownames/colnames. Also in the unlikely (but possible in theory)
+### situation where an assay uses unconventional representation of the
+### rownames/colnames (e.g. factor?), this will make sure that the
+### rownames/colnames are returned in a character vector.
+.get_rownames_from_first_assay <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(NULL)
+    rownames <- rownames(assays[[1L]])
+    if (!is.null(rownames))
+        rownames <- as.character(rownames)
+    rownames
+}
+
+.get_colnames_from_first_assay <- function(assays)
+{
+    if (length(assays) == 0L)
+        return(NULL)
+    colnames <- colnames(assays[[1L]])
+    if (!is.null(colnames))
+        colnames <- as.character(colnames)
+    colnames
+}
+
+SummarizedExperiment <- function(assays=SimpleList(),
+                                 rowData=NULL, rowRanges=NULL,
+                                 colData=DataFrame(),
+                                 metadata=list(),
+                                 checkDimnames=TRUE)
+{
+    if (!isTRUEorFALSE(checkDimnames))
+        stop(wmsg("'checkDimnames' must be TRUE or FALSE"))
+
+    assays <- normarg_assays(assays, as.null.if.no.assay=TRUE)
+
+    if (!missing(colData)) {
+        if (!is(colData, "DataFrame"))
+            colData <- as(colData, "DataFrame")
+        if (is.null(rownames(colData)))
+            rownames(colData) <- .get_colnames_from_first_assay(assays)
+    } else if (length(assays) != 0L) {
+        a1 <- assays[[1L]]
+        nms <- colnames(a1)
+        colData <- DataFrame(x=seq_len(ncol(a1)), row.names=nms)[, FALSE]
+    }
+
+    if (is.null(rowData)) {
+        if (is.null(rowRanges)) {
+            ans_rownames <- .get_rownames_from_first_assay(assays)
+        } else {
+            if (!is(rowRanges, "GenomicRanges_OR_GRangesList"))
+                stop("'rowRanges' must be a GRanges or GRangesList object")
+            if (is.null(names(rowRanges)))
+                names(rowRanges) <- .get_rownames_from_first_assay(assays)
+            ans_rownames <- names(rowRanges)
+        }
+    } else {
+        if (!is.null(rowRanges))
+            stop("only one of 'rowData' and 'rowRanges' can be specified")
+        if (is(rowData, "GenomicRanges_OR_GRangesList")) {
+            rowRanges <- rowData
+            if (is.null(names(rowRanges)))
+                names(rowRanges) <- .get_rownames_from_first_assay(assays)
+            ans_rownames <- names(rowRanges)
+        } else {
+            if (!is(rowData, "DataFrame"))
+                rowData <- as(rowData, "DataFrame")
+            ans_rownames <- rownames(rowData)
+            if (is.null(ans_rownames))
+                ans_rownames <- .get_rownames_from_first_assay(assays)
+        }
+    }
+
+    if (is.null(rowRanges)) {
+        ans <- new_SummarizedExperiment(assays, ans_rownames, rowData, colData,
+                                        metadata)
+    } else {
+        ans <- new_RangedSummarizedExperiment(assays, rowRanges, colData,
+                                              metadata)
+    }
+    if (!checkDimnames)
+        return(ans)
+    ans_dimnames <- dimnames(ans)
+    ok <- .assays_have_expected_dimnames(ans@assays, ans_dimnames, strict=FALSE)
+    if (!ok) {
+        if (is.null(ans_dimnames[[1L]])) {
+            what <- "colnames"
+        } else if (is.null(ans_dimnames[[2L]])) {
+            what <- "rownames"
+        } else {
+            what <- "rownames and colnames"
+        }
+        stop(wmsg("the ", what, " of the supplied assay(s) must be NULL ",
+                  "or identical to those of the ", class(ans), " object ",
+                  "(or derivative) to construct"))
+    }
+    ans
+}
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -7,6 +7,7 @@
 \alias{Assays_OR_NULL}
 \alias{class:SummarizedExperiment}
 \alias{SummarizedExperiment-class}
+\alias{SummarizedExperiment}
 
 \alias{parallel_slot_names,SummarizedExperiment-method}
 \alias{vertical_slot_names,SummarizedExperiment-method}
@@ -97,9 +98,13 @@
 
 \usage{
 
-## Constructor
+## Constructor for RangedSummarizedExperiment/SummarizedExperiment objects
 
-# See ?RangedSummarizedExperiment for the constructor function.
+SummarizedExperiment(assays=SimpleList(),
+                     rowData=NULL, rowRanges=NULL,
+                     colData=DataFrame(),
+                     metadata=list(),
+                     checkDimnames=TRUE)
 
 ## Accessors
 
@@ -138,18 +143,65 @@ colData(x, ...) <- value
 \S4method{combineCols}{SummarizedExperiment}(x, ..., delayed=TRUE, fill=NA, use.names=TRUE)
 
 ## On-disk realization
+
 \S4method{realize}{SummarizedExperiment}(x, BACKEND=getAutoRealizationBackend())
 }
 
 \arguments{
+  \item{assays}{
+    A \code{list} or \code{SimpleList} of matrix-like elements,
+    or a matrix-like object (e.g. an ordinary matrix, a data frame,
+    a \link[S4Vectors]{DataFrame} object from the \pkg{S4Vectors} package,
+    a \link[SparseArray]{SparseMatrix} derivative from the \pkg{SparseArray}
+    package, a \link[Matrix]{sparseMatrix} derivative from the \pkg{Matrix}
+    package, a \link[DelayedArray]{DelayedMatrix} object from the
+    \pkg{DelayedArray} package, etc...).
+    All elements of the list must have the same dimensions, and dimension
+    names (if present) must be consistent across elements and with the row
+    names of \code{rowRanges} and \code{colData}.
+  }
+  \item{rowData}{
+    \code{NULL} (the default) or a \link[S4Vectors]{DataFrame} object
+    describing the rows. Row names, if present, become the row names of
+    the constructed SummarizedExperiment object. The number of rows of
+    the \link[S4Vectors]{DataFrame} must equal the number of rows of the
+    matrices in \code{assays}.
+  }
+  \item{rowRanges}{
+    \code{NULL} (the default), or a \link[GenomicRanges]{GRanges} or
+    \link[GenomicRanges]{GRangesList} object describing the ranges of
+    interest.
+    If \code{NULL}, a SummarizedExperiment \emph{instance} is returned.
+    Otherwise, a \link{RangedSummarizedExperiment} \emph{instance} is returned.
+    Names on \code{rowRanges}, if present, become the row names of the
+    returned object. The length of the \link[GenomicRanges]{GRanges} or
+    \link[GenomicRanges]{GRangesList} must equal the number of rows of
+    the matrices in \code{assays}.
+  }
+  \item{colData}{
+    An optional \link{DataFrame} describing the samples. Row names on
+    \code{colData}, if present, become the column names of the returned object.
+  }
+  \item{metadata}{
+    An optional \code{list} of arbitrary content describing the overall
+    experiment.
+  }
+  \item{checkDimnames}{
+    By default the rownames and colnames of the supplied
+    assay(s) are checked for consistency with those of the
+    SummarizedExperiment or \link{RangedSummarizedExperiment} object
+    to construct. More precisely, the rownames and colnames of each assay
+    must be \code{NULL} or identical to those of the object.
+    Use \code{checkDimnames=FALSE} to skip this check.
+  }
   \item{x}{
-    A SummarizedExperiment object.
+    A SummarizedExperiment object or derivative.
   }
   \item{...}{
     For \code{assay}, arguments in \code{...} are forwarded to \code{assays}.
 
     For \code{rbind}, \code{cbind}, \code{...} contains SummarizedExperiment
-    objects to be combined.
+    objects (or derivatives) to be combined.
 
     For other accessors, ignored.
   }
@@ -176,8 +228,8 @@ colData(x, ...) <- value
   }
   \item{withDimnames}{
     A \code{logical(1)}, indicating whether the dimnames of the
-    SummarizedExperiment object should be applied (i.e. copied)
-    to the extracted assays. More precisely, setting
+    SummarizedExperiment object (or derivative) should be applied (i.e.
+    copied) to the extracted assays. More precisely, setting
     \code{withDimnames=FALSE} in the \emph{getter} returns the
     assays \emph{as-is} whereas setting \code{withDimnames=TRUE}
     return them with possibly modified dimnames.
@@ -201,13 +253,14 @@ colData(x, ...) <- value
     For \code{rowData}: Like \code{\link[S4Vectors]{mcols}(x)}, by default
     \code{rowData(x)} propagates the rownames of \code{x} to the returned
     \link[S4Vectors]{DataFrame} object (note that for a SummarizedExperiment
-    object, the rownames are also the names i.e. \code{rownames(x)} is
-    always the same as \code{names(x)}). Setting \code{use.names=FALSE}
-    suppresses this propagation i.e. it returns a \link[S4Vectors]{DataFrame}
-    object with no rownames. Use this when \code{rowData(x)} fails,
-    which can happen when the rownames contain NAs (because the rownames
-    of a SummarizedExperiment object can contain NAs, but the rownames of
-    a \link[S4Vectors]{DataFrame} object cannot).
+    object or derivative, the rownames are also the names i.e.
+    \code{rownames(x)} is always the same as \code{names(x)}).
+    Setting \code{use.names=FALSE} suppresses this propagation i.e. it
+    returns a \link[S4Vectors]{DataFrame} object with no rownames. Use this
+    when \code{rowData(x)} fails, which can happen when the rownames contain
+    NAs (because the rownames of a SummarizedExperiment object or derivative
+    can contain NAs, but the rownames of a \link[S4Vectors]{DataFrame} object
+    cannot).
 
     For \code{combineRows} and \code{combineCols}: See Combining section
     below.
@@ -290,18 +343,10 @@ colData(x, ...) <- value
 
 }
 
-\section{Constructor}{
-
-  SummarizedExperiment instances are constructed using the
-  \code{SummarizedExperiment} function documented in
-  \code{?\link{RangedSummarizedExperiment}}.
-
-}
-
 \section{Accessors}{
 
-  In the following code snippets, \code{x} is a SummarizedExperiment
-  object.
+  In the code snippets below, \code{x} is a SummarizedExperiment object
+  or derivative (e.g. a \link{RangedSummarizedExperiment} object).
 
   \describe{
 
@@ -325,15 +370,15 @@ colData(x, ...) <- value
 
     \item{\code{colData(x)}, \code{colData(x) <- value}:}{Get or set the
       column data. \code{value} is a \link{DataFrame} object. Row
-      names of \code{value} must be NULL or consistent with the existing
-      column names of \code{x}.}
+      names of \code{value} must be \code{NULL} or consistent with the
+      existing column names of \code{x}.}
 
     \item{\code{metadata(x)}, \code{metadata(x) <- value}:}{Get or set
       the experiment data. \code{value} is a \code{list} with arbitrary
       content.}
 
     \item{\code{dim(x)}:}{Get the dimensions (features of interest x samples)
-      of the SummarizedExperiment.}
+      of the SummarizedExperiment object.}
 
     \item{\code{dimnames(x)}, \code{dimnames(x) <- value}:}{Get or set
       the dimension names. \code{value} is usually a list of length 2,
@@ -348,7 +393,8 @@ colData(x, ...) <- value
 
 \section{Subsetting}{
 
-  In the code snippets below, \code{x} is a SummarizedExperiment object.
+  In the code snippets below, \code{x} is a SummarizedExperiment object
+  or derivative (e.g. a \link{RangedSummarizedExperiment} object).
 
   \describe{
 
@@ -384,7 +430,7 @@ colData(x, ...) <- value
 \section{Combining}{
 
   In the code snippets below, \code{x}, \code{y} and \code{...} are
-  SummarizedExperiment objects to be combined.
+  SummarizedExperiment objects (or derivatives) to be combined.
 
   \describe{
 
@@ -397,8 +443,8 @@ colData(x, ...) <- value
       contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
-      names are NULL matching is by position. A mixture of names and NULL
-      throws an error.
+      names are \code{NULL} matching is by position. A mixture of names
+      and \code{NULL} throws an error.
 
       \code{metadata} from all objects are combined into a \code{list}
       with no name checking.
@@ -413,8 +459,8 @@ colData(x, ...) <- value
       contain the same data.
 
       Data in \code{assays} are combined by name matching; if all assay
-      names are NULL matching is by position. A mixture of names and NULL
-      throws an error.
+      names are \code{NULL} matching is by position. A mixture of names
+      and \code{NULL} throws an error.
 
       \code{metadata} from all objects are combined into a \code{list}
       with no name checking.
@@ -445,8 +491,8 @@ colData(x, ...) <- value
       Data in \code{assays} are combined by matching the names of the assays.
       If one input object does not contain a named assay present in other input
       objects, the corresponding assay entries in the returned object will be
-      set to \code{fill}. If all assay names are NULL, matching is done by
-      position. A mixture of named and unnamed assays will throw an error.
+      set to \code{fill}. If all assay names are \code{NULL}, matching is done
+      by position. A mixture of named and unnamed assays will throw an error.
 
       If \code{delayed=TRUE}, assay matrices are wrapped in
       \code{\link{DelayedArray}}s to avoid any extra memory allocation during
@@ -497,8 +543,9 @@ colData(x, ...) <- value
       Data in \code{assays} are combined by matching the names of the assays.
       If one input object does not contain a named assay present in other input
       objects, the corresponding assay entries in the returned object will be
-      set to \code{fill}. If all assay names are NULL, matching is done by
-      position. A mixture of named and unnamed assays will throw an error.
+      set to \code{fill}. If all assay names are \code{NULL}, matching is
+      done by position. A mixture of named and unnamed assays will throw an
+      error.
 
       If \code{delayed=TRUE}, assay matrices are wrapped in
       \code{\link{DelayedArray}}s to avoid any extra memory allocation during
