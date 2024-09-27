@@ -1040,6 +1040,30 @@ setMethod("realize", "SummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### containsOutOfMemoryData() and saveRDS() methods
+###
+
+setMethod("containsOutOfMemoryData", "SummarizedExperiment",
+    function(object)
+        any(vapply(assays(object), containsOutOfMemoryData, logical(1)))
+)
+
+setMethod("saveRDS", "SummarizedExperiment",
+    function(object, file="", ascii=FALSE, version=NULL,
+             compress=TRUE, refhook=NULL)
+    {
+        if (containsOutOfMemoryData(object))
+            stop(wmsg(class(object), " object contains out-of-memory ",
+                      "data so cannot be serialized reliably. Please use ",
+                      "saveHDF5SummarizedExperiment() from the HDF5Array ",
+                      "package instead. Also see '?containsOutOfMemoryData' ",
+                      "in the BiocGenerics package for some context."))
+        invisible(callNextMethod())
+    }
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### updateObject()
 ###
 

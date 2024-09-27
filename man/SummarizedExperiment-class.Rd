@@ -75,8 +75,10 @@
 \alias{combineCols}
 \alias{combineCols,SummarizedExperiment-method}
 
-% On-disk realization
+% Realization/serialization
 \alias{realize,SummarizedExperiment-method}
+\alias{containsOutOfMemoryData,SummarizedExperiment-method}
+\alias{saveRDS,SummarizedExperiment-method}
 
 % updateObject
 \alias{updateObject,SummarizedExperiment-method}
