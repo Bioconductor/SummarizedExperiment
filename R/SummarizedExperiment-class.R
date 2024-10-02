@@ -1040,13 +1040,8 @@ setMethod("realize", "SummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### containsOutOfMemoryData() and saveRDS() methods
+### saveRDS() method
 ###
-
-setMethod("containsOutOfMemoryData", "SummarizedExperiment",
-    function(object)
-        any(vapply(assays(object), containsOutOfMemoryData, logical(1)))
-)
 
 setMethod("saveRDS", "SummarizedExperiment",
     function(object, file="", ascii=FALSE, version=NULL,
@@ -1064,7 +1059,7 @@ setMethod("saveRDS", "SummarizedExperiment",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### updateObject()
+### updateObject() method
 ###
 
 .updateObject_SummarizedExperiment <- function(object, ..., verbose=FALSE)

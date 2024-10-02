@@ -8,7 +8,7 @@ biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
 	GenomeAnnotation
 URL: https://bioconductor.org/packages/SummarizedExperiment
 BugReports: https://github.com/Bioconductor/SummarizedExperiment/issues
-Version: 1.35.2
+Version: 1.35.3
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -20,7 +20,7 @@ Authors@R: c(
 Depends: R (>= 4.0.0), methods, MatrixGenerics (>= 1.1.3),
 	GenomicRanges (>= 1.55.2), Biobase
 Imports: utils, stats, tools, Matrix,
-	BiocGenerics (>= 0.51.2), S4Vectors (>= 0.33.7), IRanges (>= 2.23.9),
+	BiocGenerics (>= 0.51.3), S4Vectors (>= 0.33.7), IRanges (>= 2.23.9),
 	GenomeInfoDb (>= 1.13.1), S4Arrays (>= 1.1.1), DelayedArray (>= 0.31.12)
 Suggests: jsonlite, rhdf5, HDF5Array (>= 1.7.5), annotate, AnnotationDbi,
 	GenomicFeatures, SparseArray, SingleCellExperiment,

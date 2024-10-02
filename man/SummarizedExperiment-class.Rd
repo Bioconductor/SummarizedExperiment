@@ -77,7 +77,6 @@
 
 % Realization/serialization
 \alias{realize,SummarizedExperiment-method}
-\alias{containsOutOfMemoryData,SummarizedExperiment-method}
 \alias{saveRDS,SummarizedExperiment-method}
 
 % updateObject
