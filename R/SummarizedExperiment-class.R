@@ -1048,11 +1048,15 @@ setMethod("saveRDS", "SummarizedExperiment",
              compress=TRUE, refhook=NULL)
     {
         if (containsOutOfMemoryData(object))
-            stop(wmsg(class(object), " object contains out-of-memory ",
+            stop(wmsg("This ", class(object), " object contains out-of-memory ",
                       "data so cannot be serialized reliably. Please use ",
                       "saveHDF5SummarizedExperiment() from the HDF5Array ",
-                      "package instead. Also see '?containsOutOfMemoryData' ",
-                      "in the BiocGenerics package for some context."))
+                      "package instead. Alternatively you can call ",
+                      "base::saveRDS() on it but only if you know what ",
+                      "you are doing."),
+                "\n  ",
+                 wmsg("See '?containsOutOfMemoryData' in the BiocGenerics ",
+                      "package for more information."))
         invisible(callNextMethod())
     }
 )
