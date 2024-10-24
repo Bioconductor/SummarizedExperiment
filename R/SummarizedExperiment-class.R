@@ -264,8 +264,8 @@ setGeneric("assays<-", signature=c("x", "value"),
     ## not the case. This is for symetry with the behavior of the getter.
     ## See https://github.com/Bioconductor/SummarizedExperiment/issues/35
     if (withDimnames && !.assays_have_expected_dimnames(value, dimnames(x)))
-        stop(wmsg("please use 'assay(x, withDimnames=FALSE)) <- value' ",
-                  "or 'assays(x, withDimnames=FALSE)) <- value' when ",
+        stop(wmsg("please use 'assay(x, withDimnames=FALSE) <- value' ",
+                  "or 'assays(x, withDimnames=FALSE) <- value' when ",
                   "the rownames or colnames of the supplied assay(s) ",
                   "are not identical to those of the receiving ",
                   class(x), " object 'x'"))
