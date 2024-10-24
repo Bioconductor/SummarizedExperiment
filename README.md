@@ -6,4 +6,4 @@
 
 See https://bioconductor.org/packages/SummarizedExperiment for more information including how to install the release version of the package (please refrain from installing directly from GitHub).
 
-<sub>_SummarizedExperiment sticker courtesy of [Mike Love](https://github.com/mikelove)_</sub>
+<sub>_SummarizedExperiment sticker courtesy of [Mike Love](https://github.com/mikelove)._</sub>
