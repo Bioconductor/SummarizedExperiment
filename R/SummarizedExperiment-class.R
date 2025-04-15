@@ -20,6 +20,10 @@ setClass("SummarizedExperiment",
     )
 )
 
+
+setClassUnion("ExpData", c("matrix", "SummarizedExperiment"))
+
+
 ### Combine the new "parallel slots" with those of the parent class. Make
 ### sure to put the new parallel slots **first**. See R/Vector-class.R file
 ### in the S4Vectors package for what slots should or should not be considered
