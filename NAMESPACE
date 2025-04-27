@@ -21,7 +21,7 @@ import(DelayedArray)
 exportClasses(
     Assays, SimpleAssays, ShallowData, ShallowSimpleListAssays,
     Assays_OR_NULL,
-    SummarizedExperiment, ExpData,
+    SummarizedExperiment,
     RangedSummarizedExperiment
 )
 
