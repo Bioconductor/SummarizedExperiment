@@ -7,7 +7,7 @@ import(BiocGenerics)
 importFrom(MatrixGenerics, rowRanges)
 import(S4Vectors)
 import(IRanges)
-import(GenomeInfoDb)
+import(Seqinfo)
 import(GenomicRanges)
 import(Biobase)
 import(S4Arrays)
@@ -71,7 +71,7 @@ exportMethods(
     findOverlaps,
     precede, follow, nearest, distance, distanceToNearest,
 
-    ## Generics defined in GenomeInfoDb:
+    ## Generics defined in Seqinfo:
     seqinfo, "seqinfo<-",
     seqnames, "seqnames<-",
 

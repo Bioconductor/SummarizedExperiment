@@ -400,10 +400,10 @@ setMethod("seqinfo", "RangedSummarizedExperiment",
                       class(x), " objects with a rowRanges component that ",
                       "is a GRanges object or a GenomicRanges derivative"))
     } else {
-        dangling_seqlevels <- GenomeInfoDb:::getDanglingSeqlevels(x@rowRanges,
-                                  new2old=new2old,
-                                  pruning.mode=pruning.mode,
-                                  seqlevels(value))
+        dangling_seqlevels <- Seqinfo:::getDanglingSeqlevels(x@rowRanges,
+                                                   new2old=new2old,
+                                                   pruning.mode=pruning.mode,
+                                                   seqlevels(value))
         if (length(dangling_seqlevels) != 0L) {
             idx <- !(seqnames(x@rowRanges) %in% dangling_seqlevels)
             ## 'idx' should be either a logical vector or a list-like
