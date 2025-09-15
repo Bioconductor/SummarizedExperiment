@@ -18,7 +18,7 @@ makeSummarizedExperimentFromDataFrame <-
 
         # Find column names for rowRanges
         granges_cols <-
-            GenomicRanges:::.find_GRanges_cols(names(df), ...)
+            GenomicRanges:::.find_core_GRanges_cols(names(df), ...)
 
         rangedNames <- names(df)[na.omit(granges_cols)]
         idx <- match(rangedNames, names(df))
