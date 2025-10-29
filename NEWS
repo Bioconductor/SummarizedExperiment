@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.40.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Depends on the new Seqinfo package instead of GenomeInfoDb.
+
+
 CHANGES IN VERSION 1.38.0
 -------------------------
 
