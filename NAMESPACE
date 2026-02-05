@@ -61,6 +61,7 @@ exportMethods(
     values, "values<-",
     subset,
     pcompare,
+    combineRows, combineCols,
 
     ## Generics defined in IRanges:
     narrow,
