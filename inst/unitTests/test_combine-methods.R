@@ -97,6 +97,29 @@ test_combineRows_assays <- function() {
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
 }
 
+test_combineRows_not_delayed <- function() {
+    se <- SummarizedExperiment(list(counts=matrix(runif(200), ncol=5)))
+    colnames(se) <- LETTERS[3:7]
+
+    se2 <- SummarizedExperiment(list(counts=matrix(runif(500), ncol=10)))
+    colnames(se2) <- LETTERS[1:10]
+
+    stuff <- combineRows(se, se2, delayed=FALSE)
+    ref <- rbind(
+        cbind(matrix(NA, 40, 2), assay(se), matrix(NA, 40, 3)),
+        assay(se2)
+    )
+    colnames(ref) <- LETTERS[1:10]
+    checkIdentical(as.matrix(assay(stuff))[,LETTERS[1:10]], ref)
+
+    # Still works if the input assays are DelayedArrays.
+    library(DelayedArray)
+    assay(se) <- DelayedArray(assay(se))
+    assay(se2) <- DelayedArray(assay(se2))
+    stuff <- combineRows(se, se2, delayed=FALSE)
+    checkIdentical(as.matrix(assay(stuff))[,LETTERS[1:10]], ref)
+}
+
 test_combineRows_ranges_named <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
@@ -284,6 +307,28 @@ test_combineCols_assays <- function() {
     out <- combineCols(se, se2)
     checkIdentical(colnames(out), letters[c(1:10, 15:24)])
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
+}
+
+test_combineCols_not_delayed <- function() {
+    se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=100)))
+    rownames(se) <- LETTERS[1:10]
+
+    se2 <- SummarizedExperiment(list(counts=matrix(rpois(200, 10), ncol=50)))
+    rownames(se2) <- LETTERS[1:4]
+
+    stuff <- combineCols(se, se2, delayed=FALSE)
+    ref <- cbind(
+        assay(se),
+        rbind(assay(se2), matrix(NA, 6, 50))
+    )
+    checkIdentical(as.matrix(assay(stuff)), ref)
+
+    # Still works if the input assays are DelayedArrays.
+    library(DelayedArray)
+    assay(se) <- DelayedArray(assay(se))
+    assay(se2) <- DelayedArray(assay(se2))
+    stuff <- combineCols(se, se2, delayed=FALSE)
+    checkIdentical(as.matrix(assay(stuff)), ref)
 }
 
 test_combineCols_ranges_named <- function() {

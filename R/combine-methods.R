@@ -152,6 +152,8 @@ create_dummy_matrix <- function(nr, nc, delayed, fill) {
 inflate_matrix_by_column <- function(mat, idx, delayed, fill) {
     if (delayed) {
         mat <- DelayedArray(mat)
+    } else {
+        delayed <- is(mat, "DelayedArray")
     }
     if (!is.null(idx)) {
         absent <- is.na(idx)
@@ -167,6 +169,8 @@ inflate_matrix_by_column <- function(mat, idx, delayed, fill) {
 inflate_matrix_by_row <- function(mat, idx, delayed, fill) {
     if (delayed) {
         mat <- DelayedArray(mat)
+    } else {
+        delayed <- is(mat, "DelayedArray")
     }
     if (!is.null(idx)) {
         absent <- is.na(idx)
