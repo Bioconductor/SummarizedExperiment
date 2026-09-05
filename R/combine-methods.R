@@ -152,14 +152,16 @@ create_dummy_matrix <- function(nr, nc, delayed, fill) {
 inflate_matrix_by_column <- function(mat, idx, delayed, fill) {
     if (delayed) {
         mat <- DelayedArray(mat)
-    } else {
-        delayed <- is(mat, "DelayedArray")
     }
     if (!is.null(idx)) {
         absent <- is.na(idx)
         if (any(absent)) {
-            idx[absent] <- ncol(mat)+1L
-            mat <- cbind(mat, create_dummy_matrix(nrow(mat), 1L, delayed, fill))
+            idx[absent] <- ncol(mat) + 1L
+            placeholder <- create_dummy_matrix(nrow(mat), 1L, delayed, fill)
+            if (!delayed && is(mat, "DelayedArray")) {
+                placeholder <- DelayedArray(placeholder)
+            }
+            mat <- cbind(mat, placeholder)
         }
         mat <- mat[,idx,drop=FALSE]
     }
@@ -169,14 +171,16 @@ inflate_matrix_by_column <- function(mat, idx, delayed, fill) {
 inflate_matrix_by_row <- function(mat, idx, delayed, fill) {
     if (delayed) {
         mat <- DelayedArray(mat)
-    } else {
-        delayed <- is(mat, "DelayedArray")
     }
     if (!is.null(idx)) {
         absent <- is.na(idx)
         if (any(absent)) {
-            idx[absent] <- nrow(mat)+1L
-            mat <- rbind(mat, create_dummy_matrix(1L, ncol(mat), delayed, fill))
+            idx[absent] <- nrow(mat) + 1L
+            placeholder <- create_dummy_matrix(1L, ncol(mat), delayed, fill)
+            if (!delayed && is(mat, "DelayedArray")) {
+                placeholder <- DelayedArray(placeholder)
+            }
+            mat <- rbind(mat, placeholder)
         }
         mat <- mat[idx,,drop=FALSE]
     }
