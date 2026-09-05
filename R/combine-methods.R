@@ -35,7 +35,7 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     args <- list(
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=TRUE),
         colData=com.cd,
-        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE),
+        metadata=unlist(lapply(unname(all.se), metadata), recursive=FALSE),
         checkDimnames=FALSE
     )
 
@@ -156,8 +156,12 @@ inflate_matrix_by_column <- function(mat, idx, delayed, fill) {
     if (!is.null(idx)) {
         absent <- is.na(idx)
         if (any(absent)) {
-            idx[absent] <- ncol(mat)+1L
-            mat <- cbind(mat, create_dummy_matrix(nrow(mat), 1L, delayed, fill))
+            idx[absent] <- ncol(mat) + 1L
+            placeholder <- create_dummy_matrix(nrow(mat), 1L, delayed, fill)
+            if (!delayed && is(mat, "DelayedArray")) {
+                placeholder <- DelayedArray(placeholder)
+            }
+            mat <- cbind(mat, placeholder)
         }
         mat <- mat[,idx,drop=FALSE]
     }
@@ -171,8 +175,12 @@ inflate_matrix_by_row <- function(mat, idx, delayed, fill) {
     if (!is.null(idx)) {
         absent <- is.na(idx)
         if (any(absent)) {
-            idx[absent] <- nrow(mat)+1L
-            mat <- rbind(mat, create_dummy_matrix(1L, ncol(mat), delayed, fill))
+            idx[absent] <- nrow(mat) + 1L
+            placeholder <- create_dummy_matrix(1L, ncol(mat), delayed, fill)
+            if (!delayed && is(mat, "DelayedArray")) {
+                placeholder <- DelayedArray(placeholder)
+            }
+            mat <- rbind(mat, placeholder)
         }
         mat <- mat[idx,,drop=FALSE]
     }
@@ -241,7 +249,7 @@ setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     args <- list(
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=FALSE),
         colData=com.cd,
-        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE),
+        metadata=unlist(lapply(unname(all.se), metadata), recursive=FALSE),
         checkDimnames=FALSE
     )
 
