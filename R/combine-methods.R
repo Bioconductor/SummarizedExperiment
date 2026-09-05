@@ -35,7 +35,7 @@ setMethod("combineRows", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     args <- list(
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=TRUE),
         colData=com.cd,
-        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE),
+        metadata=unlist(lapply(unname(all.se), metadata), recursive=FALSE),
         checkDimnames=FALSE
     )
 
@@ -245,7 +245,7 @@ setMethod("combineCols", "SummarizedExperiment", function(x, ..., delayed=TRUE, 
     args <- list(
         assays=combine_assays_by(all.se, mappings, delayed=delayed, fill=fill, by.row=FALSE),
         colData=com.cd,
-        metadata=unlist(lapply(all.se, metadata), recursive=FALSE, use.names=FALSE),
+        metadata=unlist(lapply(unname(all.se), metadata), recursive=FALSE),
         checkDimnames=FALSE
     )
 

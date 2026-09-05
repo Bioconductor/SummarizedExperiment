@@ -2,11 +2,13 @@ test_combineRows_unnamed <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     colData(se)$A <- 1
     rowData(se)$A <- 1
+    metadata(se)$foo <- 0.1
 
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10), 
         normalized=matrix(rnorm(1000), ncol=10)))
     colData(se2)$B <- 2
     rowData(se2)$B <- "B"
+    metadata(se)$bar <- 0.2
 
     stuff <- combineRows(se, se2, use.names=FALSE)
 
@@ -21,6 +23,9 @@ test_combineRows_unnamed <- function() {
     # Assay data is correctly combined.
     checkIdentical(as.matrix(assay(stuff)), rbind(assay(se), assay(se2)))
     checkIdentical(as.matrix(assay(stuff, 2)), rbind(matrix(NA, nrow(se), ncol(se)), assay(se2, 2)))
+
+    # Metadata is correctly combined.
+    checkIdentical(metadata(stuff), list(foo=0.1, bar=0.2))
 
     # Unary methods work as expected.
     checkIdentical(se, combineRows(se, delayed=FALSE, use.names=FALSE))
@@ -212,12 +217,14 @@ test_combineCols_unnamed <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     colData(se)$A <- 1L
     rowData(se)$A <- 1
+    metadata(se)$foo <- 0.1
 
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10), 
         normalized=matrix(rnorm(1000), ncol=10)))
     colData(se2)$A <- 2L
     colData(se2)$B <- 3
     rowData(se2)$B <- "B"
+    metadata(se2)$bar <- 0.2
 
     stuff <- combineCols(se, se2, use.names=FALSE)
 
@@ -232,6 +239,9 @@ test_combineCols_unnamed <- function() {
     # Assay data is correctly combined.
     checkIdentical(as.matrix(assay(stuff)), cbind(assay(se), assay(se2)))
     checkIdentical(as.matrix(assay(stuff, 2)), cbind(matrix(NA, nrow(se), ncol(se)), assay(se2, 2)))
+
+    # Metadata is correctly combined.
+    checkIdentical(metadata(stuff), list(foo=0.1, bar=0.2))
 
     # Unary methods work as expected.
     checkIdentical(se, combineCols(se, delayed=FALSE, use.names=FALSE))
