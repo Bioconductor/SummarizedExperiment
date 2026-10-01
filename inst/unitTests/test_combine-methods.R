@@ -2,11 +2,13 @@ test_combineRows_unnamed <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     colData(se)$A <- 1
     rowData(se)$A <- 1
+    metadata(se)$foo <- 0.1
 
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10), 
         normalized=matrix(rnorm(1000), ncol=10)))
     colData(se2)$B <- 2
     rowData(se2)$B <- "B"
+    metadata(se)$bar <- 0.2
 
     stuff <- combineRows(se, se2, use.names=FALSE)
 
@@ -21,6 +23,9 @@ test_combineRows_unnamed <- function() {
     # Assay data is correctly combined.
     checkIdentical(as.matrix(assay(stuff)), rbind(assay(se), assay(se2)))
     checkIdentical(as.matrix(assay(stuff, 2)), rbind(matrix(NA, nrow(se), ncol(se)), assay(se2, 2)))
+
+    # Metadata is correctly combined.
+    checkIdentical(metadata(stuff), list(foo=0.1, bar=0.2))
 
     # Unary methods work as expected.
     checkIdentical(se, combineRows(se, delayed=FALSE, use.names=FALSE))
@@ -95,6 +100,29 @@ test_combineRows_assays <- function() {
     out <- combineRows(se, se2)
     checkIdentical(colnames(out), letters[c(1:10, 15:24)])
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
+}
+
+test_combineRows_not_delayed <- function() {
+    se <- SummarizedExperiment(list(counts=matrix(runif(200), ncol=5)))
+    colnames(se) <- LETTERS[3:7]
+
+    se2 <- SummarizedExperiment(list(counts=matrix(runif(500), ncol=10)))
+    colnames(se2) <- LETTERS[1:10]
+
+    stuff <- combineRows(se, se2, delayed=FALSE)
+    ref <- rbind(
+        cbind(matrix(NA, 40, 2), assay(se), matrix(NA, 40, 3)),
+        assay(se2)
+    )
+    colnames(ref) <- LETTERS[1:10]
+    checkIdentical(as.matrix(assay(stuff))[,LETTERS[1:10]], ref)
+
+    # Still works if the input assays are DelayedArrays.
+    library(DelayedArray)
+    assay(se) <- DelayedArray(assay(se))
+    assay(se2) <- DelayedArray(assay(se2))
+    stuff <- combineRows(se, se2, delayed=FALSE)
+    checkIdentical(as.matrix(assay(stuff))[,LETTERS[1:10]], ref)
 }
 
 test_combineRows_ranges_named <- function() {
@@ -189,12 +217,14 @@ test_combineCols_unnamed <- function() {
     se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10)))
     colData(se)$A <- 1L
     rowData(se)$A <- 1
+    metadata(se)$foo <- 0.1
 
     se2 <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=10), 
         normalized=matrix(rnorm(1000), ncol=10)))
     colData(se2)$A <- 2L
     colData(se2)$B <- 3
     rowData(se2)$B <- "B"
+    metadata(se2)$bar <- 0.2
 
     stuff <- combineCols(se, se2, use.names=FALSE)
 
@@ -209,6 +239,9 @@ test_combineCols_unnamed <- function() {
     # Assay data is correctly combined.
     checkIdentical(as.matrix(assay(stuff)), cbind(assay(se), assay(se2)))
     checkIdentical(as.matrix(assay(stuff, 2)), cbind(matrix(NA, nrow(se), ncol(se)), assay(se2, 2)))
+
+    # Metadata is correctly combined.
+    checkIdentical(metadata(stuff), list(foo=0.1, bar=0.2))
 
     # Unary methods work as expected.
     checkIdentical(se, combineCols(se, delayed=FALSE, use.names=FALSE))
@@ -284,6 +317,28 @@ test_combineCols_assays <- function() {
     out <- combineCols(se, se2)
     checkIdentical(colnames(out), letters[c(1:10, 15:24)])
     checkIdentical(rownames(out), c(rownames(se), rownames(se2)))
+}
+
+test_combineCols_not_delayed <- function() {
+    se <- SummarizedExperiment(list(counts=matrix(rpois(1000, 10), ncol=100)))
+    rownames(se) <- LETTERS[1:10]
+
+    se2 <- SummarizedExperiment(list(counts=matrix(rpois(200, 10), ncol=50)))
+    rownames(se2) <- LETTERS[1:4]
+
+    stuff <- combineCols(se, se2, delayed=FALSE)
+    ref <- cbind(
+        assay(se),
+        rbind(assay(se2), matrix(NA, 6, 50))
+    )
+    checkIdentical(as.matrix(assay(stuff)), ref)
+
+    # Still works if the input assays are DelayedArrays.
+    library(DelayedArray)
+    assay(se) <- DelayedArray(assay(se))
+    assay(se2) <- DelayedArray(assay(se2))
+    stuff <- combineCols(se, se2, delayed=FALSE)
+    checkIdentical(as.matrix(assay(stuff)), ref)
 }
 
 test_combineCols_ranges_named <- function() {
