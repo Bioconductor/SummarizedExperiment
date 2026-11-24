@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.44.0
+-------------------------
+
+NEW FEATURES
+
+    o Preserve names of combined metadata in combineRows/Cols (#98).
+      Contributed by Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>
+
+
 CHANGES IN VERSION 1.42.0
 -------------------------
 
