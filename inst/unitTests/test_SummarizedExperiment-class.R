@@ -273,6 +273,23 @@ test_SummarizedExperiment_setters <- function()
     checkIdentical(se0, se)
 }
 
+test_SummarizedExperiment_assay_setters_preserve_assay_dimnames <- function()
+{
+    for (foo in list(matrix(runif(200), ncol=10),
+                    DelayedArray::DelayedArray(matrix(runif(200), ncol=10)))) {
+        se <- SummarizedExperiment(list(foo=foo))
+        rownames(se) <- letters[1:20]
+        colnames(se) <- LETTERS[1:10]
+        another <- matrix(runif(200), ncol=10, dimnames=dimnames(se))
+
+        assay(se, "bar") <- another
+        checkIdentical(NULL, dimnames(assay(se, "foo", withDimnames=FALSE)))
+
+        assay(se, "bar") <- NULL
+        checkIdentical(NULL, dimnames(assay(se, "foo", withDimnames=FALSE)))
+    }
+}
+
 test_SummarizedExperiment_subset <- function()
 {
     for (i in seq_along(se0List)) {

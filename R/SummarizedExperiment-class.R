@@ -333,6 +333,24 @@ setMethod("assay", c("SummarizedExperiment", "character"),
     res
 })
 
+.SummarizedExperiment.assay.replace <-
+    function(x, i, withDimnames=TRUE, ..., value)
+{
+    if (!isTRUEorFALSE(withDimnames))
+        stop(wmsg("'withDimnames' must be TRUE or FALSE"))
+    if (withDimnames && !is.null(value) &&
+        !.assays_have_expected_dimnames(list(value), dimnames(x)))
+        stop(wmsg("please use 'assay(x, withDimnames=FALSE) <- value' ",
+                  "or 'assays(x, withDimnames=FALSE) <- value' when ",
+                  "the rownames or colnames of the supplied assay ",
+                  "are not identical to those of the receiving ",
+                  class(x), " object 'x'"))
+    assays <- assays(x, withDimnames=FALSE, ...)
+    assays[[i]] <- value
+    assays(x, withDimnames=FALSE, ...) <- assays
+    x
+}
+
 setGeneric("assay<-", signature=c("x", "i"),
     function(x, i, withDimnames=TRUE, ..., value) standardGeneric("assay<-"))
 
@@ -342,22 +360,19 @@ setReplaceMethod("assay", c("SummarizedExperiment", "missing"),
     if (0L == length(assays(x, withDimnames=FALSE)))
         stop("'assay(<", class(x), ">) <- value' ", "length(assays(<",
              class(x), ">)) is 0")
-    assays(x, withDimnames=withDimnames, ...)[[1]] <- value
-    x
+    .SummarizedExperiment.assay.replace(x, 1L, withDimnames, ..., value=value)
 })
 
 setReplaceMethod("assay", c("SummarizedExperiment", "numeric"),
     function(x, i, withDimnames=TRUE, ..., value)
 {
-    assays(x, withDimnames=withDimnames, ...)[[i]] <- value
-    x
+    .SummarizedExperiment.assay.replace(x, i, withDimnames, ..., value=value)
 })
 
 setReplaceMethod("assay", c("SummarizedExperiment", "character"),
     function(x, i, withDimnames=TRUE, ..., value)
 {
-    assays(x, withDimnames=withDimnames, ...)[[i]] <- value
-    x
+    .SummarizedExperiment.assay.replace(x, i, withDimnames, ..., value=value)
 })
 
 setGeneric("assayNames", function(x, ...) standardGeneric("assayNames"))
