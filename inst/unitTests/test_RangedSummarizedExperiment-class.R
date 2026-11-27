@@ -239,6 +239,26 @@ test_RangedSummarizedExperiment_cbind <- function()
     rownames(se2) <- month.name[seq_len(nrow(se2))]
     checkException(quiet(cbind(se1, se2)), silent=TRUE)
 
+    ## different GRangesList partitioning with identical unlisted ranges
+    gr <- GRanges("chr1", IRanges(c(1, 10, 20), width=5))
+    grl1 <- split(gr, c(1, 1, 2))
+    grl2 <- split(gr, c(1, 2, 2))
+    rse1 <- SummarizedExperiment(list(m=matrix(1:4, nrow=2)), rowRanges=grl1)
+    rse2 <- SummarizedExperiment(list(m=matrix(5:8, nrow=2)), rowRanges=grl2)
+    checkException(cbind(rse1, rse2), silent=TRUE)
+
+    ## mixed GRanges and GRangesList rowRanges
+    rse_gr <- SummarizedExperiment(list(m=matrix(1:4, nrow=2)), rowRanges=gr[1:2])
+    rse_grl <- SummarizedExperiment(list(m=matrix(5:8, nrow=2)), rowRanges=split(gr[1:2], 1:2))
+    checkException(cbind(rse_grl, rse_gr), silent=TRUE)
+    checkException(cbind(rse_gr, rse_grl), silent=TRUE)
+
+    ## matching GRangesList rowRanges
+    rse3 <- SummarizedExperiment(list(m=matrix(5:8, nrow=2)), rowRanges=grl1)
+    res_grl <- cbind(rse1, rse3)
+    checkIdentical(dim(res_grl), c(2L, 4L))
+    checkIdentical(rowRanges(res_grl), grl1)
+
     ## same ranges 
     se1 <- rseList[[1]]
     se2 <- se1[,1:2]
