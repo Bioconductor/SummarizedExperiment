@@ -919,12 +919,10 @@ setMethod("cbind", "SummarizedExperiment",
 {
     x1 <- x[[1]]
     if (GenomicRanges) {
-        if (is(x1, "GRangesList")) {
-            x <- lapply(x, unlist)
-            x1 <- x[[1]]
-        }
+        x1_is_grl <- is(x1, "GRangesList")
         for (i in seq_along(x)[-1]) {
-            if (!identicalVals(x1, x[[i]]))
+            if (is(x[[i]], "GRangesList") != x1_is_grl ||
+                !identicalVals(x1, x[[i]]))
                 return(FALSE)
         }
         return(TRUE)
@@ -1013,6 +1011,15 @@ setMethod("identicalVals", c("GenomicRanges", "GenomicRanges"),
         identicalVals(seqnames(x), seqnames(y)) &&
             identicalVals(ranges(x), ranges(y)) &&
             identicalVals(strand(x), strand(y))
+    }
+)
+
+setMethod("identicalVals", c("GRangesList", "GRangesList"),
+    function(x, y)
+    {
+        identical(unname(elementNROWS(x)), unname(elementNROWS(y))) &&
+            identicalVals(unlist(x, use.names=FALSE),
+                          unlist(y, use.names=FALSE))
     }
 )
 
